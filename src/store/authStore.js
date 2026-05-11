@@ -1,19 +1,28 @@
 import { create } from 'zustand'
 
+const storedUser = () => {
+  try { return JSON.parse(localStorage.getItem('user')) } catch { return null }
+}
+
 const useAuthStore = create((set) => ({
-  user: null,
+  user: storedUser(),
   token: localStorage.getItem('token') || null,
   isAuthenticated: !!localStorage.getItem('token'),
 
   setAuth: (user, token) => {
     localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
     set({ user, token, isAuthenticated: true })
   },
 
-  setUser: (user) => set({ user }),
+  setUser: (user) => {
+    localStorage.setItem('user', JSON.stringify(user))
+    set({ user })
+  },
 
   logout: () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
     set({ user: null, token: null, isAuthenticated: false })
   },
 }))

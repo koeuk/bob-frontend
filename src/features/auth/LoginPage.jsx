@@ -10,8 +10,6 @@ import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
 
-const ADMIN_ROLES = ['moderator', 'admin', 'super_admin']
-
 const schema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(1, 'Password is required'),
@@ -34,7 +32,7 @@ export default function LoginPage() {
     },
     onSuccess: ({ user, token }) => {
       setAuth(user, token)
-      navigate(ADMIN_ROLES.includes(user.role) ? '/admin/dashboard' : '/feed', { replace: true })
+      navigate('/feed', { replace: true })
     },
   })
 
