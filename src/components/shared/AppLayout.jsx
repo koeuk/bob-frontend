@@ -45,13 +45,14 @@ function SlidingPillNav({ items }) {
     >
       {pill.ready && (
         <div
-          className="absolute top-1 bottom-1 rounded-full"
+          className="absolute top-1 bottom-1 left-0 rounded-full"
           style={{
-            left: pill.left,
             width: pill.width,
+            transform: `translateX(${pill.left}px)`,
             background: 'white',
             boxShadow: '0 2px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06)',
-            transition: 'left 0.32s cubic-bezier(0.34,1.2,0.64,1), width 0.32s cubic-bezier(0.34,1.2,0.64,1)',
+            transition: 'transform 0.3s cubic-bezier(0.34,1.2,0.64,1), width 0.3s cubic-bezier(0.34,1.2,0.64,1)',
+            willChange: 'transform',
           }}
         />
       )}
