@@ -114,6 +114,7 @@ export default function PostCard({ post, queryKey }) {
   const [reportOpen, setReportOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(null)
   const hoverTimer = useRef(null)
@@ -305,10 +306,7 @@ export default function PostCard({ post, queryKey }) {
           </Link>
 
           <button
-            onClick={() => {
-              navigator.clipboard?.writeText(window.location.origin + `/posts/${post.uuid}`)
-              toast.success('Link copied!')
-            }}
+            onClick={() => setShareOpen(true)}
             className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 hover:scale-[1.02]"
           >
             <Share2 className="h-5 w-5" />
@@ -319,6 +317,7 @@ export default function PostCard({ post, queryKey }) {
 
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} type="post" id={post.uuid} />
       <EditPostModal open={editOpen} onClose={() => setEditOpen(false)} post={post} queryKey={queryKey} />
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} post={post} feedQueryKey={queryKey} />
       {lightboxIndex !== null && (
         <ImageLightbox
           images={post.images ?? (post.image ? [post.image] : [])}

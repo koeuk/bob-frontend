@@ -95,7 +95,6 @@ function IconBtn({ icon: Icon, title, onClick }) {
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -119,8 +118,8 @@ export default function AppLayout() {
       >
         <div className="w-full px-6 h-[62px] flex items-center">
 
-          {/* ── Left: Logo + Search (fixed width = mirrors right) ── */}
-          <div className="flex items-center gap-2.5 shrink-0" style={{ width: 240 }}>
+          {/* ── Left: Logo ── */}
+          <div className="flex items-center shrink-0" style={{ width: 240 }}>
             <Link
               to="/feed"
               className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90"
@@ -131,28 +130,6 @@ export default function AppLayout() {
             >
               b
             </Link>
-
-            <div className="relative" style={{ width: 172 }}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search Bob"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-full pl-9 pr-4 py-[7px] text-[13px] outline-none placeholder:text-gray-400 transition-all duration-200"
-                style={{ background: 'rgba(0,0,0,0.06)', border: '1.5px solid transparent' }}
-                onFocus={e => {
-                  e.target.style.background = 'white'
-                  e.target.style.border = '1.5px solid rgba(24,119,242,0.3)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.09)'
-                }}
-                onBlur={e => {
-                  e.target.style.background = 'rgba(0,0,0,0.06)'
-                  e.target.style.border = '1.5px solid transparent'
-                  e.target.style.boxShadow = 'none'
-                }}
-              />
-            </div>
           </div>
 
           {/* ── Center: Sliding pill nav (fills remaining space, centered) ── */}
