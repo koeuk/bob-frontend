@@ -106,16 +106,16 @@ export default function AppLayout() {
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg,#f0f2ff 0%,#f5f6fb 45%,#edf0f8 100%)' }}>
 
       {/* ── Row 1: Main navbar — logo + nav pills only ── */}
-      <header
-        className="sticky top-0 z-40 w-full"
-        style={{
-          background: 'rgba(255,255,255,0.90)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
-        }}
-      >
-        <div className="relative max-w-[860px] mx-auto px-4 h-[58px] flex items-center justify-center">
+      <header className="sticky top-0 z-40 w-full pt-3">
+        <div
+          className="relative max-w-[860px] mx-auto px-4 h-[58px] flex items-center justify-center rounded-2xl"
+          style={{
+            background: 'rgba(255,255,255,0.92)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.08), 0 1px 0 rgba(0,0,0,0.04)',
+          }}
+        >
 
           {/* Logo — absolute left */}
           <Link
@@ -195,17 +195,16 @@ export default function AppLayout() {
       </header>
 
       {/* ── Row 2: Sub-bar — search only ── */}
-      <div
-        className="sticky z-30 w-full border-b border-white/50"
-        style={{
-          top: 58,
-          background: 'rgba(255,255,255,0.80)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-        }}
-      >
-        <div className="max-w-[860px] mx-auto px-4 h-[46px] flex items-center">
+      <div className="sticky z-30 w-full" style={{ top: 58 }}>
+        <div
+          className="max-w-[860px] mx-auto px-4 h-[46px] flex items-center rounded-2xl"
+          style={{
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+          }}
+        >
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             <input
