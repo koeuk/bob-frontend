@@ -75,19 +75,19 @@ function PostImages({ images, onImageClick }) {
 
   if (count === 1) {
     return (
-      <div className="mt-1 overflow-hidden">
+      <div className="mt-1 px-3 overflow-hidden">
         <img
           src={assetUrl(show[0])}
           alt=""
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onImageClick(0) }}
-          className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-90 transition-opacity duration-150"
+          className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-90 transition-opacity duration-150 rounded-xl"
         />
       </div>
     )
   }
 
   return (
-    <div className={`mt-1 grid gap-0.5 ${count === 2 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+    <div className={`mt-1 px-3 grid gap-0.5 ${count === 2 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
       {show.map((src, i) => (
         <div
           key={i}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { getFeed } from '../../api/posts'
@@ -8,15 +8,15 @@ import CreatePostModal from '../../components/shared/CreatePostModal'
 import { Button } from '../../components/ui/button'
 import { Loader2, ImageIcon, Smile } from 'lucide-react'
 
-const queryKey = ['feed']
-
 export default function FeedPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const { user, isAuthenticated } = useAuthStore()
+  const seed = useRef(Math.floor(Math.random() * 999999) + 1).current
+  const queryKey = ['feed', seed]
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey,
-    queryFn: ({ pageParam = 1 }) => getFeed(pageParam).then((r) => r.data),
+    queryFn: ({ pageParam = 1 }) => getFeed(pageParam, seed).then((r) => r.data),
     getNextPageParam: (last) => last.current_page < last.last_page ? last.current_page + 1 : undefined,
     retry: false,
   })

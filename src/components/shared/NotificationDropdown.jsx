@@ -30,7 +30,9 @@ function notifText(data) {
 
 export default function NotificationDropdown() {
   const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+  const [pos, setPos] = useState({ top: 0, right: 0 })
+  const btnRef = useRef(null)
+  const panelRef = useRef(null)
   const queryClient = useQueryClient()
   const queryKey = ['notifications']
 
@@ -51,9 +53,24 @@ export default function NotificationDropdown() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   })
 
-  // Close on outside click
+  const handleOpen = () => {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      setPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      })
+    }
+    setOpen(v => !v)
+  }
+
   useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    const handler = (e) => {
+      if (
+        panelRef.current && !panelRef.current.contains(e.target) &&
+        btnRef.current && !btnRef.current.contains(e.target)
+      ) setOpen(false)
+    }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
@@ -67,11 +84,12 @@ export default function NotificationDropdown() {
   }
 
   return (
-    <div className="relative" ref={ref}>
+    <>
       {/* Bell button */}
       <button
+        ref={btnRef}
         title="Notifications"
-        onClick={() => setOpen(v => !v)}
+        onClick={handleOpen}
         className="cursor-pointer relative h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-105 shrink-0"
       >
         <Bell className="h-5 w-5 text-gray-700" />
@@ -85,11 +103,18 @@ export default function NotificationDropdown() {
         )}
       </button>
 
-      {/* Dropdown panel */}
+      {/* Dropdown panel — fixed to escape overflow:hidden */}
       {open && (
         <div
-          className="scale-in absolute right-0 top-[calc(100%+8px)] w-[360px] rounded-2xl overflow-hidden z-50"
-          style={{ boxShadow: '0 12px 40px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', background: 'white' }}
+          ref={panelRef}
+          className="scale-in fixed w-[360px] rounded-2xl overflow-hidden z-[9999]"
+          style={{
+            top: pos.top,
+            right: pos.right,
+            boxShadow: '0 12px 40px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(0,0,0,0.06)',
+            background: 'white',
+          }}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
@@ -142,6 +167,6 @@ export default function NotificationDropdown() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
