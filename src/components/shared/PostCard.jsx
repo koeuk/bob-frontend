@@ -116,7 +116,12 @@ export default function PostCard({ post, queryKey }) {
           <div className="flex items-center gap-2">
             <UserAvatar name={post.user?.name} />
             <div>
-              <p className="font-semibold text-[15px] leading-tight">{post.user?.name}</p>
+              <p className="font-semibold text-[15px] leading-tight">
+                {post.user?.name}
+                {post.feeling && (
+                  <span className="font-normal text-gray-500"> — feeling {post.feeling}</span>
+                )}
+              </p>
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <span>{formatDistanceToNow(post.created_at)}</span>
                 <span>·</span>
@@ -146,10 +151,24 @@ export default function PostCard({ post, queryKey }) {
         </div>
 
         {/* Body */}
-        <Link to={`/posts/${post.uuid}`}>
-          <p className="px-4 pb-3 text-[15px] leading-5 whitespace-pre-wrap hover:opacity-80 transition-opacity">
-            {post.body}
-          </p>
+        <Link to={`/posts/${post.uuid}`} className="block hover:opacity-90 transition-opacity">
+          {post.feeling && (
+            <p className="px-4 pt-1 text-[15px] text-gray-500">
+              is feeling <span className="font-medium text-gray-700">{post.feeling}</span>
+            </p>
+          )}
+          {post.body && (
+            <p className="px-4 py-2 text-[15px] leading-5 whitespace-pre-wrap">
+              {post.body}
+            </p>
+          )}
+          {post.image && (
+            <img
+              src={post.image}
+              alt="Post"
+              className="w-full max-h-[500px] object-cover mt-1"
+            />
+          )}
         </Link>
 
         {/* Engagement stats */}
