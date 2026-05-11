@@ -279,14 +279,20 @@ export default function PostCard({ post, queryKey }) {
         {/* Header */}
         <div className="flex items-start justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-3">
-            <UserAvatar name={post.user?.name} avatar={post.user?.avatar} active={isOwner} />
+            <Link to={`/users/${post.user?.uuid}`} onClick={(e) => e.stopPropagation()}>
+              <UserAvatar name={post.user?.name} avatar={post.user?.avatar} active={isOwner} />
+            </Link>
             <div>
-              <p className="font-semibold text-[15px] leading-tight text-gray-900 dark:text-gray-100">
+              <Link
+                to={`/users/${post.user?.uuid}`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-semibold text-[15px] leading-tight text-gray-900 dark:text-gray-100 hover:underline"
+              >
                 {post.user?.name}
-                {post.feeling && (
-                  <span className="font-normal text-gray-500"> — feeling {post.feeling}</span>
-                )}
-              </p>
+              </Link>
+              {post.feeling && (
+                <span className="font-normal text-[15px] text-gray-500"> — feeling {post.feeling}</span>
+              )}
               <div className="flex items-center gap-1.5 text-[12px] text-gray-400 mt-0.5">
                 <span>{formatDistanceToNow(post.created_at)}</span>
                 <span className="text-gray-300">·</span>
