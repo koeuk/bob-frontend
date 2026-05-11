@@ -26,9 +26,7 @@ export default function LoginPage() {
   const mutation = useMutation({
     mutationFn: async (data) => {
       const res = await login(data)
-      const token = res.data.token
-      const meRes = await getMe()
-      return { user: meRes.data, token }
+      return { user: res.data.user, token: res.data.token }
     },
     onSuccess: ({ user, token }) => {
       setAuth(user, token)

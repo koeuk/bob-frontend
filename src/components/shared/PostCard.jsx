@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { MoreHorizontal, Trash2, Flag, MessageCircle, ThumbsUp, Globe } from 'lucide-react'
@@ -10,11 +10,46 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from 'sonner'
 import { formatDistanceToNow } from '../../lib/utils'
 
-function UserAvatar({ name, size = 'md' }) {
+export function UserAvatar({ name, size = 'md' }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
   return (
     <div className={`${sz} rounded-full bg-[#1877F2] flex items-center justify-center text-white font-semibold shrink-0`}>
       {name?.[0]?.toUpperCase() ?? '?'}
+    </div>
+  )
+}
+
+const REACTIONS = [
+  { type: 'like',  emoji: '👍', label: 'Like',  color: '#1877F2' },
+  { type: 'love',  emoji: '❤️', label: 'Love',  color: '#F33E58' },
+  { type: 'haha',  emoji: '😂', label: 'Haha',  color: '#F7B125' },
+  { type: 'wow',   emoji: '😮', label: 'Wow',   color: '#F7B125' },
+  { type: 'sad',   emoji: '😢', label: 'Sad',   color: '#F7B125' },
+  { type: 'angry', emoji: '😡', label: 'Angry', color: '#E9710F' },
+]
+
+function ReactionPicker({ onReact }) {
+  const [hovered, setHovered] = useState(null)
+  return (
+    <div className="absolute bottom-full left-0 mb-2 flex items-end gap-1 bg-white rounded-full shadow-xl border border-gray-200 px-3 py-2 z-20">
+      {REACTIONS.map((r) => (
+        <button
+          key={r.type}
+          title={r.label}
+          onMouseEnter={() => setHovered(r.type)}
+          onMouseLeave={() => setHovered(null)}
+          onClick={() => onReact(r.type)}
+          className="flex flex-col items-center transition-all duration-150"
+          style={{ transform: hovered === r.type ? 'scale(1.4) translateY(-6px)' : 'scale(1)' }}
+        >
+          <span className="text-2xl leading-none">{r.emoji}</span>
+          {hovered === r.type && (
+            <span className="text-[10px] font-semibold mt-1 bg-gray-800 text-white rounded px-1.5 py-0.5 absolute -top-7 whitespace-nowrap">
+              {r.label}
+            </span>
+          )}
+        </button>
+      ))}
     </div>
   )
 }
@@ -25,6 +60,8 @@ export default function PostCard({ post, queryKey }) {
   const queryClient = useQueryClient()
   const [reportOpen, setReportOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const hoverTimer = useRef(null)
   const isOwner = user?.uuid === post.user?.uuid
 
   const requireAuth = () => {
@@ -43,7 +80,24 @@ export default function PostCard({ post, queryKey }) {
 
   const handleLike = () => {
     if (!isAuthenticated) return requireAuth()
+    setPickerOpen(false)
     likeMutation.mutate(post.liked_by_me ? null : 'like')
+  }
+
+  const handleReact = (type) => {
+    if (!isAuthenticated) return requireAuth()
+    setPickerOpen(false)
+    likeMutation.mutate(type)
+  }
+
+  const openPicker = () => {
+    if (!isAuthenticated) return
+    hoverTimer.current = setTimeout(() => setPickerOpen(true), 500)
+  }
+
+  const closePicker = () => {
+    clearTimeout(hoverTimer.current)
+    setPickerOpen(false)
   }
 
   return (
@@ -114,15 +168,24 @@ export default function PostCard({ post, queryKey }) {
 
         {/* Action buttons */}
         <div className="flex mx-2 pb-1 pt-1 gap-1">
-          <button
-            onClick={handleLike}
-            className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[15px] font-semibold transition-colors hover:bg-gray-100 ${
-              post.liked_by_me ? 'text-[#1877F2]' : 'text-gray-600'
-            }`}
+          {/* Like with reaction picker */}
+          <div
+            className="flex-1 relative"
+            onMouseEnter={openPicker}
+            onMouseLeave={closePicker}
           >
-            <ThumbsUp className={`h-5 w-5 ${post.liked_by_me ? 'fill-[#1877F2] text-[#1877F2]' : ''}`} />
-            Like
-          </button>
+            {pickerOpen && <ReactionPicker onReact={handleReact} />}
+            <button
+              onClick={handleLike}
+              className={`w-full flex items-center justify-center gap-2 py-1.5 rounded-lg text-[15px] font-semibold transition-colors hover:bg-gray-100 ${
+                post.liked_by_me ? 'text-[#1877F2]' : 'text-gray-600'
+              }`}
+            >
+              <ThumbsUp className={`h-5 w-5 ${post.liked_by_me ? 'fill-[#1877F2] text-[#1877F2]' : ''}`} />
+              Like
+            </button>
+          </div>
+
           <Link
             to={`/posts/${post.uuid}`}
             className="flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[15px] font-semibold text-gray-600 transition-colors hover:bg-gray-100"
