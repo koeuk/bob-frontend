@@ -127,7 +127,16 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
   const sendMutation = useMutation({
     mutationFn: () => sendFriendRequest(authorUuid),
     onSuccess: (res) => { setLocalStatus({ status: 'pending_sent', request_id: res.data.id }); invalidate() },
-    onError: () => toast.error('Could not send friend request'),
+    onError: (err) => {
+      const data = err.response?.data
+      if (err.response?.status === 422 && data?.status) {
+        if (data.status === 'pending') setLocalStatus({ status: 'pending_sent', request_id: data.id })
+        else if (data.status === 'accepted') setLocalStatus({ status: 'friends' })
+        invalidate()
+      } else {
+        toast.error('Could not send friend request')
+      }
+    },
   })
 
   const cancelMutation = useMutation({
@@ -312,10 +321,8 @@ export default function PostCard({ post, queryKey }) {
               />
             )}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 hover:scale-105">
-                <MoreHorizontal className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-              </button>
+            <DropdownMenuTrigger className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 hover:scale-105 bg-transparent border-0 p-0 focus:outline-none">
+              <MoreHorizontal className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-gray-100">
               {isOwner && (

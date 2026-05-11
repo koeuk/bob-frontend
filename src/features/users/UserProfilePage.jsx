@@ -16,6 +16,7 @@ function FriendButton({ friendship, profileUuid, queryKey }) {
   const sendMut = useMutation({
     mutationFn: () => sendFriendRequest(profileUuid),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onError: () => queryClient.invalidateQueries({ queryKey }),
   })
   const cancelMut = useMutation({
     mutationFn: () => cancelFriendRequest(friendship?.id),
