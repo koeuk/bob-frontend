@@ -1,19 +1,15 @@
-import { Button, Cell, NavBar } from 'react-vant'
+import { RouterProvider } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import router from './routes'
 
-function App() {
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+})
+
+export default function App() {
   return (
-    <div>
-      <NavBar title="Bob Frontend" />
-      <Cell.Group>
-        <Cell title="react-vant is ready" value="✓" />
-      </Cell.Group>
-      <div style={{ padding: 16 }}>
-        <Button type="primary" block>
-          Get Started
-        </Button>
-      </div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   )
 }
-
-export default App
