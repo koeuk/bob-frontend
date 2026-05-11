@@ -1,10 +1,11 @@
+import { useState } from 'react'
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, ChevronDown } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, Bell, MessageCircle } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 
 const publicNavItems = [
@@ -17,9 +18,27 @@ const privateNavItems = [
   { to: '/reports', label: 'Reports', icon: Flag },
 ]
 
+function IconBtn({ icon: Icon, badge, title, onClick }) {
+  return (
+    <button
+      title={title}
+      onClick={onClick}
+      className="cursor-pointer relative h-10 w-10 rounded-full bg-[#E4E6EB] hover:bg-[#D8DADF] flex items-center justify-center transition-colors shrink-0"
+    >
+      <Icon className="h-5 w-5 text-gray-800" />
+      {badge > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 h-5 min-w-[20px] rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center px-1 leading-none">
+          {badge > 9 ? '9+' : badge}
+        </span>
+      )}
+    </button>
+  )
+}
+
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
+  const [search, setSearch] = useState('')
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -31,21 +50,34 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-[#F0F2F5]">
       <header className="sticky top-0 z-40 bg-white shadow-sm">
-        <div className="max-w-screen-xl mx-auto px-4 h-[56px] flex items-center justify-between gap-2">
-          {/* Logo */}
-          <Link to="/feed" className="text-2xl font-extrabold text-[#1877F2] shrink-0 leading-none">
-            bob
-          </Link>
+        <div className="max-w-screen-xl mx-auto px-3 h-[56px] flex items-center gap-2">
 
-          {/* Center nav */}
-          <nav className="flex items-center">
+          {/* Left: logo + search */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link to="/feed" className="h-10 w-10 rounded-full bg-[#1877F2] flex items-center justify-center text-white font-extrabold text-lg leading-none shrink-0">
+              b
+            </Link>
+            <div className="relative hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search Bob"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="bg-[#F0F2F5] rounded-full pl-9 pr-4 py-2 text-[15px] w-56 outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-[#1877F2]/30 transition"
+              />
+            </div>
+          </div>
+
+          {/* Center: nav */}
+          <nav className="flex items-center flex-1 justify-center">
             {navItems.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 title={label}
                 className={({ isActive }) =>
-                  `flex items-center justify-center h-[56px] px-8 border-b-[3px] transition-colors ${
+                  `flex items-center justify-center h-[56px] px-6 md:px-10 border-b-[3px] transition-colors ${
                     isActive
                       ? 'border-[#1877F2] text-[#1877F2]'
                       : 'border-transparent text-gray-500 hover:bg-gray-100'
@@ -57,35 +89,34 @@ export default function AppLayout() {
             ))}
           </nav>
 
-          {/* Right: user actions */}
+          {/* Right: action icons + user */}
           {isAuthenticated ? (
             <div className="flex items-center gap-2 shrink-0">
+              <IconBtn icon={MessageCircle} title="Messages" badge={0} />
+              <IconBtn icon={Bell} title="Notifications" badge={0} />
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1.5 bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-full pl-1 pr-2 py-1 transition-colors">
-                    <div className="h-8 w-8 rounded-full bg-[#1877F2] flex items-center justify-center text-white font-semibold text-sm">
-                      {user?.name?.[0]?.toUpperCase()}
-                    </div>
-                    <span className="text-sm font-medium max-w-[80px] truncate hidden sm:block">{user?.name?.split(' ')[0]}</span>
-                    <ChevronDown className="h-4 w-4 text-gray-600 hidden sm:block" />
+                  <button className="cursor-pointer h-10 w-10 rounded-full bg-[#1877F2] flex items-center justify-center text-white font-bold text-sm hover:opacity-90 transition-opacity shrink-0">
+                    {user?.name?.[0]?.toUpperCase()}
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-60">
-                  <div className="flex items-center gap-3 p-2 mb-1">
-                    <div className="h-10 w-10 rounded-full bg-[#1877F2] flex items-center justify-center text-white font-bold">
+                <DropdownMenuContent align="end" className="w-64">
+                  <div className="flex items-center gap-3 p-3 mb-1">
+                    <div className="h-10 w-10 rounded-full bg-[#1877F2] flex items-center justify-center text-white font-bold shrink-0">
                       {user?.name?.[0]?.toUpperCase()}
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm">{user?.name}</p>
-                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm truncate">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/account')}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/account')}>
                     <UserCircle className="h-4 w-4 mr-2" /> My Account
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive" onClick={() => logoutMutation.mutate()}>
+                  <DropdownMenuItem className="cursor-pointer text-destructive" onClick={() => logoutMutation.mutate()}>
                     <LogOut className="h-4 w-4 mr-2" /> Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -96,7 +127,7 @@ export default function AppLayout() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Sign in</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button size="sm" className="bg-[#1877F2] hover:bg-[#166FE5]" asChild>
                 <Link to="/register">Join</Link>
               </Button>
             </div>
