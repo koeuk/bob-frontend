@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNotifications, markRead, markAllRead } from '../../api/notifications'
-import { Bell, ThumbsUp, MessageCircle, CheckCheck } from 'lucide-react'
+import { acceptFriendRequest, declineFriendRequest } from '../../api/friends'
+import { Bell, ThumbsUp, MessageCircle, CheckCheck, UserPlus, Users } from 'lucide-react'
 import { formatDistanceToNow } from '../../lib/utils'
 
 const REACTION_EMOJIS = { like: '👍', love: '❤️', haha: '😂', wow: '😮', sad: '😢', angry: '😡' }
@@ -12,6 +13,16 @@ function NotifIcon({ type }) {
   if (type === 'post_liked') return (
     <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)' }}>
       <ThumbsUp className="h-4 w-4 text-white fill-white" />
+    </div>
+  )
+  if (type === 'friend_request') return (
+    <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#8B5CF6,#a78bfa)' }}>
+      <UserPlus className="h-4 w-4 text-white" />
+    </div>
+  )
+  if (type === 'friend_accepted') return (
+    <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#10b981,#34d399)' }}>
+      <Users className="h-4 w-4 text-white" />
     </div>
   )
   return (
@@ -26,7 +37,126 @@ function notifText(data) {
     const emoji = REACTION_EMOJIS[data.reaction] ?? '👍'
     return <><strong>{data.actor_name}</strong> reacted {emoji} to your post{data.post_excerpt ? `: "${data.post_excerpt}"` : ''}</>
   }
+  if (data.type === 'friend_request') {
+    return <><strong>{data.actor_name}</strong> sent you a friend request</>
+  }
+  if (data.type === 'friend_accepted') {
+    return <><strong>{data.actor_name}</strong> accepted your friend request</>
+  }
   return <><strong>{data.actor_name}</strong> commented on your post{data.comment_excerpt ? `: "${data.comment_excerpt}"` : ''}</>
+}
+
+function FriendRequestActions({ notif, onDone }) {
+  const queryClient = useQueryClient()
+  const [resolved, setResolved] = useState(false)
+  const [result, setResult] = useState(null)
+
+  const acceptMutation = useMutation({
+    mutationFn: () => acceptFriendRequest(notif.data.friend_request_id),
+    onSuccess: () => {
+      setResolved(true)
+      setResult('accepted')
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+    onError: () => {
+      setResolved(true)
+      setResult('accepted') // treat as already accepted
+    },
+  })
+
+  const declineMutation = useMutation({
+    mutationFn: () => declineFriendRequest(notif.data.friend_request_id),
+    onSuccess: () => {
+      setResolved(true)
+      setResult('declined')
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+  })
+
+  if (resolved) {
+    return (
+      <span className="text-[11px] font-semibold" style={{ color: result === 'accepted' ? '#10b981' : '#9ca3af' }}>
+        {result === 'accepted' ? 'Now friends ✓' : 'Declined'}
+      </span>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 mt-1.5">
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); acceptMutation.mutate() }}
+        disabled={acceptMutation.isPending || declineMutation.isPending}
+        className="cursor-pointer px-3 py-1 rounded-full text-[12px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)' }}
+      >
+        Accept
+      </button>
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); declineMutation.mutate() }}
+        disabled={acceptMutation.isPending || declineMutation.isPending}
+        className="cursor-pointer px-3 py-1 rounded-full text-[12px] font-semibold text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-white/15 disabled:opacity-50"
+        style={{ background: 'rgba(0,0,0,0.06)' }}
+      >
+        Decline
+      </button>
+    </div>
+  )
+}
+
+function NotifItem({ notif, onMarkRead, onClose }) {
+  const isDark = document.documentElement.classList.contains('dark')
+  const unreadBg = isDark ? 'rgba(24,119,242,0.08)' : 'rgba(24,119,242,0.05)'
+  const isFriendRequest = notif.data.type === 'friend_request'
+  const isFriendAccepted = notif.data.type === 'friend_accepted'
+  const isPostNotif = notif.data.type === 'post_liked' || notif.data.type === 'post_commented'
+
+  const sharedClass = `flex items-start gap-3 px-4 py-3 transition-colors duration-150 ${
+    notif.read_at ? 'hover:bg-gray-50 dark:hover:bg-white/5' : 'hover:bg-blue-50/60 dark:hover:bg-blue-900/20'
+  }`
+  const sharedStyle = !notif.read_at ? { background: unreadBg } : {}
+
+  const content = (
+    <>
+      <NotifIcon type={notif.data.type} />
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] text-gray-800 dark:text-gray-200 leading-snug line-clamp-2">
+          {notifText(notif.data)}
+        </p>
+        {isFriendRequest && (
+          <FriendRequestActions notif={notif} onDone={() => onMarkRead(notif.id)} />
+        )}
+        <p className="text-[12px] text-[#1877F2] font-medium mt-1">
+          {formatDistanceToNow(notif.created_at)}
+        </p>
+      </div>
+      {!notif.read_at && (
+        <div className="h-2.5 w-2.5 rounded-full shrink-0 mt-1.5" style={{ background: '#1877F2' }} />
+      )}
+    </>
+  )
+
+  if (isPostNotif) {
+    return (
+      <Link
+        to={`/posts/${notif.data.post_uuid}`}
+        onClick={() => { onMarkRead(notif.id); onClose() }}
+        className={sharedClass}
+        style={sharedStyle}
+      >
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <div
+      onClick={() => onMarkRead(notif.id)}
+      className={sharedClass}
+      style={sharedStyle}
+    >
+      {content}
+    </div>
+  )
 }
 
 export default function NotificationDropdown() {
@@ -58,7 +188,6 @@ export default function NotificationDropdown() {
     if (!open && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
       const panelWidth = Math.min(360, window.innerWidth - 16)
-      // Align right edge of panel with right edge of button, clamped to viewport
       const left = Math.max(8, Math.min(rect.right - panelWidth, window.innerWidth - panelWidth - 8))
       setPos({ top: rect.bottom + 8, left, width: panelWidth })
     }
@@ -78,15 +207,10 @@ export default function NotificationDropdown() {
 
   const notifications = data?.notifications?.data ?? []
   const unreadCount = data?.unread_count ?? 0
-
-  const handleNotifClick = (notif) => {
-    if (!notif.read_at) markReadMutation.mutate(notif.id)
-    setOpen(false)
-  }
+  const isDark = document.documentElement.classList.contains('dark')
 
   return (
     <>
-      {/* Bell button */}
       <button
         ref={btnRef}
         title="Notifications"
@@ -107,7 +231,6 @@ export default function NotificationDropdown() {
         )}
       </button>
 
-      {/* Dropdown panel — portalled to body to escape backdrop-filter containing block */}
       {open && createPortal(
         <div
           ref={panelRef}
@@ -116,12 +239,11 @@ export default function NotificationDropdown() {
             top: pos.top,
             left: pos.left,
             width: pos.width,
-            boxShadow: document.documentElement.classList.contains('dark') ? '0 12px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)' : '0 12px 40px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08)',
-            border: document.documentElement.classList.contains('dark') ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
-            background: document.documentElement.classList.contains('dark') ? '#242526' : 'white',
+            boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)' : '0 12px 40px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08)',
+            border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
+            background: isDark ? '#242526' : 'white',
           }}
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
             <h3 className="font-bold text-[17px] text-gray-900 dark:text-gray-100">Notifications</h3>
             {unreadCount > 0 && (
@@ -136,7 +258,6 @@ export default function NotificationDropdown() {
             )}
           </div>
 
-          {/* List */}
           <div className="max-h-[420px] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
@@ -145,28 +266,12 @@ export default function NotificationDropdown() {
               </div>
             ) : (
               notifications.map((notif) => (
-                <Link
+                <NotifItem
                   key={notif.id}
-                  to={`/posts/${notif.data.post_uuid}`}
-                  onClick={() => handleNotifClick(notif)}
-                  className={`flex items-start gap-3 px-4 py-3 transition-colors duration-150 ${
-                    notif.read_at ? 'hover:bg-gray-50 dark:hover:bg-white/5' : 'hover:bg-blue-50/60 dark:hover:bg-blue-900/20'
-                  }`}
-                  style={!notif.read_at ? { background: document.documentElement.classList.contains('dark') ? 'rgba(24,119,242,0.08)' : 'rgba(24,119,242,0.05)' } : {}}
-                >
-                  <NotifIcon type={notif.data.type} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] text-gray-800 dark:text-gray-200 leading-snug line-clamp-2">
-                      {notifText(notif.data)}
-                    </p>
-                    <p className="text-[12px] text-[#1877F2] font-medium mt-0.5">
-                      {formatDistanceToNow(notif.created_at)}
-                    </p>
-                  </div>
-                  {!notif.read_at && (
-                    <div className="h-2.5 w-2.5 rounded-full shrink-0 mt-1.5" style={{ background: '#1877F2' }} />
-                  )}
-                </Link>
+                  notif={notif}
+                  onMarkRead={(id) => { if (!notif.read_at) markReadMutation.mutate(id) }}
+                  onClose={() => setOpen(false)}
+                />
               ))
             )}
           </div>
