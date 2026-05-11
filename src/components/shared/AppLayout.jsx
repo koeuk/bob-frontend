@@ -105,129 +105,121 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg,#f0f2ff 0%,#f5f6fb 45%,#edf0f8 100%)' }}>
 
-      {/* ── Row 1: Main navbar — logo + nav pills only ── */}
+      {/* ── Header card: navbar row + search row ── */}
       <header className="sticky top-0 z-40 w-full pt-3">
         <div
-          className="relative max-w-[860px] mx-auto px-4 h-[58px] flex items-center justify-center rounded-2xl"
+          className="max-w-[860px] mx-auto rounded-2xl overflow-hidden"
           style={{
             background: 'rgba(255,255,255,0.92)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
-            boxShadow: '0 2px 16px rgba(0,0,0,0.08), 0 1px 0 rgba(0,0,0,0.04)',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
           }}
         >
+          {/* Row 1: logo + pills + icons */}
+          <div className="relative px-4 h-[58px] flex items-center justify-center">
+            <Link
+              to="/feed"
+              className="absolute left-4 h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none transition-all duration-200 hover:scale-105 hover:opacity-90"
+              style={{
+                background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
+                boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
+              }}
+            >
+              b
+            </Link>
 
-          {/* Logo — absolute left */}
-          <Link
-            to="/feed"
-            className="absolute left-6 h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none transition-all duration-200 hover:scale-105 hover:opacity-90"
-            style={{
-              background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-              boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
-            }}
-          >
-            b
-          </Link>
+            <SlidingPillNav items={navItems} />
 
-          {/* Nav pills — centered */}
-          <SlidingPillNav items={navItems} />
-
-          {/* Icons — absolute right */}
-          <div className="absolute right-6 flex items-center gap-2">
-            {isAuthenticated ? (
-              <>
-                <IconBtn icon={MessageCircle} title="Messages" />
-                <NotificationDropdown />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className="cursor-pointer h-9 w-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm transition-all duration-200 hover:scale-105 hover:opacity-90 shrink-0"
-                      style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
-                        background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-                        boxShadow: '0 2px 8px rgba(24,119,242,0.35)',
-                      }}
-                    >
-                      {user?.avatar
-                        ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-                        : user?.name?.[0]?.toUpperCase()
-                      }
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-xl border-gray-100 p-1">
-                    <div className="flex items-center gap-3 p-3 mb-1">
-                      <div
-                        className="h-11 w-11 rounded-full overflow-hidden flex items-center justify-center text-white font-bold shrink-0"
-                        style={user?.avatar ? {} : { background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
+            <div className="absolute right-4 flex items-center gap-2">
+              {isAuthenticated ? (
+                <>
+                  <IconBtn icon={MessageCircle} title="Messages" />
+                  <NotificationDropdown />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="cursor-pointer h-9 w-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm transition-all duration-200 hover:scale-105 hover:opacity-90 shrink-0"
+                        style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
+                          background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
+                          boxShadow: '0 2px 8px rgba(24,119,242,0.35)',
+                        }}
                       >
                         {user?.avatar
                           ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                           : user?.name?.[0]?.toUpperCase()
                         }
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-xl border-gray-100 p-1">
+                      <div className="flex items-center gap-3 p-3 mb-1">
+                        <div
+                          className="h-11 w-11 rounded-full overflow-hidden flex items-center justify-center text-white font-bold shrink-0"
+                          style={user?.avatar ? {} : { background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
+                        >
+                          {user?.avatar
+                            ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                            : user?.name?.[0]?.toUpperCase()
+                          }
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-[14px] truncate">{user?.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-[14px] truncate">{user?.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/account')}>
-                      <UserCircle className="h-4 w-4 mr-2" /> My Account
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer text-destructive rounded-xl" onClick={() => logoutMutation.mutate()}>
-                      <LogOut className="h-4 w-4 mr-2" /> Sign out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" className="rounded-full text-[13px]" asChild>
-                  <Link to="/login">Sign in</Link>
-                </Button>
-                <Button size="sm" className="rounded-full text-[13px] bg-[#1877F2] hover:bg-[#166FE5]" asChild>
-                  <Link to="/register">Join</Link>
-                </Button>
-              </>
-            )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/account')}>
+                        <UserCircle className="h-4 w-4 mr-2" /> My Account
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer text-destructive rounded-xl" onClick={() => logoutMutation.mutate()}>
+                        <LogOut className="h-4 w-4 mr-2" /> Sign out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" className="rounded-full text-[13px]" asChild>
+                    <Link to="/login">Sign in</Link>
+                  </Button>
+                  <Button size="sm" className="rounded-full text-[13px] bg-[#1877F2] hover:bg-[#166FE5]" asChild>
+                    <Link to="/register">Join</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-gray-100 mx-4" />
+
+          {/* Row 2: search */}
+          <div className="px-4 h-[44px] flex items-center">
+            <div className="relative w-full">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search Bob..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-full pl-10 pr-4 py-[6px] text-[13px] outline-none placeholder:text-gray-400 transition-all duration-200"
+                style={{ background: 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' }}
+                onFocus={e => {
+                  e.target.style.background = 'white'
+                  e.target.style.border = '1.5px solid rgba(24,119,242,0.3)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.09)'
+                }}
+                onBlur={e => {
+                  e.target.style.background = 'rgba(0,0,0,0.05)'
+                  e.target.style.border = '1.5px solid transparent'
+                  e.target.style.boxShadow = 'none'
+                }}
+              />
+            </div>
           </div>
         </div>
       </header>
-
-      {/* ── Row 2: Sub-bar — search only ── */}
-      <div className="sticky z-30 w-full" style={{ top: 58 }}>
-        <div
-          className="max-w-[860px] mx-auto px-4 h-[46px] flex items-center rounded-2xl"
-          style={{
-            background: 'rgba(255,255,255,0.88)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
-          }}
-        >
-          <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search Bob..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-full pl-10 pr-4 py-[7px] text-[13px] outline-none placeholder:text-gray-400 transition-all duration-200"
-              style={{ background: 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' }}
-              onFocus={e => {
-                e.target.style.background = 'white'
-                e.target.style.border = '1.5px solid rgba(24,119,242,0.3)'
-                e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.09)'
-              }}
-              onBlur={e => {
-                e.target.style.background = 'rgba(0,0,0,0.05)'
-                e.target.style.border = '1.5px solid transparent'
-                e.target.style.boxShadow = 'none'
-              }}
-            />
-          </div>
-        </div>
-      </div>
 
       <main className="max-w-[860px] mx-auto px-4 py-5">
         <Outlet />
