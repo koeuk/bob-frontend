@@ -132,8 +132,26 @@ export default function AppLayout() {
   const { dark, toggle, init } = useThemeStore()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [headerVisible, setHeaderVisible] = useState(true)
+  const lastScrollY = useRef(0)
 
   useEffect(() => { init() }, [])
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y < 10) {
+        setHeaderVisible(true)
+      } else if (y < lastScrollY.current - 4) {
+        setHeaderVisible(true)
+      } else if (y > lastScrollY.current + 4) {
+        setHeaderVisible(false)
+      }
+      lastScrollY.current = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -211,7 +229,14 @@ export default function AppLayout() {
       className="min-h-screen"
       style={{ background: dark ? '#18191a' : 'linear-gradient(160deg,#f0f2ff 0%,#f5f6fb 45%,#edf0f8 100%)' }}
     >
-      <header className="sticky top-0 z-40 w-full p-3 md:p-6">
+      <header
+        className="sticky top-0 z-40 w-full p-3 md:p-6"
+        style={{
+          transform: headerVisible ? 'translateY(0)' : 'translateY(-110%)',
+          opacity: headerVisible ? 1 : 0,
+          transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+        }}
+      >
         <div
           className="max-w-[860px] mx-auto rounded-2xl overflow-hidden"
           style={{
