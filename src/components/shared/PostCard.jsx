@@ -318,6 +318,14 @@ export default function PostCard({ post, queryKey }) {
 
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} type="post" id={post.uuid} />
       <EditPostModal open={editOpen} onClose={() => setEditOpen(false)} post={post} queryKey={queryKey} />
+      {lightboxIndex !== null && (
+        <ImageLightbox
+          images={post.images ?? (post.image ? [post.image] : [])}
+          index={lightboxIndex}
+          onNavigate={setLightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="rounded-2xl">
