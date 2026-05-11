@@ -5,7 +5,7 @@ import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, MessageCircle } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, MessageCircle } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
 
@@ -120,7 +120,7 @@ export default function AppLayout() {
         <div className="w-full px-6 h-[62px] flex items-center">
 
           {/* ── Left: Logo + Search (fixed width = mirrors right) ── */}
-          <div className="flex items-center gap-2.5 shrink-0" style={{ width: 300 }}>
+          <div className="flex items-center gap-2.5 shrink-0" style={{ width: 240 }}>
             <Link
               to="/feed"
               className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90"
@@ -132,7 +132,7 @@ export default function AppLayout() {
               b
             </Link>
 
-            <div className="relative flex-1">
+            <div className="relative" style={{ width: 172 }}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
               <input
                 type="text"
@@ -161,7 +161,7 @@ export default function AppLayout() {
           </div>
 
           {/* ── Right: Actions + User (mirrors left width) ── */}
-          <div className="flex items-center gap-2 shrink-0 justify-end" style={{ width: 300 }}>
+          <div className="flex items-center gap-2 shrink-0 justify-end" style={{ width: 240 }}>
             {isAuthenticated ? (
               <>
                 <IconBtn icon={MessageCircle} title="Messages" />
