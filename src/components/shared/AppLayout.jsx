@@ -4,7 +4,7 @@ import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, Settings, LogOut, User } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, User } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 
 const navItems = [
@@ -49,8 +49,8 @@ export default function AppLayout() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigate('/settings')}>
-                <Settings className="h-4 w-4 mr-2" /> Settings
+              <DropdownMenuItem onClick={() => navigate('/account')}>
+                <UserCircle className="h-4 w-4 mr-2" /> My Account
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive" onClick={() => logoutMutation.mutate()}>
