@@ -23,6 +23,7 @@ function SlidingPillNav({ items }) {
   const location = useLocation()
   const containerRef = useRef(null)
   const [pill, setPill] = useState({ left: 0, width: 0, ready: false })
+  const { dark: isDark } = useThemeStore ? require('../../store/themeStore').default() : { dark: false }
 
   useEffect(() => {
     const container = containerRef.current
@@ -108,17 +109,20 @@ export default function AppLayout() {
   const navItems = isAuthenticated ? [...publicNavItems, ...privateNavItems] : publicNavItems
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg,#f0f2ff 0%,#f5f6fb 45%,#edf0f8 100%)' }}>
+    <div
+      className="min-h-screen"
+      style={{ background: dark ? '#18191a' : 'linear-gradient(160deg,#f0f2ff 0%,#f5f6fb 45%,#edf0f8 100%)' }}
+    >
 
       {/* ── Header card: navbar row + search row ── */}
       <header className="sticky top-0 z-40 w-full p-6">
         <div
           className="max-w-[860px] mx-auto rounded-2xl overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.92)',
+            background: dark ? 'rgba(36,37,38,0.97)' : 'rgba(255,255,255,0.92)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
-            boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+            boxShadow: dark ? '0 2px 16px rgba(0,0,0,0.4)' : '0 2px 16px rgba(0,0,0,0.08)',
           }}
         >
           {/* Row 1: logo + pills + icons */}

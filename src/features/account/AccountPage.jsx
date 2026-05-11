@@ -11,7 +11,7 @@ import { Label } from '../../components/ui/label'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
-import { Camera, User, Lock, ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { Camera, User, Lock, ShieldAlert, CheckCircle2, Eye, Upload } from 'lucide-react'
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -65,6 +65,8 @@ export default function AccountPage() {
   const avatarRef = useRef(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarMenu, setAvatarMenu] = useState(false)
+  const [viewPhoto, setViewPhoto] = useState(false)
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
