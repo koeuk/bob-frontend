@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getMyPosts } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
 import PostCard from '../../components/shared/PostCard'
@@ -13,13 +13,12 @@ export default function MyPostsPage() {
   const { user } = useAuthStore()
   const [modalOpen, setModalOpen] = useState(false)
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+  const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: ({ pageParam = 1 }) => getMyPosts(pageParam).then((r) => r.data),
-    getNextPageParam: (last) => last.current_page < last.last_page ? last.current_page + 1 : undefined,
+    queryFn: () => getMyPosts().then((r) => r.data),
   })
 
-  const posts = data?.pages.flatMap((p) => p.data) ?? []
+  const posts = data ?? []
 
   return (
     <div className="space-y-3">
@@ -79,18 +78,6 @@ export default function MyPostsPage() {
           <PostCard post={post} queryKey={queryKey} />
         </div>
       ))}
-
-      {hasNextPage && (
-        <Button
-          variant="outline"
-          className="w-full rounded-full bg-white hover:bg-gray-50 text-gray-600 font-semibold transition-all duration-200"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-          onClick={() => fetchNextPage()}
-          disabled={isFetchingNextPage}
-        >
-          {isFetchingNextPage ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Load more'}
-        </Button>
-      )}
     </div>
   )
 }

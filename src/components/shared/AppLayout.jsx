@@ -5,8 +5,9 @@ import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, Bell, MessageCircle } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, MessageCircle } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
+import NotificationDropdown from './NotificationDropdown'
 
 const publicNavItems  = [{ to: '/feed',      label: 'Feed',      icon: Home }]
 const privateNavItems = [
@@ -105,7 +106,7 @@ export default function AppLayout() {
           {isAuthenticated ? (
             <div className="flex items-center gap-2 shrink-0">
               <IconBtn icon={MessageCircle} title="Messages" badge={0} />
-              <IconBtn icon={Bell} title="Notifications" badge={0} />
+              <NotificationDropdown />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
