@@ -5,9 +5,10 @@ import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, MessageCircle } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, MessageCircle, Sun, Moon } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
+import useThemeStore from '../../store/themeStore'
 
 const publicNavItems = [
   { to: '/feed',      label: 'Feed',      icon: Home },
@@ -93,8 +94,11 @@ function IconBtn({ icon: Icon, title, onClick }) {
 
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
+  const { dark, toggle, init } = useThemeStore()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+
+  useEffect(() => { init() }, [])
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -137,6 +141,7 @@ export default function AppLayout() {
                 <>
                   <IconBtn icon={MessageCircle} title="Messages" />
                   <NotificationDropdown />
+                  <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button

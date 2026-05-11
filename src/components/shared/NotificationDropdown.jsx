@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNotifications, markRead, markAllRead } from '../../api/notifications'
@@ -103,8 +104,8 @@ export default function NotificationDropdown() {
         )}
       </button>
 
-      {/* Dropdown panel — fixed to escape overflow:hidden */}
-      {open && (
+      {/* Dropdown panel — portalled to body to escape backdrop-filter containing block */}
+      {open && createPortal(
         <div
           ref={panelRef}
           className="scale-in fixed w-[360px] rounded-2xl overflow-hidden z-[9999]"
@@ -165,7 +166,8 @@ export default function NotificationDropdown() {
               ))
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
