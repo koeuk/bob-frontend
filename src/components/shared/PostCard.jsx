@@ -6,6 +6,7 @@ import { likePost, deletePost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
 import ReportModal from './ReportModal'
 import EditPostModal from './EditPostModal'
+import ImageLightbox from './ImageLightbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog'
 import { toast } from 'sonner'
@@ -63,16 +64,23 @@ function ReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
   )
 }
 
-function PostImages({ images }) {
+function PostImages({ images, onImageClick }) {
   if (!images.length) return null
   const count = images.length
   const show = images.slice(0, 4)
   const extra = count - 4
 
+  const imgClass = 'w-full h-full object-cover cursor-pointer transition-opacity duration-150 hover:opacity-90'
+
   if (count === 1) {
     return (
       <div className="mt-1 overflow-hidden">
-        <img src={assetUrl(show[0])} alt="" className="w-full max-h-[500px] object-cover transition-transform duration-500 group-hover:scale-[1.01]" />
+        <img
+          src={assetUrl(show[0])}
+          alt=""
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onImageClick(0) }}
+          className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-90 transition-opacity duration-150"
+        />
       </div>
     )
   }
@@ -80,10 +88,15 @@ function PostImages({ images }) {
   return (
     <div className={`mt-1 grid gap-0.5 ${count === 2 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
       {show.map((src, i) => (
-        <div key={i} className={`relative overflow-hidden ${count === 3 && i === 0 ? 'col-span-1 row-span-1' : ''}`} style={{ aspectRatio: count === 2 ? '1/1' : count === 3 ? (i === 0 ? '1/1' : '1/1') : '1/1' }}>
-          <img src={assetUrl(src)} alt="" className="w-full h-full object-cover" />
+        <div
+          key={i}
+          className="relative overflow-hidden"
+          style={{ aspectRatio: '1/1' }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onImageClick(i) }}
+        >
+          <img src={assetUrl(src)} alt="" className={imgClass} />
           {i === 3 && extra > 0 && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center pointer-events-none">
               <span className="text-white text-2xl font-bold">+{extra}</span>
             </div>
           )}
@@ -101,6 +114,7 @@ export default function PostCard({ post, queryKey }) {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(null)
   const hoverTimer = useRef(null)
   const isOwner = user?.uuid === post.user?.uuid
 
@@ -216,8 +230,11 @@ export default function PostCard({ post, queryKey }) {
               {post.body}
             </p>
           )}
-          <PostImages images={post.images ?? (post.image ? [post.image] : [])} />
         </Link>
+        <PostImages
+          images={post.images ?? (post.image ? [post.image] : [])}
+          onImageClick={(i) => setLightboxIndex(i)}
+        />
 
         {/* Engagement stats */}
         {(post.likes_count > 0 || post.comments_count > 0) && (

@@ -170,7 +170,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
             )}
             <div className="ml-auto flex gap-1">
               {isOwner && (
-                <button className="cursor-pointer hover:text-red-500 transition-colors" onClick={() => deleteMutation.mutate()}>
+                <button className="cursor-pointer hover:text-red-500 transition-colors" onClick={() => setDeleteOpen(true)}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               )}
@@ -217,6 +217,24 @@ function CommentItem({ comment, postUuid, queryKey }) {
       )}
 
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} type="comment" id={comment.uuid} />
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete comment?</AlertDialogTitle>
+            <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-xl bg-destructive hover:bg-destructive/90"
+              onClick={() => deleteMutation.mutate()}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
