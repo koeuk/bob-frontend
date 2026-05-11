@@ -8,7 +8,7 @@ import ReportModal from './ReportModal'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog'
 import { toast } from 'sonner'
-import { formatDistanceToNow } from '../../lib/utils'
+import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 
 export function UserAvatar({ name, size = 'md' }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
@@ -164,7 +164,7 @@ export default function PostCard({ post, queryKey }) {
           )}
           {post.image && (
             <img
-              src={post.image}
+              src={assetUrl(post.image)}
               alt="Post"
               className="w-full max-h-[500px] object-cover mt-1"
             />

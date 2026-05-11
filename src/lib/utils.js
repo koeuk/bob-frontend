@@ -5,6 +5,12 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
+export function assetUrl(path) {
+  if (!path) return null
+  if (path.startsWith('http')) return path
+  return 'http://127.0.0.1:8001' + path
+}
+
 export function formatDistanceToNow(dateString) {
   const date = new Date(dateString)
   const now = new Date()
