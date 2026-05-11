@@ -10,21 +10,20 @@ const REACTIONS = [
   { type: 'angry', emoji: '😡' },
 ]
 
-export default function ReactionPicker({ onReact, currentType, count = 0 }) {
+export default function ReactionPicker({ onReact, liked = false, count = 0 }) {
   const [open, setOpen] = useState(false)
-  const active = REACTIONS.find((r) => r.type === currentType)
 
   return (
     <div className="relative inline-block">
       <Button
         variant="ghost"
         size="sm"
-        className="gap-1 text-muted-foreground"
+        className={`gap-1 ${liked ? 'text-primary font-medium' : 'text-muted-foreground'}`}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
-        onClick={() => onReact(currentType ? null : 'like')}
+        onClick={() => onReact(liked ? null : 'like')}
       >
-        <span>{active ? active.emoji : '👍'}</span>
+        <span>👍</span>
         <span>{count > 0 ? count : 'Like'}</span>
       </Button>
       {open && (

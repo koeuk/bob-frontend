@@ -61,7 +61,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
           <p className="text-sm whitespace-pre-wrap">{comment.body}</p>
           <div className="flex items-center gap-1">
             <ReactionPicker
-              currentType={comment.user_reaction}
+              liked={comment.liked_by_me}
               count={comment.likes_count}
               onReact={(type) => likeMutation.mutate(type)}
             />

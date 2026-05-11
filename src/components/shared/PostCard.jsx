@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { MoreHorizontal, Trash2, Flag, MessageCircle, Bookmark } from 'lucide-react'
+import { MoreHorizontal, Trash2, Flag, MessageCircle } from 'lucide-react'
 import { likePost, deletePost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
 import ReactionPicker from './ReactionPicker'
@@ -32,10 +32,6 @@ export default function PostCard({ post, queryKey }) {
       toast.success('Post deleted')
     },
   })
-
-  const handleBookmark = () => {
-    likeMutation.mutate(post.user_reaction === 'bookmark' ? null : 'bookmark')
-  }
 
   return (
     <>
@@ -75,7 +71,7 @@ export default function PostCard({ post, queryKey }) {
 
           <div className="flex items-center gap-1 pt-1 border-t">
             <ReactionPicker
-              currentType={post.user_reaction}
+              liked={post.liked_by_me}
               count={post.likes_count}
               onReact={(type) => likeMutation.mutate(type)}
             />
@@ -84,14 +80,6 @@ export default function PostCard({ post, queryKey }) {
                 <MessageCircle className="h-4 w-4" />
                 <span>{post.comments_count ?? ''}</span>
               </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`ml-auto ${post.user_reaction === 'bookmark' ? 'text-primary' : 'text-muted-foreground'}`}
-              onClick={handleBookmark}
-            >
-              <Bookmark className="h-4 w-4" />
             </Button>
           </div>
         </CardContent>
