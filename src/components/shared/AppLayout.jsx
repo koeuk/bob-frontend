@@ -65,7 +65,7 @@ function SlidingPillNav({ items }) {
             to={to}
             data-active={active ? 'true' : 'false'}
             className={`relative z-10 flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors duration-200 ${
-              active ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+              active ? 'text-gray-900' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
             }`}
           >
             <Icon className={`h-4 w-4 transition-colors duration-200 ${active ? 'text-[#1877F2]' : ''}`} />

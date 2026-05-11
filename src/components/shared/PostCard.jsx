@@ -13,8 +13,18 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from 'sonner'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 
-export function UserAvatar({ name, size = 'md' }) {
+export function UserAvatar({ name, avatar, size = 'md' }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
+  if (avatar) {
+    return (
+      <img
+        src={avatar}
+        alt={name}
+        className={`${sz} rounded-full object-cover shrink-0`}
+        style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}
+      />
+    )
+  }
   return (
     <div
       className={`${sz} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
@@ -176,7 +186,7 @@ export default function PostCard({ post, queryKey }) {
         {/* Header */}
         <div className="flex items-start justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-3">
-            <UserAvatar name={post.user?.name} />
+            <UserAvatar name={post.user?.name} avatar={post.user?.avatar} />
             <div>
               <p className="font-semibold text-[15px] leading-tight text-gray-900 dark:text-gray-100">
                 {post.user?.name}

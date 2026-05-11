@@ -153,20 +153,29 @@ export default function AccountPage() {
               {/* Avatar menu */}
               {avatarMenu && (
                 <div
-                  className="absolute left-0 top-[calc(100%+8px)] z-50 bg-white dark:bg-[#3a3b3c] rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden w-48"
-                  style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
+                  className="absolute left-0 top-[calc(100%+8px)] z-50 rounded-2xl overflow-hidden w-48"
+                  style={{
+                    background: dark ? '#3a3b3c' : 'white',
+                    boxShadow: dark ? '0 8px 30px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)' : '0 8px 30px rgba(0,0,0,0.12)',
+                    border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'}`,
+                  }}
                 >
                   <button
                     onClick={() => { setViewPhoto(true); setAvatarMenu(false) }}
-                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
+                    onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium transition-colors"
+                    style={{ color: dark ? '#e4e6eb' : '#374151' }}
                   >
-                    <Eye className="h-4 w-4 text-gray-400" />
+                    <Eye className="h-4 w-4" style={{ color: dark ? '#9ca3af' : '#9ca3af' }} />
                     View photo
                   </button>
-                  <div className="h-px bg-gray-100 dark:bg-white/10" />
+                  <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }} />
                   <button
                     onClick={() => { avatarRef.current.click(); setAvatarMenu(false) }}
-                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-[#1877F2] hover:bg-blue-50 transition-colors"
+                    onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(24,119,242,0.15)' : 'rgba(24,119,242,0.06)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-[#1877F2] transition-colors"
                   >
                     <Upload className="h-4 w-4" />
                     Upload photo
