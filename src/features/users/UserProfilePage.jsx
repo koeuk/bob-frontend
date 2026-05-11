@@ -28,7 +28,7 @@ function FriendButton({ friendship, profileUuid, queryKey }) {
 
   if (!isAuthenticated) return null
 
-  if (!friendship) {
+  if (!friendship || friendship.status === 'declined') {
     return (
       <button
         onClick={() => sendMut.mutate()}

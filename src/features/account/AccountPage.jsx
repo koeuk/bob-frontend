@@ -13,7 +13,7 @@ import { Label } from '../../components/ui/label'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
-import { Camera, User, Lock, ShieldAlert, CheckCircle2, Eye, Upload } from 'lucide-react'
+import { Camera, User, Lock, ShieldAlert, CheckCircle2, Eye, Upload, X } from 'lucide-react'
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -214,18 +214,26 @@ export default function AccountPage() {
             </div>
 
             {/* View photo lightbox */}
-            {viewPhoto && (avatarPreview || user?.avatar) && (
+            {viewPhoto && (avatarPreview || user?.avatar) && createPortal(
               <div
-                className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center"
+                className="fixed inset-0 z-[9999] bg-black/85 flex items-center justify-center"
                 onClick={() => setViewPhoto(false)}
               >
+                <button
+                  onClick={() => setViewPhoto(false)}
+                  className="cursor-pointer absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors duration-200"
+                >
+                  <X className="h-5 w-5 text-white" />
+                </button>
                 <img
                   src={avatarPreview || user.avatar}
                   alt=""
-                  className="max-h-[80vh] max-w-[80vw] rounded-2xl object-contain shadow-2xl"
+                  className="rounded-2xl shadow-2xl object-contain"
+                  style={{ width: 'min(500px, 90vw)', height: 'min(500px, 90vh)' }}
                   onClick={e => e.stopPropagation()}
                 />
-              </div>
+              </div>,
+              document.body
             )}
 
             {/* Role badge */}

@@ -127,25 +127,41 @@ function IconBtn({ icon: Icon, title, onClick }) {
   )
 }
 
+function isProfilePath(pathname) {
+  return pathname === '/account' || /^\/users\//.test(pathname)
+}
+
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const { dark, toggle, init } = useThemeStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [search, setSearch] = useState('')
-  const [headerVisible, setHeaderVisible] = useState(true)
+  const onProfileRef = useRef(isProfilePath(location.pathname))
+  const [headerVisible, setHeaderVisible] = useState(!onProfileRef.current)
   const lastScrollY = useRef(0)
 
   useEffect(() => { init() }, [])
 
+  // Hide header when entering a profile page, restore on other pages
+  useEffect(() => {
+    onProfileRef.current = isProfilePath(location.pathname)
+    setHeaderVisible(!onProfileRef.current)
+    lastScrollY.current = window.scrollY
+  }, [location.pathname])
+
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY
-      if (y < 10) {
-        setHeaderVisible(true)
-      } else if (y < lastScrollY.current - 4) {
-        setHeaderVisible(true)
-      } else if (y > lastScrollY.current + 4) {
-        setHeaderVisible(false)
+      if (onProfileRef.current) {
+        // Profile pages: only show header when scrolled back to the very top
+        if (y <= 0) setHeaderVisible(true)
+        else if (y > lastScrollY.current + 4) setHeaderVisible(false)
+      } else {
+        // Other pages: full hide-on-down / show-on-up behaviour
+        if (y < 10) setHeaderVisible(true)
+        else if (y < lastScrollY.current - 4) setHeaderVisible(true)
+        else if (y > lastScrollY.current + 4) setHeaderVisible(false)
       }
       lastScrollY.current = y
     }
@@ -167,7 +183,7 @@ export default function AppLayout() {
       <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="relative cursor-pointer shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90">
+          <div className="relative cursor-pointer shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90">
             <div
               className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm"
               style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
@@ -184,7 +200,7 @@ export default function AppLayout() {
               className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2"
               style={{ background: '#22c55e', borderColor: dark ? '#242526' : 'white' }}
             />
-          </button>
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-xl border-gray-100 p-1">
           <div className="flex items-center gap-3 p-3 mb-1">
@@ -234,6 +250,7 @@ export default function AppLayout() {
         style={{
           transform: headerVisible ? 'translateY(0)' : 'translateY(-110%)',
           opacity: headerVisible ? 1 : 0,
+          pointerEvents: headerVisible ? 'auto' : 'none',
           transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
         }}
       >
