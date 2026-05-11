@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -7,14 +8,10 @@ import useAuthStore from '../../store/authStore'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
-import { Card, CardContent } from '../../components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog'
-import { Badge } from '../../components/ui/badge'
-import { Separator } from '../../components/ui/separator'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
-import { User, Lock, ShieldAlert } from 'lucide-react'
+import { Camera, User, Lock, ShieldAlert, CheckCircle2 } from 'lucide-react'
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -29,9 +26,45 @@ const passwordSchema = z.object({
   message: 'Passwords do not match', path: ['password_confirmation'],
 })
 
+function Avatar({ user, size = 'lg' }) {
+  const sz = size === 'lg' ? 'h-24 w-24 text-3xl' : 'h-10 w-10 text-base'
+  if (user?.avatar) {
+    return (
+      <img
+        src={user.avatar}
+        alt={user.name}
+        className={`${sz} rounded-full object-cover`}
+        style={{ boxShadow: '0 0 0 4px white, 0 2px 12px rgba(0,0,0,0.15)' }}
+      />
+    )
+  }
+  return (
+    <div
+      className={`${sz} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
+      style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 0 0 4px white, 0 2px 12px rgba(24,119,242,0.3)' }}
+    >
+      {user?.name?.[0]?.toUpperCase()}
+    </div>
+  )
+}
+
+const ROLE_COLORS = {
+  admin: '#1877F2', super_admin: '#8B5CF6', moderator: '#10B981', user: '#6B7280',
+}
+
+const TABS = [
+  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'security', label: 'Security', icon: Lock },
+  { id: 'danger', label: 'Danger', icon: ShieldAlert },
+]
+
 export default function AccountPage() {
   const { user, setUser, logout } = useAuthStore()
   const navigate = useNavigate()
+  const [tab, setTab] = useState('profile')
+  const avatarRef = useRef(null)
+  const [avatarPreview, setAvatarPreview] = useState(null)
+  const [avatarFile, setAvatarFile] = useState(null)
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
@@ -42,7 +75,12 @@ export default function AccountPage() {
 
   const profileMutation = useMutation({
     mutationFn: (data) => updateMe(data),
-    onSuccess: (res) => { setUser(res.data); toast.success('Profile updated') },
+    onSuccess: (res) => {
+      setUser(res.data)
+      setAvatarFile(null)
+      setAvatarPreview(null)
+      toast.success('Profile updated')
+    },
     onError: () => toast.error('Failed to update profile'),
   })
 
@@ -57,115 +95,215 @@ export default function AccountPage() {
     onSuccess: () => { logout(); navigate('/login', { replace: true }) },
   })
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
+  }
+
+  const handleProfileSubmit = (data) => {
+    profileMutation.mutate(avatarFile ? { ...data, avatar: avatarFile } : data)
+  }
+
+  const roleColor = ROLE_COLORS[user?.role] ?? '#6B7280'
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold shrink-0">
-          {user?.name?.[0]?.toUpperCase()}
+    <div className="space-y-3">
+      {/* Profile header card */}
+      <div
+        className="scale-in bg-white rounded-2xl overflow-hidden"
+        style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
+      >
+        {/* Cover banner */}
+        <div className="h-24 w-full" style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)' }} />
+
+        <div className="px-5 pb-5">
+          {/* Avatar row */}
+          <div className="flex items-end justify-between -mt-12 mb-3">
+            <div className="relative group">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt=""
+                  className="h-24 w-24 rounded-full object-cover"
+                  style={{ boxShadow: '0 0 0 4px white, 0 2px 12px rgba(0,0,0,0.15)' }}
+                />
+              ) : (
+                <Avatar user={user} size="lg" />
+              )}
+              <button
+                onClick={() => avatarRef.current.click()}
+                className="cursor-pointer absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                style={{ boxShadow: '0 0 0 4px white' }}
+              >
+                <Camera className="h-6 w-6 text-white" />
+              </button>
+              <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+            </div>
+
+            {/* Role badge */}
+            <div
+              className="px-3 py-1 rounded-full text-[12px] font-semibold capitalize"
+              style={{ background: `${roleColor}15`, color: roleColor, border: `1px solid ${roleColor}30` }}
+            >
+              {user?.role}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-[20px] font-bold text-gray-900 leading-tight">{user?.name}</h2>
+            <p className="text-[14px] text-gray-400">{user?.email}</p>
+          </div>
+
+          {avatarFile && (
+            <div className="mt-3 flex items-center gap-2 text-[13px] text-[#1877F2] bg-blue-50 rounded-xl px-3 py-2">
+              <Camera className="h-4 w-4 shrink-0" />
+              <span>New photo selected — save profile to apply</span>
+            </div>
+          )}
         </div>
-        <div>
-          <p className="font-semibold">{user?.name}</p>
-          <p className="text-sm text-muted-foreground">{user?.email}</p>
-        </div>
-        <Badge variant="secondary" className="ml-auto capitalize">{user?.role}</Badge>
       </div>
 
-      <Separator />
+      {/* Tab bar */}
+      <div
+        className="scale-in bg-white rounded-2xl flex overflow-hidden"
+        style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
+      >
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`cursor-pointer flex-1 flex items-center justify-center gap-2 py-3 text-[14px] font-semibold transition-all duration-200 border-b-2 ${
+              tab === id
+                ? id === 'danger'
+                  ? 'border-red-500 text-red-500 bg-red-50/50'
+                  : 'border-[#1877F2] text-[#1877F2] bg-blue-50/50'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="hidden sm:inline">{label}</span>
+          </button>
+        ))}
+      </div>
 
-      <Tabs defaultValue="profile">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="profile" className="gap-1.5">
-            <User className="h-4 w-4" /><span className="hidden sm:inline">Profile</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="gap-1.5">
-            <Lock className="h-4 w-4" /><span className="hidden sm:inline">Security</span>
-          </TabsTrigger>
-          <TabsTrigger value="danger" className="gap-1.5">
-            <ShieldAlert className="h-4 w-4" /><span className="hidden sm:inline">Danger</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Profile tab */}
+      {tab === 'profile' && (
+        <div
+          className="scale-in bg-white rounded-2xl p-5"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
+        >
+          <p className="font-semibold text-[15px] text-gray-900 mb-4">Profile information</p>
+          <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-gray-600">Display name</Label>
+              <Input
+                {...profileForm.register('name')}
+                className="rounded-xl h-10 bg-gray-50 border-gray-200 focus:border-[#1877F2] focus:ring-[#1877F2]/20"
+              />
+              {profileForm.formState.errors.name && (
+                <p className="text-[12px] text-red-500">{profileForm.formState.errors.name.message}</p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[13px] font-semibold text-gray-600">Email address</Label>
+              <Input
+                type="email"
+                {...profileForm.register('email')}
+                className="rounded-xl h-10 bg-gray-50 border-gray-200 focus:border-[#1877F2] focus:ring-[#1877F2]/20"
+              />
+              {profileForm.formState.errors.email && (
+                <p className="text-[12px] text-red-500">{profileForm.formState.errors.email.message}</p>
+              )}
+            </div>
+            <Button
+              type="submit"
+              disabled={profileMutation.isPending}
+              className="cursor-pointer w-full rounded-xl h-10 font-semibold transition-all duration-200"
+              style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 4px 14px rgba(24,119,242,0.3)' }}
+            >
+              {profileMutation.isPending ? 'Saving…' : (
+                <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Save changes</span>
+              )}
+            </Button>
+          </form>
+        </div>
+      )}
 
-        <TabsContent value="profile">
-          <Card>
-            <CardContent className="pt-6">
-              <form onSubmit={profileForm.handleSubmit((d) => profileMutation.mutate(d))} className="space-y-4">
-                <div className="space-y-1">
-                  <Label>Display name</Label>
-                  <Input {...profileForm.register('name')} />
-                  {profileForm.formState.errors.name && <p className="text-sm text-destructive">{profileForm.formState.errors.name.message}</p>}
-                </div>
-                <div className="space-y-1">
-                  <Label>Email address</Label>
-                  <Input type="email" {...profileForm.register('email')} />
-                  {profileForm.formState.errors.email && <p className="text-sm text-destructive">{profileForm.formState.errors.email.message}</p>}
-                </div>
-                <Button type="submit" disabled={profileMutation.isPending}>
-                  {profileMutation.isPending ? 'Saving…' : 'Save changes'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="security">
-          <Card>
-            <CardContent className="pt-6">
-              <form onSubmit={passwordForm.handleSubmit((d) => passwordMutation.mutate(d))} className="space-y-4">
-                <div className="space-y-1">
-                  <Label>Current password</Label>
-                  <Input type="password" {...passwordForm.register('current_password')} />
-                  {passwordForm.formState.errors.current_password && <p className="text-sm text-destructive">{passwordForm.formState.errors.current_password.message}</p>}
-                </div>
-                <div className="space-y-1">
-                  <Label>New password</Label>
-                  <Input type="password" {...passwordForm.register('password')} />
-                  {passwordForm.formState.errors.password && <p className="text-sm text-destructive">{passwordForm.formState.errors.password.message}</p>}
-                </div>
-                <div className="space-y-1">
-                  <Label>Confirm new password</Label>
-                  <Input type="password" {...passwordForm.register('password_confirmation')} />
-                  {passwordForm.formState.errors.password_confirmation && <p className="text-sm text-destructive">{passwordForm.formState.errors.password_confirmation.message}</p>}
-                </div>
-                <Button type="submit" disabled={passwordMutation.isPending}>
-                  {passwordMutation.isPending ? 'Changing…' : 'Change password'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="danger">
-          <Card className="border-destructive/50">
-            <CardContent className="pt-6 space-y-4">
-              <div>
-                <p className="font-medium">Delete account</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Permanently delete your account and all your posts, comments, and data. This cannot be undone.
-                </p>
+      {/* Security tab */}
+      {tab === 'security' && (
+        <div
+          className="scale-in bg-white rounded-2xl p-5"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
+        >
+          <p className="font-semibold text-[15px] text-gray-900 mb-4">Change password</p>
+          <form onSubmit={passwordForm.handleSubmit((d) => passwordMutation.mutate(d))} className="space-y-4">
+            {[
+              { name: 'current_password', label: 'Current password' },
+              { name: 'password', label: 'New password' },
+              { name: 'password_confirmation', label: 'Confirm new password' },
+            ].map(({ name, label }) => (
+              <div key={name} className="space-y-1.5">
+                <Label className="text-[13px] font-semibold text-gray-600">{label}</Label>
+                <Input
+                  type="password"
+                  {...passwordForm.register(name)}
+                  className="rounded-xl h-10 bg-gray-50 border-gray-200 focus:border-[#1877F2] focus:ring-[#1877F2]/20"
+                />
+                {passwordForm.formState.errors[name] && (
+                  <p className="text-[12px] text-red-500">{passwordForm.formState.errors[name].message}</p>
+                )}
               </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">Delete my account</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete your account?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete your account and all your data. This cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteMutation.mutate()} className="bg-destructive hover:bg-destructive/90">
-                      Delete account
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            ))}
+            <Button
+              type="submit"
+              disabled={passwordMutation.isPending}
+              className="cursor-pointer w-full rounded-xl h-10 font-semibold"
+              style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 4px 14px rgba(24,119,242,0.3)' }}
+            >
+              {passwordMutation.isPending ? 'Changing…' : 'Change password'}
+            </Button>
+          </form>
+        </div>
+      )}
+
+      {/* Danger tab */}
+      {tab === 'danger' && (
+        <div
+          className="scale-in bg-white rounded-2xl p-5"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)', border: '1px solid rgba(239,68,68,0.2)' }}
+        >
+          <p className="font-semibold text-[15px] text-red-600 mb-1">Delete account</p>
+          <p className="text-[13px] text-gray-500 mb-5">
+            Permanently deletes your account, posts, and all data. This cannot be undone.
+          </p>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="cursor-pointer w-full rounded-xl h-10 font-semibold">
+                Delete my account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="rounded-2xl">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete your account and all your data. This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteMutation.mutate()}
+                  className="rounded-xl bg-destructive hover:bg-destructive/90"
+                >
+                  Delete account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )}
     </div>
   )
 }
