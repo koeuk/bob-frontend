@@ -108,7 +108,7 @@ export default function AppLayout() {
       {/* ── Header card: navbar row + search row ── */}
       <header className="sticky top-0 z-40 w-full p-6">
         <div
-          className="max-w-[860px] mx-auto rounded-2xl"
+          className="max-w-[860px] mx-auto rounded-2xl overflow-hidden"
           style={{
             background: 'rgba(255,255,255,0.92)',
             backdropFilter: 'blur(24px)',
@@ -195,7 +195,7 @@ export default function AppLayout() {
           <div className="h-px bg-gray-100 mx-4" />
 
           {/* Row 2: search */}
-          <div className="px-4 h-[44px] flex items-center">
+          <div className="px-4 py-5 flex items-center">
             <div className="relative w-full">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               <input
