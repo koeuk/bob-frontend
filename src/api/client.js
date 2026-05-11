@@ -15,8 +15,9 @@ client.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
+      const hadToken = !!localStorage.getItem('token')
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      if (hadToken) window.location.href = '/login'
     }
     return Promise.reject(error)
   }

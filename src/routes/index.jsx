@@ -32,16 +32,23 @@ const router = createBrowserRouter([
     ],
   },
 
-  // User routes
+  // Public routes (viewable without login)
+  {
+    element: <AppLayout />,
+    children: [
+      { path: '/', element: <FeedPage /> },
+      { path: '/feed', element: <FeedPage /> },
+      { path: '/posts/:uuid', element: <PostDetailPage /> },
+    ],
+  },
+
+  // Private routes (require login)
   {
     element: <PrivateRoute />,
     children: [
       {
         element: <AppLayout />,
         children: [
-          { path: '/', element: <FeedPage /> },
-          { path: '/feed', element: <FeedPage /> },
-          { path: '/posts/:uuid', element: <PostDetailPage /> },
           { path: '/my-posts', element: <MyPostsPage /> },
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/reports', element: <MyReportsPage /> },
