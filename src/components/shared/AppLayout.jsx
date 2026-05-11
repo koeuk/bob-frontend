@@ -5,7 +5,7 @@ import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, MessageCircle } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, MessageCircle } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
 
@@ -95,6 +95,7 @@ function IconBtn({ icon: Icon, title, onClick }) {
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
+  const [search, setSearch] = useState('')
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -116,29 +117,27 @@ export default function AppLayout() {
           boxShadow: '0 1px 0 rgba(0,0,0,0.05), 0 4px 24px rgba(0,0,0,0.04)',
         }}
       >
-        <div className="w-full px-6 h-[62px] flex items-center">
+        <div className="relative w-full px-6 h-[62px] flex items-center">
 
           {/* ── Left: Logo ── */}
-          <div className="flex items-center shrink-0" style={{ width: 240 }}>
-            <Link
-              to="/feed"
-              className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90"
-              style={{
-                background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-                boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
-              }}
-            >
-              b
-            </Link>
-          </div>
+          <Link
+            to="/feed"
+            className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90"
+            style={{
+              background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
+              boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
+            }}
+          >
+            b
+          </Link>
 
-          {/* ── Center: Sliding pill nav (fills remaining space, centered) ── */}
-          <div className="flex-1 flex justify-center px-4">
+          {/* ── Center: Sliding pill nav — truly centered via absolute ── */}
+          <div className="absolute left-1/2 -translate-x-1/2">
             <SlidingPillNav items={navItems} />
           </div>
 
-          {/* ── Right: Actions + User (mirrors left width) ── */}
-          <div className="flex items-center gap-2 shrink-0 justify-end" style={{ width: 240 }}>
+          {/* ── Right: Actions + User ── */}
+          <div className="ml-auto flex items-center gap-2 shrink-0">
             {isAuthenticated ? (
               <>
                 <IconBtn icon={MessageCircle} title="Messages" />
@@ -199,6 +198,40 @@ export default function AppLayout() {
           </div>
         </div>
       </header>
+
+      {/* ── Search sub-bar below navbar ── */}
+      <div
+        className="sticky top-[62px] z-30 w-full border-b border-white/40"
+        style={{
+          background: 'rgba(255,255,255,0.75)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
+        <div className="max-w-[860px] mx-auto px-4 py-2.5">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search Bob..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl pl-10 pr-4 py-2 text-[14px] outline-none placeholder:text-gray-400 transition-all duration-200"
+              style={{ background: 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' }}
+              onFocus={e => {
+                e.target.style.background = 'white'
+                e.target.style.border = '1.5px solid rgba(24,119,242,0.3)'
+                e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.09)'
+              }}
+              onBlur={e => {
+                e.target.style.background = 'rgba(0,0,0,0.05)'
+                e.target.style.border = '1.5px solid transparent'
+                e.target.style.boxShadow = 'none'
+              }}
+            />
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-[860px] mx-auto px-4 py-5">
         <Outlet />

@@ -6,13 +6,12 @@ import useAuthStore from '../../store/authStore'
 import PostCard from '../../components/shared/PostCard'
 import CreatePostModal from '../../components/shared/CreatePostModal'
 import { Button } from '../../components/ui/button'
-import { Loader2, ImageIcon, Smile, Search } from 'lucide-react'
+import { Loader2, ImageIcon, Smile } from 'lucide-react'
 
 const queryKey = ['feed']
 
 export default function FeedPage() {
   const [modalOpen, setModalOpen] = useState(false)
-  const [search, setSearch] = useState('')
   const { user, isAuthenticated } = useAuthStore()
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
@@ -26,27 +25,6 @@ export default function FeedPage() {
 
   return (
     <div className="space-y-3">
-      {/* Search bar */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Search Bob..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-2xl pl-11 pr-4 py-3 text-[14px] outline-none placeholder:text-gray-400 transition-all duration-200 bg-white"
-          style={{ border: '1.5px solid transparent', boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
-          onFocus={e => {
-            e.target.style.border = '1.5px solid rgba(24,119,242,0.35)'
-            e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.09), 0 1px 4px rgba(0,0,0,0.07)'
-          }}
-          onBlur={e => {
-            e.target.style.border = '1.5px solid transparent'
-            e.target.style.boxShadow = '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)'
-          }}
-        />
-      </div>
-
       {/* Create post trigger */}
       {isAuthenticated ? (
         <div
