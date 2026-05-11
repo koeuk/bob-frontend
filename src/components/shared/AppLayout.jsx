@@ -106,9 +106,9 @@ export default function AppLayout() {
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg,#f0f2ff 0%,#f5f6fb 45%,#edf0f8 100%)' }}>
 
       {/* ── Header card: navbar row + search row ── */}
-      <header className="sticky top-0 z-40 w-full pt-3">
+      <header className="sticky top-0 z-40 w-full p-6">
         <div
-          className="max-w-[860px] mx-auto rounded-2xl overflow-hidden"
+          className="max-w-[860px] mx-auto rounded-2xl"
           style={{
             background: 'rgba(255,255,255,0.92)',
             backdropFilter: 'blur(24px)',
