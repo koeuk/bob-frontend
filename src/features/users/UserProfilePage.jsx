@@ -198,7 +198,7 @@ export default function UserProfilePage() {
               </span>
             )}
             <span className="text-[13px] text-gray-500 dark:text-gray-400">
-              Joined {formatDistanceToNow(user.joined_at)} ago
+              Joined {formatDistanceToNow(user.joined_at)}
             </span>
             <span className="text-[13px] text-gray-500 dark:text-gray-400">
               {friends.length} {friends.length === 1 ? 'friend' : 'friends'}

@@ -16,6 +16,7 @@ import MyPostsPage from '../features/posts/MyPostsPage'
 import DashboardPage from '../features/dashboard/DashboardPage'
 import MyReportsPage from '../features/reports/MyReportsPage'
 import AccountPage from '../features/account/AccountPage'
+import UserProfilePage from '../features/users/UserProfilePage'
 
 const router = createBrowserRouter([
   // Guest routes
@@ -39,6 +40,7 @@ const router = createBrowserRouter([
       { path: '/', element: <FeedPage /> },
       { path: '/feed', element: <FeedPage /> },
       { path: '/posts/:uuid', element: <PostDetailPage /> },
+      { path: '/users/:uuid', element: <UserProfilePage /> },
     ],
   },
 
