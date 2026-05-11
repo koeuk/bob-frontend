@@ -13,7 +13,10 @@ import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 export function UserAvatar({ name, size = 'md' }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
   return (
-    <div className={`${sz} rounded-full bg-[#1877F2] flex items-center justify-center text-white font-semibold shrink-0`}>
+    <div
+      className={`${sz} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
+      style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 2px 6px rgba(24,119,242,0.25)' }}
+    >
       {name?.[0]?.toUpperCase() ?? '?'}
     </div>
   )
@@ -32,14 +35,15 @@ function ReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
   const [hovered, setHovered] = useState(null)
   return (
     <div
-      className="absolute bottom-full left-0 mb-1 flex items-end gap-1 bg-white rounded-full shadow-xl border border-gray-200 px-3 py-2 z-50"
+      className="picker-reveal absolute bottom-full left-0 mb-2 flex items-end gap-1.5 rounded-full px-3 py-2.5 z-50"
+      style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)' }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {REACTIONS.map((r) => (
-        <div key={r.type} className="relative flex flex-col items-center">
+      {REACTIONS.map((r, i) => (
+        <div key={r.type} className="relative flex flex-col items-center" style={{ animationDelay: `${i * 28}ms` }}>
           {hovered === r.type && (
-            <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-[11px] font-semibold bg-gray-800 text-white rounded px-2 py-0.5 whitespace-nowrap pointer-events-none">
+            <span className="absolute -top-9 left-1/2 -translate-x-1/2 text-[11px] font-semibold bg-gray-900/90 text-white rounded-lg px-2 py-1 whitespace-nowrap pointer-events-none fade-in" style={{ backdropFilter: 'blur(4px)' }}>
               {r.label}
             </span>
           )}
@@ -47,7 +51,8 @@ function ReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
             onMouseEnter={() => setHovered(r.type)}
             onMouseLeave={() => setHovered(null)}
             onClick={() => onReact(r.type)}
-            className="cursor-pointer text-2xl leading-none transition-all duration-150 hover:scale-125 hover:-translate-y-1.5"
+            className="cursor-pointer text-3xl leading-none transition-all duration-150 hover:scale-[1.45] hover:-translate-y-2 active:scale-110"
+            style={{ filter: hovered === r.type ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' : 'none' }}
           >
             {r.emoji}
           </button>
@@ -67,6 +72,10 @@ export default function PostCard({ post, queryKey }) {
   const hoverTimer = useRef(null)
   const isOwner = user?.uuid === post.user?.uuid
 
+  const myReaction = post.my_reaction
+    ? REACTIONS.find((r) => r.type === post.my_reaction) ?? null
+    : null
+
   const requireAuth = () => {
     toast('Sign in to interact', { action: { label: 'Sign in', onClick: () => navigate('/login') } })
   }
@@ -84,7 +93,7 @@ export default function PostCard({ post, queryKey }) {
   const handleLike = () => {
     if (!isAuthenticated) return requireAuth()
     setPickerOpen(false)
-    likeMutation.mutate(post.liked_by_me ? null : 'like')
+    likeMutation.mutate(myReaction ? null : 'like')
   }
 
   const handleReact = (type) => {
@@ -96,53 +105,58 @@ export default function PostCard({ post, queryKey }) {
   const openPicker = () => {
     if (!isAuthenticated) return
     clearTimeout(hoverTimer.current)
-    hoverTimer.current = setTimeout(() => setPickerOpen(true), 500)
+    hoverTimer.current = setTimeout(() => setPickerOpen(true), 450)
   }
 
   const closePicker = () => {
     clearTimeout(hoverTimer.current)
-    hoverTimer.current = setTimeout(() => setPickerOpen(false), 200)
+    hoverTimer.current = setTimeout(() => setPickerOpen(false), 180)
   }
 
-  const cancelClose = () => {
-    clearTimeout(hoverTimer.current)
-  }
+  const cancelClose = () => { clearTimeout(hoverTimer.current) }
+
+  const isLiked = myReaction || post.liked_by_me
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow">
+      <div
+        className="post-enter bg-white rounded-2xl transition-shadow duration-300 overflow-hidden"
+        style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
+        onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05)'}
+        onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)'}
+      >
         {/* Header */}
-        <div className="flex items-start justify-between p-4 pb-2">
-          <div className="flex items-center gap-2">
+        <div className="flex items-start justify-between px-4 pt-4 pb-2">
+          <div className="flex items-center gap-3">
             <UserAvatar name={post.user?.name} />
             <div>
-              <p className="font-semibold text-[15px] leading-tight">
+              <p className="font-semibold text-[15px] leading-tight text-gray-900">
                 {post.user?.name}
                 {post.feeling && (
                   <span className="font-normal text-gray-500"> — feeling {post.feeling}</span>
                 )}
               </p>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1.5 text-[12px] text-gray-400 mt-0.5">
                 <span>{formatDistanceToNow(post.created_at)}</span>
-                <span>·</span>
+                <span className="text-gray-300">·</span>
                 <Globe className="h-3 w-3" />
               </div>
             </div>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors">
-                <MoreHorizontal className="h-5 w-5 text-gray-600" />
+              <button className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-all duration-200 hover:scale-105">
+                <MoreHorizontal className="h-5 w-5 text-gray-500" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-gray-100">
               {isOwner && (
-                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteOpen(true)}>
+                <DropdownMenuItem className="cursor-pointer text-destructive rounded-lg" onClick={() => setDeleteOpen(true)}>
                   <Trash2 className="h-4 w-4 mr-2" /> Delete post
                 </DropdownMenuItem>
               )}
               {!isOwner && (
-                <DropdownMenuItem onClick={() => isAuthenticated ? setReportOpen(true) : requireAuth()}>
+                <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => isAuthenticated ? setReportOpen(true) : requireAuth()}>
                   <Flag className="h-4 w-4 mr-2" /> Report post
                 </DropdownMenuItem>
               )}
@@ -151,39 +165,44 @@ export default function PostCard({ post, queryKey }) {
         </div>
 
         {/* Body */}
-        <Link to={`/posts/${post.uuid}`} className="block hover:opacity-90 transition-opacity">
+        <Link to={`/posts/${post.uuid}`} className="block group">
           {post.feeling && (
-            <p className="px-4 pt-1 text-[15px] text-gray-500">
-              is feeling <span className="font-medium text-gray-700">{post.feeling}</span>
+            <p className="px-4 pt-1 text-[15px] text-gray-400">
+              is feeling <span className="font-medium text-gray-600">{post.feeling}</span>
             </p>
           )}
           {post.body && (
-            <p className="px-4 py-2 text-[15px] leading-5 whitespace-pre-wrap">
+            <p className="px-4 py-2 text-[15px] leading-6 text-gray-800 whitespace-pre-wrap group-hover:text-gray-900 transition-colors duration-200">
               {post.body}
             </p>
           )}
           {post.image && (
-            <img
-              src={assetUrl(post.image)}
-              alt="Post"
-              className="w-full max-h-[500px] object-cover mt-1"
-            />
+            <div className="mt-1 overflow-hidden">
+              <img
+                src={assetUrl(post.image)}
+                alt="Post"
+                className="w-full max-h-[500px] object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+              />
+            </div>
           )}
         </Link>
 
         {/* Engagement stats */}
         {(post.likes_count > 0 || post.comments_count > 0) && (
-          <div className="flex items-center justify-between px-4 py-1.5 text-[13px] text-gray-500">
+          <div className="flex items-center justify-between px-4 py-2 text-[13px] text-gray-400">
             {post.likes_count > 0 ? (
-              <div className="flex items-center gap-1">
-                <div className="h-[18px] w-[18px] rounded-full bg-[#1877F2] flex items-center justify-center">
+              <div className="flex items-center gap-1.5">
+                <div
+                  className="h-[20px] w-[20px] rounded-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 1px 4px rgba(24,119,242,0.3)' }}
+                >
                   <ThumbsUp className="h-2.5 w-2.5 text-white fill-white" />
                 </div>
-                <span>{post.likes_count}</span>
+                <span className="font-medium">{post.likes_count}</span>
               </div>
             ) : <span />}
             {post.comments_count > 0 && (
-              <Link to={`/posts/${post.uuid}`} className="hover:underline ml-auto">
+              <Link to={`/posts/${post.uuid}`} className="hover:text-gray-700 hover:underline transition-colors ml-auto">
                 {post.comments_count} comment{post.comments_count !== 1 ? 's' : ''}
               </Link>
             )}
@@ -191,34 +210,44 @@ export default function PostCard({ post, queryKey }) {
         )}
 
         {/* Divider */}
-        <div className="mx-4 border-t border-gray-200" />
+        <div className="mx-4 h-px bg-gray-100" />
 
         {/* Action buttons */}
-        <div className="flex mx-2 pb-1 pt-1 gap-1">
-          {/* Like with reaction picker */}
+        <div className="flex mx-1 py-1 gap-0.5">
+          {/* Like / Reaction */}
           <div
             className="flex-1 relative"
             onMouseEnter={openPicker}
             onMouseLeave={closePicker}
           >
-            {pickerOpen && <ReactionPicker onReact={handleReact} onMouseEnter={cancelClose} onMouseLeave={closePicker} />}
+            {pickerOpen && (
+              <ReactionPicker onReact={handleReact} onMouseEnter={cancelClose} onMouseLeave={closePicker} />
+            )}
             <button
               onClick={handleLike}
-              className={`cursor-pointer w-full flex items-center justify-center gap-2 py-1.5 rounded-lg text-[15px] font-semibold transition-colors hover:bg-gray-100 ${
-                post.liked_by_me ? 'text-[#1877F2]' : 'text-gray-600'
-              }`}
+              className="cursor-pointer w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold transition-all duration-200 hover:scale-[1.02]"
+              style={isLiked
+                ? { color: myReaction?.color ?? '#1877F2', background: `${myReaction?.color ?? '#1877F2'}12` }
+                : { color: '#65676b' }
+              }
+              onMouseEnter={(e) => !isLiked && (e.currentTarget.style.background = '#f2f2f2')}
+              onMouseLeave={(e) => !isLiked && (e.currentTarget.style.background = 'transparent')}
             >
-              <ThumbsUp className={`h-5 w-5 ${post.liked_by_me ? 'fill-[#1877F2] text-[#1877F2]' : ''}`} />
-              Like
+              {myReaction ? (
+                <span className="text-xl leading-none">{myReaction.emoji}</span>
+              ) : (
+                <ThumbsUp className={`h-5 w-5 transition-transform duration-200 ${isLiked ? 'fill-current scale-110' : ''}`} />
+              )}
+              <span>{myReaction ? myReaction.label : 'Like'}</span>
             </button>
           </div>
 
           <Link
             to={`/posts/${post.uuid}`}
-            className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[15px] font-semibold text-gray-600 transition-colors hover:bg-gray-100"
+            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 hover:scale-[1.02]"
           >
             <MessageCircle className="h-5 w-5" />
-            Comment
+            <span>Comment</span>
           </Link>
 
           <button
@@ -226,10 +255,10 @@ export default function PostCard({ post, queryKey }) {
               navigator.clipboard?.writeText(window.location.origin + `/posts/${post.uuid}`)
               toast.success('Link copied!')
             }}
-            className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[15px] font-semibold text-gray-600 transition-colors hover:bg-gray-100"
+            className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 hover:scale-[1.02]"
           >
             <Share2 className="h-5 w-5" />
-            Share
+            <span>Share</span>
           </button>
         </div>
       </div>
@@ -237,14 +266,14 @@ export default function PostCard({ post, queryKey }) {
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} type="post" id={post.uuid} />
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete post?</AlertDialogTitle>
             <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteMutation.mutate()} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteMutation.mutate()} className="rounded-xl bg-destructive hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

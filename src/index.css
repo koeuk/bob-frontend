@@ -126,5 +126,38 @@
     }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
     }
 }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(0.78 0 0 / 0.45); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(0.6 0 0 / 0.55); }
+
+/* ── Animations ── */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pickerReveal {
+  from { opacity: 0; transform: scale(0.72) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.post-enter    { animation: slideInUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.picker-reveal { animation: pickerReveal 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fade-in       { animation: fadeIn 0.2s ease-out both; }
+.scale-in      { animation: scaleIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
