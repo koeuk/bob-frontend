@@ -24,11 +24,11 @@ export default function MyPostsPage() {
     <div className="space-y-3">
       {/* Header card */}
       <div
-        className="scale-in bg-white rounded-2xl p-4 flex items-center justify-between gap-4"
+        className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-4 flex items-center justify-between gap-4"
         style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
       >
         <div>
-          <h1 className="text-[18px] font-bold text-gray-900">My Posts</h1>
+          <h1 className="text-[18px] font-bold text-gray-900 dark:text-gray-100">My Posts</h1>
           {!isLoading && (
             <p className="text-[13px] text-gray-400 mt-0.5">
               {posts.length === 0 ? 'No posts yet' : `${posts.length} post${posts.length !== 1 ? 's' : ''}`}
@@ -55,7 +55,7 @@ export default function MyPostsPage() {
 
       {!isLoading && posts.length === 0 && (
         <div
-          className="scale-in bg-white rounded-2xl p-12 text-center space-y-4"
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-12 text-center space-y-4"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
         >
           <div className="text-5xl">✍️</div>

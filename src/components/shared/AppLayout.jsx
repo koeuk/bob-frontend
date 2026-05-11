@@ -23,7 +23,6 @@ function SlidingPillNav({ items }) {
   const location = useLocation()
   const containerRef = useRef(null)
   const [pill, setPill] = useState({ left: 0, width: 0, ready: false })
-  const { dark: isDark } = useThemeStore ? require('../../store/themeStore').default() : { dark: false }
 
   useEffect(() => {
     const container = containerRef.current
@@ -66,7 +65,7 @@ function SlidingPillNav({ items }) {
             to={to}
             data-active={active ? 'true' : 'false'}
             className={`relative z-10 flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors duration-200 ${
-              active ? 'text-gray-900' : 'text-gray-500 hover:text-gray-800'
+              active ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
             }`}
           >
             <Icon className={`h-4 w-4 transition-colors duration-200 ${active ? 'text-[#1877F2]' : ''}`} />
@@ -88,7 +87,7 @@ function IconBtn({ icon: Icon, title, onClick }) {
       onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.09)'}
       onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
     >
-      <Icon className="h-4.5 w-4.5 text-gray-700" style={{ height: 18, width: 18 }} />
+      <Icon className="h-4.5 w-4.5 text-gray-700 dark:text-gray-300" style={{ height: 18, width: 18 }} />
     </button>
   )
 }
@@ -202,7 +201,7 @@ export default function AppLayout() {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gray-100 mx-4" />
+          <div className={`h-px mx-4 ${dark ? 'bg-white/10' : 'bg-gray-100'}`} />
 
           {/* Row 2: search */}
           <div className="px-4 py-5 flex items-center">
@@ -213,15 +212,15 @@ export default function AppLayout() {
                 placeholder="Search Bob..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-full pl-10 pr-4 py-[6px] text-[13px] outline-none placeholder:text-gray-400 transition-all duration-200"
-                style={{ background: 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' }}
+                className={`w-full rounded-full pl-10 pr-4 py-[6px] text-[13px] outline-none transition-all duration-200 ${dark ? 'text-gray-200 placeholder:text-gray-500' : 'placeholder:text-gray-400'}`}
+                style={{ background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' }}
                 onFocus={e => {
-                  e.target.style.background = 'white'
-                  e.target.style.border = '1.5px solid rgba(24,119,242,0.3)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.09)'
+                  e.target.style.background = dark ? 'rgba(255,255,255,0.12)' : 'white'
+                  e.target.style.border = '1.5px solid rgba(24,119,242,0.4)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.12)'
                 }}
                 onBlur={e => {
-                  e.target.style.background = 'rgba(0,0,0,0.05)'
+                  e.target.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'
                   e.target.style.border = '1.5px solid transparent'
                   e.target.style.boxShadow = 'none'
                 }}

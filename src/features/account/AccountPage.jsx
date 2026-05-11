@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -97,6 +97,13 @@ export default function AccountPage() {
     onSuccess: () => { logout(); navigate('/login', { replace: true }) },
   })
 
+  useEffect(() => {
+    if (!avatarMenu) return
+    const handler = (e) => setAvatarMenu(false)
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [avatarMenu])
+
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -123,26 +130,63 @@ export default function AccountPage() {
         <div className="px-5 pb-5">
           {/* Avatar row */}
           <div className="flex items-end justify-between -mt-12 mb-3">
-            <div className="relative group">
-              {avatarPreview ? (
-                <img
-                  src={avatarPreview}
-                  alt=""
-                  className="h-24 w-24 rounded-full object-cover"
-                  style={{ boxShadow: '0 0 0 4px white, 0 2px 12px rgba(0,0,0,0.15)' }}
-                />
-              ) : (
-                <Avatar user={user} size="lg" />
-              )}
+            <div className="relative">
+              {/* Avatar — click to open menu */}
               <button
-                onClick={() => avatarRef.current.click()}
-                className="cursor-pointer absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                style={{ boxShadow: '0 0 0 4px white' }}
+                onClick={() => setAvatarMenu(v => !v)}
+                className="cursor-pointer relative group block rounded-full"
               >
-                <Camera className="h-6 w-6 text-white" />
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="" className="h-24 w-24 rounded-full object-cover" style={{ boxShadow: '0 0 0 4px white, 0 2px 12px rgba(0,0,0,0.15)' }} />
+                ) : (
+                  <Avatar user={user} size="lg" />
+                )}
+                <span className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ boxShadow: '0 0 0 4px white' }}>
+                  <Camera className="h-6 w-6 text-white" />
+                </span>
               </button>
+
+              {/* Avatar menu */}
+              {avatarMenu && (
+                <div
+                  className="absolute left-0 top-[calc(100%+8px)] z-50 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden w-48"
+                  style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
+                >
+                  <button
+                    onClick={() => { setViewPhoto(true); setAvatarMenu(false) }}
+                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Eye className="h-4 w-4 text-gray-400" />
+                    View photo
+                  </button>
+                  <div className="h-px bg-gray-100" />
+                  <button
+                    onClick={() => { avatarRef.current.click(); setAvatarMenu(false) }}
+                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-[#1877F2] hover:bg-blue-50 transition-colors"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload photo
+                  </button>
+                </div>
+              )}
+
               <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             </div>
+
+            {/* View photo lightbox */}
+            {viewPhoto && (avatarPreview || user?.avatar) && (
+              <div
+                className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center"
+                onClick={() => setViewPhoto(false)}
+              >
+                <img
+                  src={avatarPreview || user.avatar}
+                  alt=""
+                  className="max-h-[80vh] max-w-[80vw] rounded-2xl object-contain shadow-2xl"
+                  onClick={e => e.stopPropagation()}
+                />
+              </div>
+            )}
 
             {/* Role badge */}
             <div

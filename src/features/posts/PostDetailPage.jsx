@@ -269,7 +269,7 @@ export default function PostDetailPage() {
     <div className="space-y-3">
       <button
         onClick={() => window.history.back()}
-        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 font-medium bg-white rounded-lg shadow px-4 py-2.5 w-full transition-colors hover:bg-gray-50"
+        className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium bg-white dark:bg-[#242526] rounded-lg shadow px-4 py-2.5 w-full transition-colors hover:bg-gray-50 dark:hover:bg-[#2d2e2f]"
       >
         <ArrowLeft className="h-4 w-4" /> Back to feed
       </button>
@@ -277,7 +277,7 @@ export default function PostDetailPage() {
       <PostCard post={post} queryKey={queryKey} />
 
       {/* Comments section */}
-      <div className="bg-white rounded-lg shadow p-4 space-y-4">
+      <div className="bg-white dark:bg-[#242526] rounded-lg shadow p-4 space-y-4">
         <p className="font-semibold text-[15px]">
           {comments?.length ? `${comments.length} Comment${comments.length !== 1 ? 's' : ''}` : 'Comments'}
         </p>
@@ -286,9 +286,9 @@ export default function PostDetailPage() {
         {isAuthenticated ? (
           <div className="flex gap-2 items-start">
             <UserAvatar name={user?.name} size="sm" />
-            <div className="flex-1 flex items-center gap-2 bg-[#F0F2F5] rounded-full px-4 py-2">
+            <div className="flex-1 flex items-center gap-2 bg-[#F0F2F5] dark:bg-white/10 rounded-full px-4 py-2">
               <input
-                className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-gray-400"
+                className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-gray-400 dark:text-gray-200 dark:placeholder:text-gray-500"
                 placeholder="Write a comment…"
                 value={commentBody}
                 maxLength={5000}

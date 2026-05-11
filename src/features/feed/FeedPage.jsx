@@ -28,7 +28,7 @@ export default function FeedPage() {
       {/* Create post trigger */}
       {isAuthenticated ? (
         <div
-          className="scale-in bg-white rounded-2xl p-4 space-y-3"
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-4 space-y-3"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
         >
           <div className="flex items-center gap-3">
@@ -40,23 +40,23 @@ export default function FeedPage() {
             </div>
             <button
               onClick={() => setModalOpen(true)}
-              className="cursor-pointer flex-1 bg-gray-100/80 hover:bg-gray-100 rounded-full px-4 py-2.5 text-left text-gray-400 text-[15px] transition-all duration-200 hover:shadow-inner"
+              className="cursor-pointer flex-1 bg-gray-100/80 dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/15 rounded-full px-4 py-2.5 text-left text-gray-400 dark:text-gray-500 text-[15px] transition-all duration-200 hover:shadow-inner"
             >
               What's on your mind, {user?.name?.split(' ')[0]}?
             </button>
           </div>
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-100 dark:bg-white/10" />
           <div className="flex">
             <button
               onClick={() => setModalOpen(true)}
-              className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-1.5 rounded-xl hover:bg-gray-100 text-[14px] font-semibold text-gray-500 transition-all duration-200 hover:text-gray-700"
+              className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 text-[14px] font-semibold text-gray-500 dark:text-gray-400 transition-all duration-200 hover:text-gray-700 dark:hover:text-gray-200"
             >
               <ImageIcon className="h-5 w-5 text-green-500" />
               Photo
             </button>
             <button
               onClick={() => setModalOpen(true)}
-              className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-1.5 rounded-xl hover:bg-gray-100 text-[14px] font-semibold text-gray-500 transition-all duration-200 hover:text-gray-700"
+              className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 text-[14px] font-semibold text-gray-500 dark:text-gray-400 transition-all duration-200 hover:text-gray-700 dark:hover:text-gray-200"
             >
               <Smile className="h-5 w-5 text-yellow-400" />
               Feeling
@@ -65,10 +65,10 @@ export default function FeedPage() {
         </div>
       ) : (
         <div
-          className="scale-in bg-white rounded-2xl p-5 flex items-center justify-between gap-4"
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-5 flex items-center justify-between gap-4"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
         >
-          <p className="text-[15px] text-gray-500">Sign in to share what's on your mind.</p>
+          <p className="text-[15px] text-gray-500 dark:text-gray-400">Sign in to share what's on your mind.</p>
           <div className="flex gap-2 shrink-0">
             <Button variant="outline" size="sm" className="rounded-full" asChild>
               <Link to="/login">Sign in</Link>

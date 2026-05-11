@@ -14,7 +14,7 @@ function StatCard({ icon: Icon, label, value, sub, iconColor, trend }) {
 
   return (
     <div
-      className="scale-in bg-white rounded-2xl p-4 flex items-center gap-4"
+      className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-4 flex items-center gap-4"
       style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
     >
       <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${iconColor}15` }}>
@@ -22,7 +22,7 @@ function StatCard({ icon: Icon, label, value, sub, iconColor, trend }) {
       </div>
       <div className="min-w-0">
         <div className="flex items-baseline gap-2">
-          <p className="text-[26px] font-bold text-gray-900 leading-tight">{value ?? 0}</p>
+          <p className="text-[26px] font-bold text-gray-900 dark:text-gray-100 leading-tight">{value ?? 0}</p>
           {trendEl}
         </div>
         <p className="text-[13px] text-gray-400 leading-tight">{label}</p>
@@ -85,10 +85,10 @@ export default function DashboardPage() {
     <div className="space-y-3">
       {/* Header */}
       <div
-        className="scale-in bg-white rounded-2xl px-5 py-4"
+        className="scale-in bg-white dark:bg-[#242526] rounded-2xl px-5 py-4"
         style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
       >
-        <h1 className="text-[18px] font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-[18px] font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">Your activity overview</p>
       </div>
 
@@ -120,18 +120,18 @@ export default function DashboardPage() {
 
       {/* Weekly goal */}
       <div
-        className="scale-in bg-white rounded-2xl px-5 py-4 space-y-3"
+        className="scale-in bg-white dark:bg-[#242526] rounded-2xl px-5 py-4 space-y-3"
         style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
       >
         <div className="flex items-center justify-between">
-          <p className="font-semibold text-[15px] text-gray-900">Weekly goal</p>
+          <p className="font-semibold text-[15px] text-gray-900 dark:text-gray-100">Weekly goal</p>
           <span className="text-[13px] font-semibold text-[#1877F2]">{goalPct}%</span>
         </div>
         <div className="flex justify-between text-[13px] text-gray-400">
           <span>{goal.progress} / {goal.target} posts</span>
           {goalPct >= 100 && <span className="text-green-500 font-semibold">🎉 Goal reached!</span>}
         </div>
-        <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-2.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{
@@ -145,11 +145,11 @@ export default function DashboardPage() {
       {/* Engagement chart */}
       {series.length > 0 && (
         <div
-          className="scale-in bg-white rounded-2xl px-5 py-4"
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl px-5 py-4"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
         >
           <div className="flex items-center justify-between mb-3">
-            <p className="font-semibold text-[15px] text-gray-900">Engagement (last 8 months)</p>
+            <p className="font-semibold text-[15px] text-gray-900 dark:text-gray-100">Engagement (last 8 months)</p>
             <div className="flex items-center gap-3 text-[11px] text-gray-400">
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ background: '#1877F2' }} />Posts</span>
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ background: '#F33E58' }} />Reactions</span>
@@ -162,10 +162,10 @@ export default function DashboardPage() {
       {/* Recent activity */}
       {activity.length > 0 && (
         <div
-          className="scale-in bg-white rounded-2xl px-5 py-4"
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl px-5 py-4"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
         >
-          <p className="font-semibold text-[15px] text-gray-900 mb-3">Recent comments on your posts</p>
+          <p className="font-semibold text-[15px] text-gray-900 dark:text-gray-100 mb-3">Recent comments on your posts</p>
           <div className="space-y-3">
             {activity.map((c) => (
               <Link key={c.id} to={`/posts/${c.post?.uuid}`} className="flex items-start gap-3 group">
@@ -177,9 +177,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[13px]">
-                    <span className="font-semibold text-gray-900">{c.user?.name}</span>
-                    <span className="text-gray-500"> commented on </span>
-                    <span className="font-medium text-gray-700 group-hover:text-[#1877F2] transition-colors truncate">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{c.user?.name}</span>
+                    <span className="text-gray-500 dark:text-gray-400"> commented on </span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-[#1877F2] transition-colors truncate">
                       {c.post?.body?.slice(0, 40) || 'your post'}
                     </span>
                   </p>

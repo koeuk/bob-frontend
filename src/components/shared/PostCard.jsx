@@ -39,7 +39,7 @@ function ReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
   return (
     <div
       className="picker-reveal absolute bottom-full left-0 mb-2 flex items-end gap-1.5 rounded-full px-3 py-2.5 z-50"
-      style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)' }}
+      style={{ background: document.documentElement.classList.contains('dark') ? 'rgba(50,51,54,0.98)' : 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12)', border: document.documentElement.classList.contains('dark') ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)' }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -87,11 +87,11 @@ function PostImages({ images, onImageClick }) {
   }
 
   return (
-    <div className={`mt-1 px-3 grid gap-0.5 ${count === 2 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+    <div className={`mt-1 px-3 grid gap-2 ${count === 2 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
       {show.map((src, i) => (
         <div
           key={i}
-          className="relative overflow-hidden"
+          className="relative overflow-hidden rounded-xl"
           style={{ aspectRatio: '1/1' }}
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onImageClick(i) }}
         >
@@ -168,9 +168,9 @@ export default function PostCard({ post, queryKey }) {
   return (
     <>
       <div
-        className="post-enter bg-white rounded-2xl transition-shadow duration-300 overflow-hidden"
+        className="post-enter bg-white dark:bg-[#242526] rounded-2xl transition-shadow duration-300 overflow-hidden"
         style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
-        onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05)'}
+        onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07)'}
         onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)'}
       >
         {/* Header */}
@@ -178,7 +178,7 @@ export default function PostCard({ post, queryKey }) {
           <div className="flex items-center gap-3">
             <UserAvatar name={post.user?.name} />
             <div>
-              <p className="font-semibold text-[15px] leading-tight text-gray-900">
+              <p className="font-semibold text-[15px] leading-tight text-gray-900 dark:text-gray-100">
                 {post.user?.name}
                 {post.feeling && (
                   <span className="font-normal text-gray-500"> — feeling {post.feeling}</span>
@@ -196,8 +196,8 @@ export default function PostCard({ post, queryKey }) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-all duration-200 hover:scale-105">
-                <MoreHorizontal className="h-5 w-5 text-gray-500" />
+              <button className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 hover:scale-105">
+                <MoreHorizontal className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-gray-100">
@@ -228,7 +228,7 @@ export default function PostCard({ post, queryKey }) {
             </p>
           )}
           {post.body && (
-            <p className="px-4 py-2 text-[15px] leading-6 text-gray-800 whitespace-pre-wrap group-hover:text-gray-900 transition-colors duration-200">
+            <p className="px-4 py-2 text-[15px] leading-6 text-gray-800 dark:text-gray-200 whitespace-pre-wrap group-hover:text-gray-900 dark:group-hover:text-white transition-colors duration-200">
               {post.body}
             </p>
           )}
@@ -240,7 +240,7 @@ export default function PostCard({ post, queryKey }) {
 
         {/* Engagement stats */}
         {(post.likes_count > 0 || post.comments_count > 0) && (
-          <div className="flex items-center justify-between px-4 py-2 text-[13px] text-gray-400">
+          <div className="flex items-center justify-between px-4 py-2 text-[13px] text-gray-400 dark:text-gray-500">
             {post.likes_count > 0 ? (
               <div className="flex items-center gap-1.5">
                 {myReaction ? (
@@ -265,7 +265,7 @@ export default function PostCard({ post, queryKey }) {
         )}
 
         {/* Divider */}
-        <div className="mx-4 h-px bg-gray-100" />
+        <div className="mx-4 h-px bg-gray-100 dark:bg-white/10" />
 
         {/* Action buttons */}
         <div className="flex mx-1 py-1 gap-0.5">
@@ -285,7 +285,9 @@ export default function PostCard({ post, queryKey }) {
                 ? { color: myReaction?.color ?? '#1877F2', background: `${myReaction?.color ?? '#1877F2'}12` }
                 : { color: '#65676b' }
               }
-              onMouseEnter={(e) => !isLiked && (e.currentTarget.style.background = '#f2f2f2')}
+              onMouseEnter={(e) => {
+                if (!isLiked) e.currentTarget.style.background = document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : '#f2f2f2'
+              }}
               onMouseLeave={(e) => !isLiked && (e.currentTarget.style.background = 'transparent')}
             >
               {myReaction ? (
@@ -299,7 +301,7 @@ export default function PostCard({ post, queryKey }) {
 
           <Link
             to={`/posts/${post.uuid}`}
-            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 hover:scale-[1.02]"
+            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 dark:text-gray-400 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-200 hover:scale-[1.02]"
           >
             <MessageCircle className="h-5 w-5" />
             <span>Comment</span>
@@ -307,7 +309,7 @@ export default function PostCard({ post, queryKey }) {
 
           <button
             onClick={() => setShareOpen(true)}
-            className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 hover:scale-[1.02]"
+            className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 dark:text-gray-400 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-200 hover:scale-[1.02]"
           >
             <Share2 className="h-5 w-5" />
             <span>Share</span>
