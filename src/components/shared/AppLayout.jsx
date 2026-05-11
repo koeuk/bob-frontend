@@ -154,7 +154,7 @@ export default function AppLayout() {
         </div>
       </header>
 
-      <main className="max-w-[680px] mx-auto px-4 py-5">
+      <main className="max-w-[860px] mx-auto px-4 py-5">
         <Outlet />
       </main>
       <Toaster />
