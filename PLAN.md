@@ -5,6 +5,10 @@
 Social media platform frontend connecting to a Laravel 12 + Sanctum REST API.
 Stack: **React 19 + Vite**, **Tailwind CSS v4**, **shadcn/ui** (desktop), **react-vant** (mobile).
 
+**Two separate apps within one codebase:**
+- **User app** (`/`) — Feed, Posts, Comments, Likes, Reports, Dashboard, Settings
+- **Admin app** (`/admin`) — Full moderation panel, only accessible to `moderator|admin|super_admin` roles. Regular users never see admin routes.
+
 ---
 
 ## Tech Decisions
@@ -236,7 +240,9 @@ Base route: `/admin` (requires `moderator|admin|super_admin` role)
 - Feed, My Posts, Dashboard, Reports, Settings, Logout
 
 ### Navigation (admin+)
-- All above + Admin dropdown: Dashboard, Users, Posts, Comments, Reports, Bans, Pages, Settings, Logs
+- Completely separate layout — admins land on `/admin/dashboard`, no access to user feed
+- Admin sidebar: Dashboard, Users, Posts, Comments, Reports, Bans, Pages, Settings, Logs
+- After login, redirect based on role: admin → `/admin/dashboard`, user → `/feed`
 
 ---
 
