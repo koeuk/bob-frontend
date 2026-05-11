@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -67,9 +68,12 @@ export default function AccountPage() {
   const navigate = useNavigate()
   const [tab, setTab] = useState('profile')
   const avatarRef = useRef(null)
+  const avatarBtnRef = useRef(null)
+  const avatarMenuRef = useRef(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarMenu, setAvatarMenu] = useState(false)
+  const [avatarMenuPos, setAvatarMenuPos] = useState({ top: 0, left: 0 })
   const [viewPhoto, setViewPhoto] = useState(false)
 
   const profileForm = useForm({
@@ -103,10 +107,23 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!avatarMenu) return
-    const handler = (e) => setAvatarMenu(false)
+    const handler = (e) => {
+      if (
+        avatarMenuRef.current && !avatarMenuRef.current.contains(e.target) &&
+        avatarBtnRef.current && !avatarBtnRef.current.contains(e.target)
+      ) setAvatarMenu(false)
+    }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [avatarMenu])
+
+  const handleAvatarBtnClick = () => {
+    if (!avatarMenu && avatarBtnRef.current) {
+      const rect = avatarBtnRef.current.getBoundingClientRect()
+      setAvatarMenuPos({ top: rect.bottom + 8, left: rect.left })
+    }
+    setAvatarMenu(v => !v)
+  }
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]
@@ -137,7 +154,8 @@ export default function AccountPage() {
             <div className="relative">
               {/* Avatar — click to open menu */}
               <button
-                onClick={() => setAvatarMenu(v => !v)}
+                ref={avatarBtnRef}
+                onClick={handleAvatarBtnClick}
                 className="cursor-pointer relative group block rounded-full"
               >
                 {avatarPreview ? (
@@ -148,13 +166,21 @@ export default function AccountPage() {
                 <span className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ boxShadow: `0 0 0 4px ${dark ? '#242526' : 'white'}` }}>
                   <Camera className="h-6 w-6 text-white" />
                 </span>
+                {/* Active indicator */}
+                <span
+                  className="absolute bottom-1 right-1 h-5 w-5 rounded-full border-[3px] pointer-events-none"
+                  style={{ background: '#22c55e', borderColor: dark ? '#242526' : 'white' }}
+                />
               </button>
 
-              {/* Avatar menu */}
-              {avatarMenu && (
+              {/* Avatar menu — portalled to body to escape overflow:hidden */}
+              {avatarMenu && createPortal(
                 <div
-                  className="absolute left-0 top-[calc(100%+8px)] z-50 rounded-2xl overflow-hidden w-48"
+                  ref={avatarMenuRef}
+                  className="scale-in fixed z-[9999] rounded-2xl overflow-hidden w-48"
                   style={{
+                    top: avatarMenuPos.top,
+                    left: avatarMenuPos.left,
                     background: dark ? '#3a3b3c' : 'white',
                     boxShadow: dark ? '0 8px 30px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)' : '0 8px 30px rgba(0,0,0,0.12)',
                     border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'}`,
@@ -167,7 +193,7 @@ export default function AccountPage() {
                     className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium transition-colors"
                     style={{ color: dark ? '#e4e6eb' : '#374151' }}
                   >
-                    <Eye className="h-4 w-4" style={{ color: dark ? '#9ca3af' : '#9ca3af' }} />
+                    <Eye className="h-4 w-4" style={{ color: '#9ca3af' }} />
                     View photo
                   </button>
                   <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }} />
@@ -180,7 +206,8 @@ export default function AccountPage() {
                     <Upload className="h-4 w-4" />
                     Upload photo
                   </button>
-                </div>
+                </div>,
+                document.body
               )}
 
               <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />

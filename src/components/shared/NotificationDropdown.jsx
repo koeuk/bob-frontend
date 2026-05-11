@@ -31,7 +31,7 @@ function notifText(data) {
 
 export default function NotificationDropdown() {
   const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState({ top: 0, right: 0, width: 360 })
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 360 })
   const btnRef = useRef(null)
   const panelRef = useRef(null)
   const queryClient = useQueryClient()
@@ -58,12 +58,9 @@ export default function NotificationDropdown() {
     if (!open && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
       const panelWidth = Math.min(360, window.innerWidth - 16)
-      const rightRaw = window.innerWidth - rect.right
-      setPos({
-        top: rect.bottom + 8,
-        right: Math.max(8, rightRaw),
-        width: panelWidth,
-      })
+      // Align right edge of panel with right edge of button, clamped to viewport
+      const left = Math.max(8, Math.min(rect.right - panelWidth, window.innerWidth - panelWidth - 8))
+      setPos({ top: rect.bottom + 8, left, width: panelWidth })
     }
     setOpen(v => !v)
   }
@@ -117,7 +114,7 @@ export default function NotificationDropdown() {
           className="scale-in fixed rounded-2xl overflow-hidden z-[9999]"
           style={{
             top: pos.top,
-            right: pos.right,
+            left: pos.left,
             width: pos.width,
             boxShadow: document.documentElement.classList.contains('dark') ? '0 12px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)' : '0 12px 40px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08)',
             border: document.documentElement.classList.contains('dark') ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',

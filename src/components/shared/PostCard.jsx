@@ -13,24 +13,24 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from 'sonner'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 
-export function UserAvatar({ name, avatar, size = 'md' }) {
+export function UserAvatar({ name, avatar, size = 'md', active = false }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
-  if (avatar) {
-    return (
-      <img
-        src={avatar}
-        alt={name}
-        className={`${sz} rounded-full object-cover shrink-0`}
-        style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}
-      />
-    )
-  }
-  return (
+  const dotSz = size === 'sm' ? 'h-2.5 w-2.5 border-[1.5px]' : 'h-3 w-3 border-2'
+  const inner = avatar ? (
+    <img src={avatar} alt={name} className={`${sz} rounded-full object-cover shrink-0`} style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }} />
+  ) : (
     <div
       className={`${sz} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
       style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 2px 6px rgba(24,119,242,0.25)' }}
     >
       {name?.[0]?.toUpperCase() ?? '?'}
+    </div>
+  )
+  if (!active) return inner
+  return (
+    <div className="relative shrink-0">
+      {inner}
+      <span className={`absolute bottom-0 right-0 ${dotSz} rounded-full border-white dark:border-[#242526]`} style={{ background: '#22c55e' }} />
     </div>
   )
 }
@@ -186,7 +186,7 @@ export default function PostCard({ post, queryKey }) {
         {/* Header */}
         <div className="flex items-start justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-3">
-            <UserAvatar name={post.user?.name} avatar={post.user?.avatar} />
+            <UserAvatar name={post.user?.name} avatar={post.user?.avatar} active={isOwner} />
             <div>
               <p className="font-semibold text-[15px] leading-tight text-gray-900 dark:text-gray-100">
                 {post.user?.name}

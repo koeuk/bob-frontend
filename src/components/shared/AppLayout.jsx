@@ -149,17 +149,23 @@ export default function AppLayout() {
       <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            className="cursor-pointer h-9 w-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm transition-all duration-200 hover:scale-105 hover:opacity-90 shrink-0"
-            style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
-              background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-              boxShadow: '0 2px 8px rgba(24,119,242,0.35)',
-            }}
-          >
-            {user?.avatar
-              ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-              : user?.name?.[0]?.toUpperCase()
-            }
+          <button className="relative cursor-pointer shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90">
+            <div
+              className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm"
+              style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
+                background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
+                boxShadow: '0 2px 8px rgba(24,119,242,0.35)',
+              }}
+            >
+              {user?.avatar
+                ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                : user?.name?.[0]?.toUpperCase()
+              }
+            </div>
+            <span
+              className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2"
+              style={{ background: '#22c55e', borderColor: dark ? '#242526' : 'white' }}
+            />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-xl border-gray-100 p-1">
