@@ -8,7 +8,7 @@ import PostCard from '../../components/shared/PostCard'
 import ReportModal from '../../components/shared/ReportModal'
 import { Button } from '../../components/ui/button'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog'
-import { Loader2, ArrowLeft, Trash2, Flag, ThumbsUp } from 'lucide-react'
+import { Loader2, ArrowLeft, Trash2, Flag, ThumbsUp, SendHorizonal } from 'lucide-react'
 import { formatDistanceToNow } from '../../lib/utils'
 import { toast } from 'sonner'
 
@@ -187,12 +187,12 @@ function CommentItem({ comment, postUuid, queryKey }) {
 
           {/* Reply form */}
           {replyOpen && (
-            <div className="mt-2 flex gap-2 items-start">
+            <div className="mt-2 flex gap-2 items-center">
               <UserAvatar name={user?.name} avatar={user?.avatar} size="sm" />
-              <div className="flex-1">
+              <div className="flex-1 flex items-center gap-1 bg-[#F0F2F5] dark:bg-white/10 rounded-full px-4 py-2">
                 <input
                   autoFocus
-                  className="w-full bg-[#F0F2F5] dark:bg-white/10 rounded-full px-4 py-2 text-[15px] outline-none placeholder:text-gray-400 dark:text-gray-200 dark:placeholder:text-gray-500"
+                  className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-gray-400 dark:text-gray-200 dark:placeholder:text-gray-500"
                   placeholder="Write a reply…"
                   value={replyBody}
                   maxLength={5000}
@@ -204,6 +204,17 @@ function CommentItem({ comment, postUuid, queryKey }) {
                     }
                   }}
                 />
+                <button
+                  onClick={() => replyBody.trim() && replyMutation.mutate()}
+                  disabled={!replyBody.trim() || replyMutation.isPending}
+                  className="cursor-pointer shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
+                  style={replyBody.trim() ? { background: 'linear-gradient(135deg,#1877F2,#4facfe)', boxShadow: '0 2px 8px rgba(24,119,242,0.35)' } : { background: 'transparent' }}
+                >
+                  {replyMutation.isPending
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+                    : <SendHorizonal className={`h-3.5 w-3.5 ${replyBody.trim() ? 'text-white' : 'text-gray-400 dark:text-gray-500'}`} />
+                  }
+                </button>
               </div>
             </div>
           )}
@@ -287,9 +298,9 @@ export default function PostDetailPage() {
 
         {/* Comment input */}
         {isAuthenticated ? (
-          <div className="flex gap-2 items-start">
-            <UserAvatar name={user?.name} size="sm" />
-            <div className="flex-1 flex items-center gap-2 bg-[#F0F2F5] dark:bg-white/10 rounded-full px-4 py-2">
+          <div className="flex gap-2 items-center">
+            <UserAvatar name={user?.name} avatar={user?.avatar} size="sm" />
+            <div className="flex-1 flex items-center gap-1 bg-[#F0F2F5] dark:bg-white/10 rounded-full px-4 py-2">
               <input
                 className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-gray-400 dark:text-gray-200 dark:placeholder:text-gray-500"
                 placeholder="Write a comment…"
@@ -303,15 +314,17 @@ export default function PostDetailPage() {
                   }
                 }}
               />
-              {commentBody.trim() && (
-                <button
-                  onClick={() => commentMutation.mutate()}
-                  disabled={commentMutation.isPending}
-                  className="text-[#1877F2] font-semibold text-sm hover:text-[#166FE5] disabled:opacity-50"
-                >
-                  {commentMutation.isPending ? '…' : 'Post'}
-                </button>
-              )}
+              <button
+                onClick={() => commentBody.trim() && commentMutation.mutate()}
+                disabled={!commentBody.trim() || commentMutation.isPending}
+                className="cursor-pointer shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
+                style={commentBody.trim() ? { background: 'linear-gradient(135deg,#1877F2,#4facfe)', boxShadow: '0 2px 8px rgba(24,119,242,0.35)' } : { background: 'transparent' }}
+              >
+                {commentMutation.isPending
+                  ? <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+                  : <SendHorizonal className={`h-3.5 w-3.5 ${commentBody.trim() ? 'text-white' : 'text-gray-400 dark:text-gray-500'}`} />
+                }
+              </button>
             </div>
           </div>
         ) : (

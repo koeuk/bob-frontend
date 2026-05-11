@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { MoreHorizontal, Trash2, Flag, Pencil, MessageCircle, ThumbsUp, Globe, Lock, Share2 } from 'lucide-react'
+import { MoreHorizontal, Trash2, Flag, Pencil, MessageCircle, ThumbsUp, Globe, Lock, Share2, UserPlus, UserCheck, Clock, UserX } from 'lucide-react'
 import { likePost, deletePost } from '../../api/posts'
+import { sendFriendRequest, cancelFriendRequest, acceptFriendRequest, declineFriendRequest } from '../../api/friends'
 import useAuthStore from '../../store/authStore'
 import ReportModal from './ReportModal'
 import EditPostModal from './EditPostModal'
@@ -117,6 +118,98 @@ function PostImages({ images, onImageClick }) {
   )
 }
 
+function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
+  const queryClient = useQueryClient()
+  const [localStatus, setLocalStatus] = useState(friendshipStatus)
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey })
+
+  const sendMutation = useMutation({
+    mutationFn: () => sendFriendRequest(authorUuid),
+    onSuccess: (res) => { setLocalStatus({ status: 'pending_sent', request_id: res.data.id }); invalidate() },
+    onError: () => toast.error('Could not send friend request'),
+  })
+
+  const cancelMutation = useMutation({
+    mutationFn: () => cancelFriendRequest(localStatus?.request_id),
+    onSuccess: () => { setLocalStatus({ status: 'none' }); invalidate() },
+  })
+
+  const acceptMutation = useMutation({
+    mutationFn: () => acceptFriendRequest(localStatus?.request_id),
+    onSuccess: () => { setLocalStatus({ status: 'friends' }); invalidate() },
+    onError: () => toast.error('Could not accept request'),
+  })
+
+  const declineMutation = useMutation({
+    mutationFn: () => declineFriendRequest(localStatus?.request_id),
+    onSuccess: () => { setLocalStatus({ status: 'none' }); invalidate() },
+  })
+
+  const status = localStatus?.status ?? 'none'
+
+  if (status === 'friends') {
+    return (
+      <span className="flex items-center gap-1 text-[12px] font-semibold text-[#1877F2] px-2 py-1 rounded-full" style={{ background: 'rgba(24,119,242,0.08)' }}>
+        <UserCheck className="h-3.5 w-3.5" />
+        Friends
+      </span>
+    )
+  }
+
+  if (status === 'pending_sent') {
+    return (
+      <button
+        onClick={() => cancelMutation.mutate()}
+        disabled={cancelMutation.isPending}
+        className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold text-gray-500 dark:text-gray-400 px-2.5 py-1 rounded-full transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
+        style={{ background: 'rgba(0,0,0,0.05)' }}
+        title="Cancel friend request"
+      >
+        <Clock className="h-3.5 w-3.5" />
+        Pending
+      </button>
+    )
+  }
+
+  if (status === 'pending_received') {
+    return (
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => acceptMutation.mutate()}
+          disabled={acceptMutation.isPending}
+          className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold text-white px-2.5 py-1 rounded-full transition-opacity hover:opacity-90"
+          style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)' }}
+        >
+          <UserCheck className="h-3.5 w-3.5" />
+          Accept
+        </button>
+        <button
+          onClick={() => declineMutation.mutate()}
+          disabled={declineMutation.isPending}
+          className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold text-gray-500 dark:text-gray-400 px-2.5 py-1 rounded-full transition-colors hover:bg-gray-200 dark:hover:bg-white/15"
+          style={{ background: 'rgba(0,0,0,0.06)' }}
+        >
+          <UserX className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    )
+  }
+
+  // status === 'none'
+  return (
+    <button
+      onClick={() => sendMutation.mutate()}
+      disabled={sendMutation.isPending}
+      className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold text-[#1877F2] px-2.5 py-1 rounded-full transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20"
+      style={{ border: '1.5px solid rgba(24,119,242,0.35)' }}
+    >
+      <UserPlus className="h-3.5 w-3.5" />
+      Add
+    </button>
+  )
+}
+
 export default function PostCard({ post, queryKey }) {
   const { user, isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
@@ -204,6 +297,14 @@ export default function PostCard({ post, queryKey }) {
               </div>
             </div>
           </div>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && !isOwner && post.friendship_status && (
+              <FriendButton
+                friendshipStatus={post.friendship_status}
+                authorUuid={post.user?.uuid}
+                queryKey={queryKey}
+              />
+            )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 hover:scale-105">
@@ -228,6 +329,7 @@ export default function PostCard({ post, queryKey }) {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
 
         {/* Body */}
