@@ -4,7 +4,7 @@ import { createPost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
-import { ImageIcon, Smile, X, Globe } from 'lucide-react'
+import { ImageIcon, Smile, X, Globe, Lock } from 'lucide-react'
 
 const FEELINGS = [
   { value: 'happy',     emoji: '😊' },
@@ -25,14 +25,14 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
   const [body, setBody] = useState('')
-  const [image, setImage] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
+  const [images, setImages] = useState([])   // { file, preview }
   const [feeling, setFeeling] = useState(null)
+  const [visibility, setVisibility] = useState('public')
   const [showFeelings, setShowFeelings] = useState(false)
   const fileRef = useRef(null)
 
   const createMutation = useMutation({
-    mutationFn: () => createPost({ body, image, feeling: feeling?.value }),
+    mutationFn: () => createPost({ body, images: images.map((i) => i.file), feeling: feeling?.value, visibility }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey })
       handleClose()
@@ -41,27 +41,25 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
 
   const handleClose = () => {
     setBody('')
-    setImage(null)
-    setImagePreview(null)
+    setImages([])
     setFeeling(null)
+    setVisibility('public')
     setShowFeelings(false)
     onClose()
   }
 
   const handleImageChange = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setImage(file)
-    setImagePreview(URL.createObjectURL(file))
+    const files = Array.from(e.target.files ?? [])
+    const newItems = files.map((file) => ({ file, preview: URL.createObjectURL(file) }))
+    setImages((prev) => [...prev, ...newItems].slice(0, 10))
+    e.target.value = ''
   }
 
-  const removeImage = () => {
-    setImage(null)
-    setImagePreview(null)
-    fileRef.current.value = ''
+  const removeImage = (idx) => {
+    setImages((prev) => prev.filter((_, i) => i !== idx))
   }
 
-  const canPost = (body.trim() || image) && !createMutation.isPending
+  const canPost = (body.trim() || images.length > 0) && !createMutation.isPending
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
@@ -82,17 +80,24 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
             </div>
             <div>
               <p className="font-semibold text-[15px] leading-tight text-gray-900">{user?.name}</p>
-              <div className="flex items-center gap-1 mt-1 bg-gray-100 rounded-lg px-2.5 py-1 w-fit cursor-pointer hover:bg-gray-200 transition-colors duration-200">
-                <Globe className="h-3 w-3 text-gray-600" />
-                <span className="text-[12px] font-semibold text-gray-600">Public</span>
-              </div>
+              {/* Privacy toggle */}
+              <button
+                onClick={() => setVisibility((v) => v === 'public' ? 'private' : 'public')}
+                className="cursor-pointer flex items-center gap-1 mt-1 bg-gray-100 hover:bg-gray-200 rounded-lg px-2.5 py-1 w-fit transition-colors duration-200"
+              >
+                {visibility === 'public' ? (
+                  <><Globe className="h-3 w-3 text-gray-600" /><span className="text-[12px] font-semibold text-gray-600">Public</span></>
+                ) : (
+                  <><Lock className="h-3 w-3 text-gray-700" /><span className="text-[12px] font-semibold text-gray-700">Only me</span></>
+                )}
+              </button>
             </div>
           </div>
 
           {/* Compose area */}
           <textarea
             autoFocus
-            className="w-full resize-none outline-none text-[18px] placeholder:text-gray-300 min-h-[120px] leading-relaxed text-gray-800"
+            className="w-full resize-none outline-none text-[18px] placeholder:text-gray-300 min-h-[100px] leading-relaxed text-gray-800"
             placeholder={`What's on your mind, ${user?.name?.split(' ')[0]}?`}
             value={body}
             maxLength={10000}
@@ -113,16 +118,29 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
             </div>
           )}
 
-          {/* Image preview */}
-          {imagePreview && (
-            <div className="relative rounded-2xl overflow-hidden fade-in" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
-              <img src={imagePreview} alt="Preview" className="w-full max-h-72 object-cover" />
-              <button
-                onClick={removeImage}
-                className="cursor-pointer absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-black/55 hover:bg-black/75 flex items-center justify-center text-white transition-all duration-200 hover:scale-105"
-              >
-                <X className="h-4 w-4" />
-              </button>
+          {/* Image preview grid */}
+          {images.length > 0 && (
+            <div className={`grid gap-1.5 fade-in ${images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {images.map((img, idx) => (
+                <div key={idx} className="relative rounded-xl overflow-hidden aspect-square" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
+                  <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => removeImage(idx)}
+                    className="cursor-pointer absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-black/55 hover:bg-black/75 flex items-center justify-center text-white transition-all duration-200 hover:scale-105"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              {images.length < 10 && (
+                <button
+                  onClick={() => fileRef.current.click()}
+                  className="cursor-pointer aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 text-gray-400 hover:border-gray-300 hover:text-gray-500 transition-all duration-200 hover:bg-gray-50"
+                >
+                  <ImageIcon className="h-6 w-6" />
+                  <span className="text-[12px] font-medium">Add more</span>
+                </button>
+              )}
             </div>
           )}
 
@@ -136,9 +154,7 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
                     key={f.value}
                     onClick={() => { setFeeling(f); setShowFeelings(false) }}
                     className={`cursor-pointer flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all duration-150 text-center hover:scale-105 ${
-                      feeling?.value === f.value
-                        ? 'ring-2 ring-[#1877F2]'
-                        : 'hover:bg-white'
+                      feeling?.value === f.value ? 'ring-2 ring-[#1877F2]' : 'hover:bg-white'
                     }`}
                     style={feeling?.value === f.value ? { background: 'rgba(24,119,242,0.06)' } : {}}
                   >
@@ -153,14 +169,13 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
 
         {/* Footer */}
         <div className="px-4 pb-4 space-y-3">
-          {/* Add to post toolbar */}
           <div
             className="flex items-center justify-between rounded-xl px-4 py-2.5"
             style={{ border: '1px solid rgba(0,0,0,0.08)', background: '#fafafa' }}
           >
             <span className="text-[14px] font-semibold text-gray-600">Add to your post</span>
             <div className="flex items-center gap-0.5">
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
               <button
                 onClick={() => fileRef.current.click()}
                 title="Photo"
@@ -178,7 +193,6 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
             </div>
           </div>
 
-          {/* Post button */}
           <Button
             className="w-full rounded-xl text-[15px] font-semibold h-10 cursor-pointer transition-all duration-200"
             style={canPost

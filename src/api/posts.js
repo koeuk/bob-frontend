@@ -5,10 +5,20 @@ export const getMyPosts = (page = 1) => client.get(`/posts/mine?page=${page}`)
 export const getPost = (uuid) => client.get(`/posts/${uuid}`)
 export const createPost = (data) => {
   const form = new FormData()
-  form.append('body', data.body)
-  if (data.image) form.append('image', data.image)
+  if (data.body) form.append('body', data.body)
   if (data.feeling) form.append('feeling', data.feeling)
+  if (data.visibility) form.append('visibility', data.visibility)
+  ;(data.images ?? []).forEach((file) => form.append('images[]', file))
   return client.post('/posts', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+}
+export const updatePost = (uuid, data) => {
+  const form = new FormData()
+  if (data.body) form.append('body', data.body)
+  if (data.feeling) form.append('feeling', data.feeling)
+  if (data.visibility) form.append('visibility', data.visibility)
+  ;(data.keepImages ?? []).forEach((url) => form.append('keep_images[]', url))
+  ;(data.newImages ?? []).forEach((file) => form.append('new_images[]', file))
+  return client.post(`/posts/${uuid}`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
 }
 export const deletePost = (uuid) => client.delete(`/posts/${uuid}`)
 export const likePost = (uuid, type = 'like') => client.post(`/posts/${uuid}/like`, { type })
