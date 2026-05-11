@@ -117,16 +117,16 @@ export default function AppLayout() {
           boxShadow: '0 1px 0 rgba(0,0,0,0.05), 0 4px 24px rgba(0,0,0,0.04)',
         }}
       >
-        <div className="w-full px-5 h-[60px] flex items-center gap-3">
+        <div className="w-full px-6 h-[62px] flex items-center">
 
-          {/* ── Left: Logo + Search ── */}
-          <div className="flex items-center gap-3 shrink-0" style={{ width: 280 }}>
+          {/* ── Left: Logo + Search (fixed width = mirrors right) ── */}
+          <div className="flex items-center gap-2.5 shrink-0" style={{ width: 300 }}>
             <Link
               to="/feed"
-              className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none shrink-0 transition-all duration-200 hover:scale-105"
+              className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90"
               style={{
                 background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-                boxShadow: '0 3px 10px rgba(24,119,242,0.40)',
+                boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
               }}
             >
               b
@@ -139,15 +139,12 @@ export default function AppLayout() {
                 placeholder="Search Bob"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-full pl-9 pr-4 py-2 text-[13px] outline-none placeholder:text-gray-400 transition-all duration-200"
-                style={{
-                  background: 'rgba(0,0,0,0.06)',
-                  border: '1.5px solid transparent',
-                }}
+                className="w-full rounded-full pl-9 pr-4 py-[7px] text-[13px] outline-none placeholder:text-gray-400 transition-all duration-200"
+                style={{ background: 'rgba(0,0,0,0.06)', border: '1.5px solid transparent' }}
                 onFocus={e => {
                   e.target.style.background = 'white'
-                  e.target.style.border = '1.5px solid rgba(24,119,242,0.35)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.10)'
+                  e.target.style.border = '1.5px solid rgba(24,119,242,0.3)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.09)'
                 }}
                 onBlur={e => {
                   e.target.style.background = 'rgba(0,0,0,0.06)'
@@ -158,13 +155,13 @@ export default function AppLayout() {
             </div>
           </div>
 
-          {/* ── Center: Sliding pill nav ── */}
-          <div className="flex-1 flex justify-center">
+          {/* ── Center: Sliding pill nav (fills remaining space, centered) ── */}
+          <div className="flex-1 flex justify-center px-4">
             <SlidingPillNav items={navItems} />
           </div>
 
-          {/* ── Right: Actions + User ── */}
-          <div className="flex items-center gap-2 shrink-0" style={{ width: 280, justifyContent: 'flex-end' }}>
+          {/* ── Right: Actions + User (mirrors left width) ── */}
+          <div className="flex items-center gap-2 shrink-0 justify-end" style={{ width: 300 }}>
             {isAuthenticated ? (
               <>
                 <IconBtn icon={MessageCircle} title="Messages" />
