@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getPost } from '../../api/posts'
@@ -7,9 +7,50 @@ import useAuthStore from '../../store/authStore'
 import PostCard from '../../components/shared/PostCard'
 import ReportModal from '../../components/shared/ReportModal'
 import { Button } from '../../components/ui/button'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog'
 import { Loader2, ArrowLeft, Trash2, Flag, ThumbsUp } from 'lucide-react'
 import { formatDistanceToNow } from '../../lib/utils'
 import { toast } from 'sonner'
+
+const REACTIONS = [
+  { type: 'like',  emoji: '👍', label: 'Like',  color: '#1877F2' },
+  { type: 'love',  emoji: '❤️', label: 'Love',  color: '#F33E58' },
+  { type: 'haha',  emoji: '😂', label: 'Haha',  color: '#F7B125' },
+  { type: 'wow',   emoji: '😮', label: 'Wow',   color: '#F7B125' },
+  { type: 'sad',   emoji: '😢', label: 'Sad',   color: '#F7B125' },
+  { type: 'angry', emoji: '😡', label: 'Angry', color: '#E9710F' },
+]
+
+function CommentReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
+  const [hovered, setHovered] = useState(null)
+  return (
+    <div
+      className="picker-reveal absolute bottom-full left-0 mb-1 flex items-end gap-1 rounded-full px-2.5 py-2 z-50"
+      style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', boxShadow: '0 6px 24px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.07)', border: '1px solid rgba(0,0,0,0.06)' }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {REACTIONS.map((r) => (
+        <div key={r.type} className="relative flex flex-col items-center">
+          {hovered === r.type && (
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-semibold bg-gray-900/90 text-white rounded-md px-1.5 py-0.5 whitespace-nowrap pointer-events-none fade-in">
+              {r.label}
+            </span>
+          )}
+          <button
+            onMouseEnter={() => setHovered(r.type)}
+            onMouseLeave={() => setHovered(null)}
+            onClick={() => onReact(r.type)}
+            className="cursor-pointer text-2xl leading-none transition-all duration-150 hover:scale-[1.4] hover:-translate-y-1.5 active:scale-110"
+            style={{ filter: hovered === r.type ? 'drop-shadow(0 3px 6px rgba(0,0,0,0.18))' : 'none' }}
+          >
+            {r.emoji}
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function UserAvatar({ name, size = 'md' }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
@@ -27,7 +68,14 @@ function CommentItem({ comment, postUuid, queryKey }) {
   const [replyOpen, setReplyOpen] = useState(false)
   const [replyBody, setReplyBody] = useState('')
   const [reportOpen, setReportOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const hoverTimer = useRef(null)
   const isOwner = user?.uuid === comment.user?.uuid
+
+  const myReaction = comment.my_reaction
+    ? REACTIONS.find((r) => r.type === comment.my_reaction) ?? null
+    : null
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteComment(comment.uuid),
@@ -44,6 +92,32 @@ function CommentItem({ comment, postUuid, queryKey }) {
     onSuccess: () => { setReplyBody(''); setReplyOpen(false); queryClient.invalidateQueries({ queryKey }) },
   })
 
+  const openPicker = () => {
+    if (!isAuthenticated) return
+    clearTimeout(hoverTimer.current)
+    hoverTimer.current = setTimeout(() => setPickerOpen(true), 450)
+  }
+
+  const closePicker = () => {
+    clearTimeout(hoverTimer.current)
+    hoverTimer.current = setTimeout(() => setPickerOpen(false), 180)
+  }
+
+  const cancelClose = () => clearTimeout(hoverTimer.current)
+
+  const handleLike = () => {
+    if (!isAuthenticated) return
+    setPickerOpen(false)
+    likeMutation.mutate(myReaction ? null : 'like')
+  }
+
+  const handleReact = (type) => {
+    setPickerOpen(false)
+    likeMutation.mutate(type)
+  }
+
+  const isLiked = myReaction || comment.liked_by_me
+
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
@@ -58,33 +132,50 @@ function CommentItem({ comment, postUuid, queryKey }) {
           {/* Actions below bubble */}
           <div className="flex items-center gap-3 mt-1 ml-3 text-[12px] font-semibold text-gray-500">
             <span className="text-gray-400">{formatDistanceToNow(comment.created_at)}</span>
-            <button
-              onClick={() => isAuthenticated ? likeMutation.mutate(comment.liked_by_me ? null : 'like') : null}
-              className={`hover:underline transition-colors ${comment.liked_by_me ? 'text-[#1877F2]' : 'hover:text-gray-700'}`}
+
+            {/* Like with reaction picker */}
+            <div
+              className="relative"
+              onMouseEnter={openPicker}
+              onMouseLeave={closePicker}
             >
-              Like
-            </button>
+              {pickerOpen && (
+                <CommentReactionPicker onReact={handleReact} onMouseEnter={cancelClose} onMouseLeave={closePicker} />
+              )}
+              <button
+                onClick={handleLike}
+                className="cursor-pointer hover:underline transition-colors"
+                style={isLiked ? { color: myReaction?.color ?? '#1877F2' } : {}}
+              >
+                {myReaction ? `${myReaction.emoji} ${myReaction.label}` : 'Like'}
+              </button>
+            </div>
+
             {isAuthenticated && (
-              <button className="hover:underline hover:text-gray-700" onClick={() => setReplyOpen(!replyOpen)}>
+              <button className="cursor-pointer hover:underline hover:text-gray-700 transition-colors" onClick={() => setReplyOpen(!replyOpen)}>
                 Reply
               </button>
             )}
             {comment.likes_count > 0 && (
               <div className="flex items-center gap-0.5 text-gray-500 font-normal">
-                <div className="h-[16px] w-[16px] rounded-full bg-[#1877F2] flex items-center justify-center">
-                  <ThumbsUp className="h-2 w-2 text-white fill-white" />
-                </div>
+                {myReaction ? (
+                  <span className="text-[14px] leading-none">{myReaction.emoji}</span>
+                ) : (
+                  <div className="h-[16px] w-[16px] rounded-full bg-[#1877F2] flex items-center justify-center">
+                    <ThumbsUp className="h-2 w-2 text-white fill-white" />
+                  </div>
+                )}
                 <span>{comment.likes_count}</span>
               </div>
             )}
             <div className="ml-auto flex gap-1">
               {isOwner && (
-                <button className="hover:text-red-500 transition-colors" onClick={() => deleteMutation.mutate()}>
+                <button className="cursor-pointer hover:text-red-500 transition-colors" onClick={() => deleteMutation.mutate()}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               )}
               {!isOwner && isAuthenticated && (
-                <button className="hover:text-red-500 transition-colors" onClick={() => setReportOpen(true)}>
+                <button className="cursor-pointer hover:text-red-500 transition-colors" onClick={() => setReportOpen(true)}>
                   <Flag className="h-3.5 w-3.5" />
                 </button>
               )}

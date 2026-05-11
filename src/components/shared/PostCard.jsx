@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { MoreHorizontal, Trash2, Flag, MessageCircle, ThumbsUp, Globe, Lock, Share2 } from 'lucide-react'
+import { MoreHorizontal, Trash2, Flag, Pencil, MessageCircle, ThumbsUp, Globe, Lock, Share2 } from 'lucide-react'
 import { likePost, deletePost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
 import ReportModal from './ReportModal'
+import EditPostModal from './EditPostModal'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog'
 import { toast } from 'sonner'
@@ -98,6 +99,7 @@ export default function PostCard({ post, queryKey }) {
   const queryClient = useQueryClient()
   const [reportOpen, setReportOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
   const hoverTimer = useRef(null)
   const isOwner = user?.uuid === post.user?.uuid
@@ -183,6 +185,11 @@ export default function PostCard({ post, queryKey }) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-gray-100">
+              {isOwner && (
+                <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => setEditOpen(true)}>
+                  <Pencil className="h-4 w-4 mr-2" /> Edit post
+                </DropdownMenuItem>
+              )}
               {isOwner && (
                 <DropdownMenuItem className="cursor-pointer text-destructive rounded-lg" onClick={() => setDeleteOpen(true)}>
                   <Trash2 className="h-4 w-4 mr-2" /> Delete post
@@ -293,6 +300,7 @@ export default function PostCard({ post, queryKey }) {
       </div>
 
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} type="post" id={post.uuid} />
+      <EditPostModal open={editOpen} onClose={() => setEditOpen(false)} post={post} queryKey={queryKey} />
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="rounded-2xl">
