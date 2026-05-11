@@ -169,12 +169,16 @@ export default function DashboardPage() {
           <div className="space-y-3">
             {activity.map((c) => (
               <Link key={c.id} to={`/posts/${c.post?.uuid}`} className="flex items-start gap-3 group">
-                <div
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)' }}
-                >
-                  {c.user?.name?.[0]?.toUpperCase()}
-                </div>
+                {c.user?.avatar ? (
+                  <img src={c.user.avatar} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div
+                    className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+                    style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)' }}
+                  >
+                    {c.user?.name?.[0]?.toUpperCase()}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <p className="text-[13px]">
                     <span className="font-semibold text-gray-900 dark:text-gray-100">{c.user?.name}</span>

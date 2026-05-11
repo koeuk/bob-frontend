@@ -44,12 +44,16 @@ export default function FeedPage() {
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)' }}
         >
           <div className="flex items-center gap-3">
-            <div
-              className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
-              style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 2px 6px rgba(24,119,242,0.25)' }}
-            >
-              {user?.name?.[0]?.toUpperCase()}
-            </div>
+            {user?.avatar ? (
+              <img src={user.avatar} alt="" className="h-10 w-10 rounded-full object-cover shrink-0" />
+            ) : (
+              <div
+                className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
+                style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 2px 6px rgba(24,119,242,0.25)' }}
+              >
+                {user?.name?.[0]?.toUpperCase()}
+              </div>
+            )}
             <button
               onClick={() => setModalOpen(true)}
               className="cursor-pointer flex-1 bg-gray-100/80 dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/15 rounded-full px-4 py-2.5 text-left text-gray-400 dark:text-gray-500 text-[15px] transition-all duration-200 hover:shadow-inner"

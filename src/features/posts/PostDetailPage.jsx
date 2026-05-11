@@ -52,8 +52,11 @@ function CommentReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
   )
 }
 
-function UserAvatar({ name, size = 'md' }) {
+function UserAvatar({ name, avatar, size = 'md' }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
+  if (avatar) {
+    return <img src={avatar} alt={name} className={`${sz} rounded-full object-cover shrink-0`} />
+  }
   return (
     <div className={`${sz} rounded-full bg-[#1877F2] flex items-center justify-center text-white font-semibold shrink-0`}>
       {name?.[0]?.toUpperCase() ?? '?'}
@@ -121,7 +124,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <UserAvatar name={comment.user?.name} size="sm" />
+        <UserAvatar name={comment.user?.name} avatar={comment.user?.avatar} size="sm" />
         <div className="flex-1">
           {/* Comment bubble */}
           <div className="bg-[#F0F2F5] dark:bg-white/10 rounded-2xl px-3 py-2 inline-block max-w-full">
@@ -185,7 +188,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
           {/* Reply form */}
           {replyOpen && (
             <div className="mt-2 flex gap-2 items-start">
-              <UserAvatar name={user?.name} size="sm" />
+              <UserAvatar name={user?.name} avatar={user?.avatar} size="sm" />
               <div className="flex-1">
                 <input
                   autoFocus
