@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { getFeed } from '../../api/posts'
@@ -13,6 +13,7 @@ export default function FeedPage() {
   const { user, isAuthenticated } = useAuthStore()
   const seed = useRef(Math.floor(Math.random() * 999999) + 1).current
   const queryKey = ['feed', seed]
+  const sentinelRef = useRef(null)
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey,
@@ -22,6 +23,17 @@ export default function FeedPage() {
   })
 
   const posts = data?.pages.flatMap((p) => p.data) ?? []
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage() },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   return (
     <div className="space-y-3">
@@ -90,7 +102,7 @@ export default function FeedPage() {
 
       {isError && !isAuthenticated && (
         <div
-          className="scale-in bg-white rounded-2xl p-10 text-center space-y-4"
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-10 text-center space-y-4"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
         >
           <p className="text-gray-500">Sign in to view posts from the community.</p>
@@ -106,17 +118,10 @@ export default function FeedPage() {
         </div>
       ))}
 
-      {hasNextPage && (
-        <Button
-          variant="outline"
-          className="w-full rounded-full bg-white hover:bg-gray-50 text-gray-600 font-semibold transition-all duration-200"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-          onClick={() => fetchNextPage()}
-          disabled={isFetchingNextPage}
-        >
-          {isFetchingNextPage ? <Loader2 className="h-4 w-4 animate-spin" /> : 'See more posts'}
-        </Button>
-      )}
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="flex justify-center py-4">
+        {isFetchingNextPage && <Loader2 className="h-5 w-5 animate-spin text-[#1877F2]" />}
+      </div>
     </div>
   )
 }

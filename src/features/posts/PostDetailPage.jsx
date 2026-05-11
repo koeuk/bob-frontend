@@ -124,7 +124,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
         <UserAvatar name={comment.user?.name} size="sm" />
         <div className="flex-1">
           {/* Comment bubble */}
-          <div className="bg-[#F0F2F5] rounded-2xl px-3 py-2 inline-block max-w-full">
+          <div className="bg-[#F0F2F5] dark:bg-white/10 rounded-2xl px-3 py-2 inline-block max-w-full">
             <p className="font-semibold text-[13px] leading-tight">{comment.user?.name}</p>
             <p className="text-[15px] whitespace-pre-wrap mt-0.5">{comment.body}</p>
           </div>
@@ -189,7 +189,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
               <div className="flex-1">
                 <input
                   autoFocus
-                  className="w-full bg-[#F0F2F5] rounded-full px-4 py-2 text-[15px] outline-none placeholder:text-gray-400"
+                  className="w-full bg-[#F0F2F5] dark:bg-white/10 rounded-full px-4 py-2 text-[15px] outline-none placeholder:text-gray-400 dark:text-gray-200 dark:placeholder:text-gray-500"
                   placeholder="Write a reply…"
                   value={replyBody}
                   maxLength={5000}
