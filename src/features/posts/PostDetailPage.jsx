@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getPost } from '../../api/posts'
 import { createComment, deleteComment, likeComment } from '../../api/comments'
@@ -104,6 +104,8 @@ function CommentItem({ comment, postUuid, queryKey }) {
 
 export default function PostDetailPage() {
   const { uuid } = useParams()
+  const navigate = useNavigate()
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const queryClient = useQueryClient()
   const queryKey = ['post', uuid]
   const [commentBody, setCommentBody] = useState('')
@@ -131,24 +133,30 @@ export default function PostDetailPage() {
 
       <PostCard post={post} queryKey={queryKey} />
 
-      <div className="space-y-2">
-        <Textarea
-          placeholder="Write a comment…"
-          rows={3}
-          maxLength={5000}
-          value={commentBody}
-          onChange={(e) => setCommentBody(e.target.value)}
-        />
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            disabled={!commentBody.trim() || commentMutation.isPending}
-            onClick={() => commentMutation.mutate()}
-          >
-            {commentMutation.isPending ? 'Posting…' : 'Comment'}
-          </Button>
+      {isAuthenticated ? (
+        <div className="space-y-2">
+          <Textarea
+            placeholder="Write a comment…"
+            rows={3}
+            maxLength={5000}
+            value={commentBody}
+            onChange={(e) => setCommentBody(e.target.value)}
+          />
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              disabled={!commentBody.trim() || commentMutation.isPending}
+              onClick={() => commentMutation.mutate()}
+            >
+              {commentMutation.isPending ? 'Posting…' : 'Comment'}
+            </Button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <p className="text-sm text-muted-foreground text-center py-2">
+          <Link to="/login" className="underline underline-offset-4 hover:text-foreground">Sign in</Link> to leave a comment.
+        </p>
+      )}
 
       <div className="space-y-4">
         {comments?.map((comment) => (

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { MoreHorizontal, Trash2, Flag, MessageCircle } from 'lucide-react'
 import { likePost, deletePost } from '../../api/posts'
@@ -14,11 +14,17 @@ import { toast } from 'sonner'
 import { formatDistanceToNow } from '../../lib/utils'
 
 export default function PostCard({ post, queryKey }) {
-  const user = useAuthStore((s) => s.user)
+  const { user, isAuthenticated } = useAuthStore()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [reportOpen, setReportOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const isOwner = user?.uuid === post.user?.uuid
+
+  const requireAuth = () => {
+    toast('Sign in to interact', { action: { label: 'Sign in', onClick: () => navigate('/login') } })
+    return false
+  }
 
   const likeMutation = useMutation({
     mutationFn: (type) => likePost(post.uuid, type),
@@ -55,7 +61,7 @@ export default function PostCard({ post, queryKey }) {
                   </DropdownMenuItem>
                 )}
                 {!isOwner && (
-                  <DropdownMenuItem onClick={() => setReportOpen(true)}>
+                  <DropdownMenuItem onClick={() => isAuthenticated ? setReportOpen(true) : requireAuth()}>
                     <Flag className="h-4 w-4 mr-2" /> Report
                   </DropdownMenuItem>
                 )}
@@ -73,7 +79,7 @@ export default function PostCard({ post, queryKey }) {
             <ReactionPicker
               liked={post.liked_by_me}
               count={post.likes_count}
-              onReact={(type) => likeMutation.mutate(type)}
+              onReact={(type) => isAuthenticated ? likeMutation.mutate(type) : requireAuth()}
             />
             <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" asChild>
               <Link to={`/posts/${post.uuid}`}>
