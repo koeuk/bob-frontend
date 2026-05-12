@@ -19,7 +19,6 @@ export default function FeedPage() {
     queryKey,
     queryFn: ({ pageParam = 1 }) => getFeed(pageParam, seed).then((r) => r.data),
     getNextPageParam: (last) => last.current_page < last.last_page ? last.current_page + 1 : undefined,
-    retry: false,
   })
 
   const posts = data?.pages.flatMap((p) => p.data) ?? []
@@ -104,15 +103,12 @@ export default function FeedPage() {
         </div>
       )}
 
-      {isError && !isAuthenticated && (
+      {isError && (
         <div
-          className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-10 text-center space-y-4"
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-10 text-center"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
         >
-          <p className="text-gray-500">Sign in to view posts from the community.</p>
-          <Button className="rounded-full bg-[#1877F2] hover:bg-[#166FE5]" asChild>
-            <Link to="/login">Sign in</Link>
-          </Button>
+          <p className="text-gray-500 dark:text-gray-400">Failed to load posts. Please try again.</p>
         </div>
       )}
 
