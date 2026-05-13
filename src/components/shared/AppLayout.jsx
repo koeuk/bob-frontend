@@ -5,7 +5,7 @@ import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, UserCircle, LogOut, Search, MessageCircle, Sun, Moon } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, Bell, UserCircle, LogOut, Search, MessageCircle, Sun, Moon } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
 import useThemeStore from '../../store/themeStore'
@@ -14,9 +14,10 @@ const publicNavItems = [
   { to: '/feed',      label: 'Feed',      icon: Home },
 ]
 const privateNavItems = [
-  { to: '/my-posts',  label: 'My Posts',  icon: FileText },
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/reports',   label: 'Reports',   icon: Flag },
+  { to: '/my-posts',       label: 'My Posts',      icon: FileText },
+  { to: '/dashboard',      label: 'Dashboard',     icon: LayoutDashboard },
+  { to: '/notifications',  label: 'Notifications', icon: Bell },
+  { to: '/reports',        label: 'Reports',       icon: Flag },
 ]
 
 function isNavActive(to, pathname) {

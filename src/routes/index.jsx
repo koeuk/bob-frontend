@@ -15,6 +15,7 @@ import PostDetailPage from '../features/posts/PostDetailPage'
 import MyPostsPage from '../features/posts/MyPostsPage'
 import DashboardPage from '../features/dashboard/DashboardPage'
 import MyReportsPage from '../features/reports/MyReportsPage'
+import NotificationsPage from '../features/notifications/NotificationsPage'
 import AccountPage from '../features/account/AccountPage'
 import UserProfilePage from '../features/users/UserProfilePage'
 
@@ -53,6 +54,7 @@ const router = createBrowserRouter([
         children: [
           { path: '/my-posts', element: <MyPostsPage /> },
           { path: '/dashboard', element: <DashboardPage /> },
+          { path: '/notifications', element: <NotificationsPage /> },
           { path: '/reports', element: <MyReportsPage /> },
           { path: '/account', element: <AccountPage /> },
         ],
