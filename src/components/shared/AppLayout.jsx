@@ -300,7 +300,6 @@ export default function AppLayout() {
             {isAuthenticated ? (
               <div className="flex items-center gap-1.5">
                 <IconBtn icon={MessageCircle} title="Messages" />
-                <NotificationDropdown />
                 <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
                 {userDropdown}
               </div>
