@@ -1,6 +1,6 @@
 import client from './client'
 
-export const getFeed = (page = 1, seed) => client.get(`/feed?page=${page}&seed=${seed}`)
+export const getFeed = (page = 1, seed, q = '') => client.get(`/feed?page=${page}&seed=${seed}${q ? `&q=${encodeURIComponent(q)}` : ''}`)
 export const getMyPosts = () => client.get('/posts/mine')
 export const getPost = (uuid) => client.get(`/posts/${uuid}`)
 export const createPost = (data) => {

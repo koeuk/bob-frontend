@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom'
+import { Outlet, useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { logout as logoutApi } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
@@ -136,7 +136,8 @@ export default function AppLayout() {
   const { dark, toggle, init } = useThemeStore()
   const navigate = useNavigate()
   const location = useLocation()
-  const [search, setSearch] = useState('')
+  const [searchParams] = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get('q') ?? '')
   const onProfileRef = useRef(isProfilePath(location.pathname))
   const [headerVisible, setHeaderVisible] = useState(!onProfileRef.current)
   const lastScrollY = useRef(0)
@@ -305,6 +306,16 @@ export default function AppLayout() {
                 placeholder="Search Bob..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const q = search.trim()
+                    navigate(q ? `/feed?q=${encodeURIComponent(q)}` : '/feed')
+                  }
+                  if (e.key === 'Escape') {
+                    setSearch('')
+                    navigate('/feed')
+                  }
+                }}
                 className={`w-full rounded-full pl-10 pr-4 py-[6px] text-[13px] outline-none transition-all duration-200 ${dark ? 'text-gray-200 placeholder:text-gray-500' : 'placeholder:text-gray-400'}`}
                 style={{ background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' }}
                 onFocus={e => {

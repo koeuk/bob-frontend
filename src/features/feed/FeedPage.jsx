@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { getFeed } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
@@ -11,13 +11,15 @@ import { Loader2, ImageIcon, Smile } from 'lucide-react'
 export default function FeedPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const { user, isAuthenticated } = useAuthStore()
+  const [searchParams] = useSearchParams()
+  const q = searchParams.get('q') ?? ''
   const seed = useRef(Math.floor(Math.random() * 999999) + 1).current
-  const queryKey = ['feed', seed]
+  const queryKey = ['feed', seed, q]
   const sentinelRef = useRef(null)
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey,
-    queryFn: ({ pageParam = 1 }) => getFeed(pageParam, seed).then((r) => r.data),
+    queryFn: ({ pageParam = 1 }) => getFeed(pageParam, seed, q).then((r) => r.data),
     getNextPageParam: (last) => last.current_page < last.last_page ? last.current_page + 1 : undefined,
   })
 
@@ -36,6 +38,14 @@ export default function FeedPage() {
 
   return (
     <div className="space-y-3">
+      {/* Search result header */}
+      {q && (
+        <p className="text-[14px] font-semibold text-gray-500 dark:text-gray-400 px-1">
+          Results for <span className="text-gray-900 dark:text-gray-100">"{q}"</span>
+          {!isLoading && ` — ${posts.length} post${posts.length !== 1 ? 's' : ''}`}
+        </p>
+      )}
+
       {/* Create post trigger */}
       {isAuthenticated ? (
         <div
