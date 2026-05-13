@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { logout as logoutApi } from '../../api/auth'
@@ -23,65 +23,35 @@ function isNavActive(to, pathname) {
   return pathname === to || (to === '/feed' && (pathname === '/' || pathname === '/feed'))
 }
 
-// Desktop: sliding pill nav
-function SlidingPillNav({ items }) {
+function SidebarNav({ items }) {
   const location = useLocation()
   const { dark } = useThemeStore()
-  const containerRef = useRef(null)
-  const [pill, setPill] = useState({ left: 0, width: 0, ready: false })
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-    const activeEl = container.querySelector('[data-active="true"]')
-    if (!activeEl) return
-    const cRect = container.getBoundingClientRect()
-    const eRect = activeEl.getBoundingClientRect()
-    setPill({ left: eRect.left - cRect.left, width: eRect.width, ready: true })
-  }, [location.pathname])
 
   return (
-    <div
-      ref={containerRef}
-      className="relative flex items-center p-1 rounded-full"
-      style={{ background: 'rgba(0,0,0,0.06)' }}
-    >
-      {pill.ready && (
-        <div
-          className="absolute top-1 bottom-1 left-0 rounded-full"
-          style={{
-            width: pill.width,
-            transform: `translateX(${pill.left}px)`,
-            background: dark ? '#3a3b3c' : 'white',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06)',
-            transition: 'transform 0.3s cubic-bezier(0.34,1.2,0.64,1), width 0.3s cubic-bezier(0.34,1.2,0.64,1)',
-            willChange: 'transform',
-          }}
-        />
-      )}
+    <nav className="flex flex-col gap-0.5">
       {items.map(({ to, label, icon: Icon }) => {
         const active = isNavActive(to, location.pathname)
         return (
           <Link
             key={to}
             to={to}
-            data-active={active ? 'true' : 'false'}
-            className={`relative z-10 flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors duration-200 ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-semibold transition-colors duration-200 ${
               active
-                ? dark ? 'text-gray-100' : 'text-gray-900'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                ? dark
+                  ? 'bg-[rgba(255,255,255,0.1)] text-gray-100'
+                  : 'bg-[rgba(24,119,242,0.08)] text-gray-900'
+                : 'text-gray-500 dark:text-gray-400 hover:bg-[rgba(0,0,0,0.05)] dark:hover:bg-[rgba(255,255,255,0.06)] hover:text-gray-800 dark:hover:text-gray-200'
             }`}
           >
-            <Icon className={`h-4 w-4 transition-colors duration-200 ${active ? 'text-[#1877F2]' : ''}`} />
+            <Icon className={`h-5 w-5 shrink-0 transition-colors duration-200 ${active ? 'text-[#1877F2]' : ''}`} />
             <span>{label}</span>
           </Link>
         )
       })}
-    </div>
+    </nav>
   )
 }
 
-// Mobile: underline tab nav with horizontal scroll
 function MobileNav({ items }) {
   const location = useLocation()
   const { dark } = useThemeStore()
@@ -127,48 +97,14 @@ function IconBtn({ icon: Icon, title, onClick }) {
   )
 }
 
-function isProfilePath(pathname) {
-  return pathname === '/account' || /^\/users\//.test(pathname)
-}
-
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const { dark, toggle, init } = useThemeStore()
   const navigate = useNavigate()
-  const location = useLocation()
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') ?? '')
-  const onProfileRef = useRef(isProfilePath(location.pathname))
-  const [headerVisible, setHeaderVisible] = useState(!onProfileRef.current)
-  const lastScrollY = useRef(0)
 
   useEffect(() => { init() }, [])
-
-  // Hide header when entering a profile page, restore on other pages
-  useEffect(() => {
-    onProfileRef.current = isProfilePath(location.pathname)
-    setHeaderVisible(!onProfileRef.current)
-    lastScrollY.current = window.scrollY
-  }, [location.pathname])
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY
-      if (onProfileRef.current) {
-        // Profile pages: only show header when scrolled back to the very top
-        if (y <= 0) setHeaderVisible(true)
-        else if (y > lastScrollY.current + 4) setHeaderVisible(false)
-      } else {
-        // Other pages: full hide-on-down / show-on-up behaviour
-        if (y < 10) setHeaderVisible(true)
-        else if (y < lastScrollY.current - 4) setHeaderVisible(true)
-        else if (y > lastScrollY.current + 4) setHeaderVisible(false)
-      }
-      lastScrollY.current = y
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -177,66 +113,98 @@ export default function AppLayout() {
 
   const navItems = isAuthenticated ? [...publicNavItems, ...privateNavItems] : publicNavItems
 
-  const iconSection = isAuthenticated ? (
-    <>
-      <IconBtn icon={MessageCircle} title="Messages" />
-      <NotificationDropdown />
-      <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
-      <DropdownMenu>
-        <DropdownMenuTrigger className="relative cursor-pointer shrink-0 bg-transparent border-0 p-0 transition-all duration-200 hover:scale-105 hover:opacity-90 focus:outline-none">
+  const handleSearchKey = (e) => {
+    if (e.key === 'Enter') {
+      const q = search.trim()
+      navigate(q ? `/feed?q=${encodeURIComponent(q)}` : '/feed')
+    }
+    if (e.key === 'Escape') {
+      setSearch('')
+      navigate('/feed')
+    }
+  }
+
+  const searchInputProps = (extraClass = '') => ({
+    type: 'text',
+    placeholder: 'Search Bob...',
+    value: search,
+    onChange: (e) => setSearch(e.target.value),
+    onKeyDown: handleSearchKey,
+    className: `w-full rounded-full pl-9 pr-4 py-[6px] text-[13px] outline-none transition-all duration-200 ${dark ? 'text-gray-200 placeholder:text-gray-500' : 'placeholder:text-gray-400'} ${extraClass}`,
+    style: { background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' },
+    onFocus: (e) => {
+      e.target.style.background = dark ? 'rgba(255,255,255,0.12)' : 'white'
+      e.target.style.border = '1.5px solid rgba(24,119,242,0.4)'
+      e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.12)'
+    },
+    onBlur: (e) => {
+      e.target.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'
+      e.target.style.border = '1.5px solid transparent'
+      e.target.style.boxShadow = 'none'
+    },
+  })
+
+  const userAvatarEl = (size = 'h-9 w-9') => (
+    <div
+      className={`${size} rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm`}
+      style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
+        background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
+        boxShadow: '0 2px 8px rgba(24,119,242,0.35)',
+      }}
+    >
+      {user?.avatar
+        ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+        : user?.name?.[0]?.toUpperCase()
+      }
+    </div>
+  )
+
+  const userDropdown = (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="relative cursor-pointer shrink-0 bg-transparent border-0 p-0 transition-all duration-200 hover:scale-105 hover:opacity-90 focus:outline-none">
+        {userAvatarEl()}
+        <span
+          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2"
+          style={{ background: '#22c55e', borderColor: dark ? '#242526' : 'white' }}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-xl border-gray-100 p-1">
+        <div className="flex items-center gap-3 p-3 mb-1">
           <div
-            className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm"
-            style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
-              background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-              boxShadow: '0 2px 8px rgba(24,119,242,0.35)',
-            }}
+            className="h-11 w-11 rounded-full overflow-hidden flex items-center justify-center text-white font-bold shrink-0"
+            style={user?.avatar ? {} : { background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
           >
             {user?.avatar
               ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
               : user?.name?.[0]?.toUpperCase()
             }
           </div>
-          <span
-            className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2"
-            style={{ background: '#22c55e', borderColor: dark ? '#242526' : 'white' }}
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-xl border-gray-100 p-1">
-          <div className="flex items-center gap-3 p-3 mb-1">
-            <div
-              className="h-11 w-11 rounded-full overflow-hidden flex items-center justify-center text-white font-bold shrink-0"
-              style={user?.avatar ? {} : { background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
-            >
-              {user?.avatar
-                ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-                : user?.name?.[0]?.toUpperCase()
-              }
-            </div>
-            <div className="min-w-0">
-              <p className="font-semibold text-[14px] truncate">{user?.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-            </div>
+          <div className="min-w-0">
+            <p className="font-semibold text-[14px] truncate">{user?.name}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/account')}>
-            <UserCircle className="h-4 w-4 mr-2" /> My Account
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer text-destructive rounded-xl" onClick={() => logoutMutation.mutate()}>
-            <LogOut className="h-4 w-4 mr-2" /> Sign out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
-  ) : (
-    <>
-      <Button variant="ghost" size="sm" className="rounded-full text-[13px]" asChild>
-        <Link to="/login">Sign in</Link>
-      </Button>
-      <Button size="sm" className="rounded-full text-[13px] bg-[#1877F2] hover:bg-[#166FE5]" asChild>
-        <Link to="/register">Join</Link>
-      </Button>
-    </>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/account')}>
+          <UserCircle className="h-4 w-4 mr-2" /> My Account
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer text-destructive rounded-xl" onClick={() => logoutMutation.mutate()}>
+          <LogOut className="h-4 w-4 mr-2" /> Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
+  const panelStyle = {
+    background: dark ? 'rgba(36,37,38,0.97)' : 'rgba(255,255,255,0.92)',
+    backdropFilter: 'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    boxShadow: dark ? '0 2px 16px rgba(0,0,0,0.4)' : '0 2px 16px rgba(0,0,0,0.08)',
+  }
+
+  const divider = (my = 12) => (
+    <div style={{ height: 1, margin: `${my}px 0`, background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
   )
 
   return (
@@ -244,30 +212,63 @@ export default function AppLayout() {
       className="min-h-screen"
       style={{ background: dark ? '#18191a' : 'linear-gradient(160deg,#f0f2ff 0%,#f5f6fb 45%,#edf0f8 100%)' }}
     >
-      <header
-        className="sticky top-0 z-40 w-full p-3 md:p-6"
-        style={{
-          transform: headerVisible ? 'translateY(0)' : 'translateY(-110%)',
-          opacity: headerVisible ? 1 : 0,
-          pointerEvents: headerVisible ? 'auto' : 'none',
-          transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
-        }}
-      >
-        <div
-          className="max-w-[860px] mx-auto rounded-2xl overflow-hidden"
-          style={{
-            background: dark ? 'rgba(36,37,38,0.97)' : 'rgba(255,255,255,0.92)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            boxShadow: dark ? '0 2px 16px rgba(0,0,0,0.4)' : '0 2px 16px rgba(0,0,0,0.08)',
-          }}
-        >
-          {/* Row 1 — always: logo left + icons right */}
-          {/* On desktop (md+): also show centered nav pills */}
+      {/* ── Mobile header ── */}
+      <header className="md:hidden sticky top-0 z-40 w-full p-3">
+        <div className="rounded-2xl overflow-hidden" style={panelStyle}>
           <div className="relative px-4 h-[58px] flex items-center justify-between">
             <Link
               to="/feed"
-              className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none transition-all duration-200 hover:scale-105 hover:opacity-90 shrink-0"
+              className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none"
+              style={{
+                background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
+                boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
+              }}
+            >
+              b
+            </Link>
+            <div className="flex items-center gap-1.5">
+              {isAuthenticated ? (
+                <>
+                  <IconBtn icon={MessageCircle} title="Messages" />
+                  <NotificationDropdown />
+                  <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
+                  {userDropdown}
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" className="rounded-full text-[13px]" asChild>
+                    <Link to="/login">Sign in</Link>
+                  </Button>
+                  <Button size="sm" className="rounded-full text-[13px] bg-[#1877F2] hover:bg-[#166FE5]" asChild>
+                    <Link to="/register">Join</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
+          <MobileNav items={navItems} />
+          <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
+          <div className="px-4 py-3 flex items-center">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <input {...searchInputProps()} />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Desktop: centered container (sidebar + content) ── */}
+      <div className="max-w-[1160px] mx-auto flex">
+
+        {/* ── Sidebar (desktop only) ── */}
+        <aside className="hidden md:flex flex-col w-[248px] shrink-0 p-3 sticky top-0 h-screen z-40">
+          <div className="flex flex-col h-full rounded-2xl p-4" style={panelStyle}>
+
+            {/* Logo */}
+            <Link
+              to="/feed"
+              className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none transition-all duration-200 hover:scale-105 hover:opacity-90 mb-5 shrink-0"
               style={{
                 background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
                 boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
@@ -276,67 +277,52 @@ export default function AppLayout() {
               b
             </Link>
 
-            {/* Desktop nav pills — centered, hidden on mobile */}
-            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2">
-              <SlidingPillNav items={navItems} />
+            {/* Search */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <input {...searchInputProps()} />
             </div>
 
-            <div className="flex items-center gap-1.5 md:gap-2">
-              {iconSection}
+            {divider(0)}
+
+            {/* Nav items */}
+            <div className="mt-3">
+              <SidebarNav items={navItems} />
             </div>
+
+            {/* Push icons to bottom */}
+            <div className="flex-1" />
+
+            {divider()}
+
+            {/* Bottom icons */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-1.5">
+                <IconBtn icon={MessageCircle} title="Messages" />
+                <NotificationDropdown />
+                <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
+                {userDropdown}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Button variant="ghost" size="sm" className="rounded-full text-[13px] w-full" asChild>
+                  <Link to="/login">Sign in</Link>
+                </Button>
+                <Button size="sm" className="rounded-full text-[13px] bg-[#1877F2] hover:bg-[#166FE5] w-full" asChild>
+                  <Link to="/register">Join</Link>
+                </Button>
+              </div>
+            )}
           </div>
+        </aside>
 
-          {/* Row 2 (mobile only) — horizontal scrollable nav */}
-          <div
-            className="md:hidden border-t"
-            style={{ borderColor: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}
-          >
-            <MobileNav items={navItems} />
-          </div>
+        {/* ── Main content ── */}
+        <main className="flex-1 px-4 py-5 min-w-0">
+          <Outlet />
+        </main>
 
-          {/* Divider */}
-          <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
+      </div>
 
-          {/* Search row */}
-          <div className="px-4 py-3 md:py-5 flex items-center">
-            <div className="relative w-full">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search Bob..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const q = search.trim()
-                    navigate(q ? `/feed?q=${encodeURIComponent(q)}` : '/feed')
-                  }
-                  if (e.key === 'Escape') {
-                    setSearch('')
-                    navigate('/feed')
-                  }
-                }}
-                className={`w-full rounded-full pl-10 pr-4 py-[6px] text-[13px] outline-none transition-all duration-200 ${dark ? 'text-gray-200 placeholder:text-gray-500' : 'placeholder:text-gray-400'}`}
-                style={{ background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' }}
-                onFocus={e => {
-                  e.target.style.background = dark ? 'rgba(255,255,255,0.12)' : 'white'
-                  e.target.style.border = '1.5px solid rgba(24,119,242,0.4)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.12)'
-                }}
-                onBlur={e => {
-                  e.target.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'
-                  e.target.style.border = '1.5px solid transparent'
-                  e.target.style.boxShadow = 'none'
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-[860px] mx-auto px-4 py-5">
-        <Outlet />
-      </main>
       <Toaster />
     </div>
   )
