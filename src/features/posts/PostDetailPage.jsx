@@ -26,7 +26,7 @@ function CommentReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
   return (
     <div
       className="picker-reveal absolute bottom-full left-0 mb-1 flex items-end gap-1 rounded-full px-2.5 py-2 z-50"
-      style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', boxShadow: '0 6px 24px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.07)', border: '1px solid rgba(0,0,0,0.06)' }}
+      style={{ background: document.documentElement.classList.contains('dark') ? 'rgba(50,51,54,0.98)' : 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', boxShadow: '0 6px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.1)', border: document.documentElement.classList.contains('dark') ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)' }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
