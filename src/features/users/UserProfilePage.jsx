@@ -1,15 +1,17 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getUser } from '../../api/users'
 import { sendFriendRequest, cancelFriendRequest, acceptFriendRequest } from '../../api/friends'
 import { findOrCreateConversation } from '../../api/chat'
+import { updateMe } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import useThemeStore from '../../store/themeStore'
 import useChatStore from '../../store/chatStore'
 import PostCard from '../../components/shared/PostCard'
-import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil, MessageCircle } from 'lucide-react'
+import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil, MessageCircle, Camera } from 'lucide-react'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
+import { toast } from 'sonner'
 
 function FriendButton({ friendship, profileUuid, queryKey }) {
   const { isAuthenticated } = useAuthStore()
@@ -109,11 +111,23 @@ const TABS = ['Posts', 'Photos', 'Friends']
 
 export default function UserProfilePage() {
   const { uuid } = useParams()
-  const { user: me, isAuthenticated } = useAuthStore()
+  const { user: me, isAuthenticated, setUser } = useAuthStore()
   const { dark } = useThemeStore()
   const { openWith } = useChatStore()
   const queryKey = ['user-profile', uuid]
   const [tab, setTab] = useState('Posts')
+  const coverInputRef = useRef(null)
+  const queryClient = useQueryClient()
+
+  const coverMutation = useMutation({
+    mutationFn: (file) => updateMe({ cover: file }),
+    onSuccess: (res) => {
+      setUser(res.data)
+      queryClient.invalidateQueries({ queryKey })
+      toast.success('Cover photo updated!')
+    },
+    onError: () => toast.error('Failed to upload cover'),
+  })
 
   const { data, isLoading } = useQuery({
     queryKey,
@@ -152,10 +166,37 @@ export default function UserProfilePage() {
         }}
       >
         {/* Cover banner */}
-        <div
-          className="h-36 w-full"
-          style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 60%,#a5d8ff 100%)' }}
-        />
+        <div className="relative h-36 w-full group">
+          {user.cover ? (
+            <img src={assetUrl(user.cover)} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 60%,#a5d8ff 100%)' }} />
+          )}
+          {isMe && (
+            <>
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) coverMutation.mutate(file)
+                  e.target.value = ''
+                }}
+              />
+              <button
+                onClick={() => coverInputRef.current?.click()}
+                disabled={coverMutation.isPending}
+                className="cursor-pointer absolute bottom-2 right-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-all duration-200 hover:opacity-90 disabled:opacity-60"
+                style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
+              >
+                <Camera className="h-3.5 w-3.5" />
+                {coverMutation.isPending ? 'Uploading…' : 'Edit cover'}
+              </button>
+            </>
+          )}
+        </div>
 
         {/* Avatar + info */}
         <div className="px-5 pb-5">

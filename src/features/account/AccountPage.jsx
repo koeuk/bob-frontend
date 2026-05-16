@@ -154,7 +154,13 @@ export default function AccountPage() {
       <div className="rounded-2xl overflow-hidden" style={cardStyle}>
 
         {/* Cover */}
-        <div className="h-36 w-full" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 60%,#a5d8ff 100%)' }} />
+        <div className="relative h-36 w-full">
+          {user?.cover ? (
+            <img src={assetUrl(user.cover)} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 60%,#a5d8ff 100%)' }} />
+          )}
+        </div>
 
         {/* Avatar + actions row */}
         <div className="px-5 pb-5">
