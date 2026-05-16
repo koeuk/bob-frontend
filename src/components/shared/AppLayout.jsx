@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Outlet, useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { logout as logoutApi } from '../../api/auth'
@@ -98,12 +99,127 @@ function IconBtn({ icon: Icon, title, onClick }) {
   )
 }
 
+const RECENT_KEY = 'bob_recent_searches'
+const loadRecent = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') } catch { return [] } }
+const saveRecent = (q, prev) => {
+  const next = [q, ...prev.filter(s => s !== q)].slice(0, 6)
+  localStorage.setItem(RECENT_KEY, JSON.stringify(next))
+  return next
+}
+
+function SearchPopup({ anchorRef, search, dark, onSearch, onClose }) {
+  const ref = useRef(null)
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 })
+  const [recent, setRecent] = useState(loadRecent)
+
+  useEffect(() => {
+    if (anchorRef.current) {
+      const r = anchorRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 6, left: r.left, width: r.width })
+    }
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target) &&
+          anchorRef.current && !anchorRef.current.contains(e.target)) onClose()
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const go = (q, type = '') => {
+    const trimmed = q.trim()
+    if (trimmed) setRecent(prev => saveRecent(trimmed, prev))
+    onSearch(trimmed, type)
+    onClose()
+  }
+
+  const clearRecent = () => { setRecent([]); localStorage.removeItem(RECENT_KEY) }
+
+  const bg = dark ? '#1e1f20' : 'white'
+  const border = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'
+  const textColor = dark ? '#e4e6eb' : '#1c1e21'
+
+  return createPortal(
+    <div
+      ref={ref}
+      style={{
+        position: 'fixed', top: pos.top, left: pos.left, width: pos.width,
+        zIndex: 9999, background: bg, borderRadius: 16, overflow: 'hidden',
+        border: `1px solid ${border}`,
+        boxShadow: dark ? '0 12px 40px rgba(0,0,0,0.55)' : '0 8px 30px rgba(0,0,0,0.13)',
+      }}
+    >
+      {/* Filter chips */}
+      <div className="px-3 pt-3 pb-2.5">
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: dark ? '#6b7280' : '#9ca3af' }}>Filter by</p>
+        <div className="flex flex-wrap gap-1.5">
+          {[{ label: 'All', type: '' }, { label: 'Posts', type: 'posts' }, { label: 'People', type: 'people' }].map(({ label, type }) => (
+            <button
+              key={label}
+              onMouseDown={(e) => { e.preventDefault(); go(search || '', type) }}
+              className="cursor-pointer px-3 py-1 rounded-full text-[12px] font-semibold transition-all duration-150"
+              style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: textColor }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(24,119,242,0.18)'; e.currentTarget.style.color = '#1877F2' }}
+              onMouseLeave={e => { e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'; e.currentTarget.style.color = textColor }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent searches */}
+      {recent.length > 0 && (
+        <>
+          <div style={{ height: 1, background: border }} />
+          <div className="px-3 pt-2.5 pb-1 flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: dark ? '#6b7280' : '#9ca3af' }}>Recent</p>
+            <button onMouseDown={(e) => { e.preventDefault(); clearRecent() }} className="text-[11px] font-semibold text-[#1877F2] cursor-pointer hover:underline">Clear</button>
+          </div>
+          {recent.map(q => (
+            <button
+              key={q}
+              onMouseDown={(e) => { e.preventDefault(); go(q) }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-left cursor-pointer transition-colors duration-100"
+              style={{ color: textColor, background: 'transparent' }}
+              onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <Search className="h-3.5 w-3.5 shrink-0" style={{ color: dark ? '#6b7280' : '#9ca3af' }} />
+              <span className="truncate">{q}</span>
+            </button>
+          ))}
+        </>
+      )}
+
+      {/* Search for [query] when typing */}
+      {search.trim() && (
+        <>
+          <div style={{ height: 1, background: border }} />
+          <button
+            onMouseDown={(e) => { e.preventDefault(); go(search.trim()) }}
+            className="w-full flex items-center gap-2.5 px-3 py-3 text-[13px] text-left cursor-pointer transition-colors duration-100"
+            style={{ color: '#1877F2', background: 'transparent' }}
+            onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(24,119,242,0.1)' : 'rgba(24,119,242,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <Search className="h-4 w-4 shrink-0" />
+            Search for "<strong>{search.trim()}</strong>"
+          </button>
+        </>
+      )}
+    </div>,
+    document.body
+  )
+}
+
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const { dark, toggle, init } = useThemeStore()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') ?? '')
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchInputRef = useRef(null)
 
   useEffect(() => { init() }, [])
 
@@ -114,15 +230,19 @@ export default function AppLayout() {
 
   const navItems = isAuthenticated ? [...publicNavItems, ...privateNavItems] : publicNavItems
 
+  const handleSearchNavigate = (q, type = '') => {
+    const params = new URLSearchParams()
+    if (q) params.set('q', q)
+    if (type) params.set('type', type)
+    const qs = params.toString()
+    navigate(q || type ? `/feed${qs ? `?${qs}` : ''}` : '/feed')
+    setSearch(q)
+    setSearchOpen(false)
+  }
+
   const handleSearchKey = (e) => {
-    if (e.key === 'Enter') {
-      const q = search.trim()
-      navigate(q ? `/feed?q=${encodeURIComponent(q)}` : '/feed')
-    }
-    if (e.key === 'Escape') {
-      setSearch('')
-      navigate('/feed')
-    }
+    if (e.key === 'Enter') handleSearchNavigate(search.trim())
+    if (e.key === 'Escape') { setSearch(''); setSearchOpen(false); navigate('/feed') }
   }
 
   const searchInputProps = (extraClass = '') => ({
@@ -280,8 +400,21 @@ export default function AppLayout() {
 
             {/* Search */}
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              <input {...searchInputProps()} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
+              <input
+                ref={searchInputRef}
+                {...searchInputProps()}
+                onFocus={(e) => { searchInputProps().onFocus(e); setSearchOpen(true) }}
+              />
+              {searchOpen && (
+                <SearchPopup
+                  anchorRef={searchInputRef}
+                  search={search}
+                  dark={dark}
+                  onSearch={handleSearchNavigate}
+                  onClose={() => setSearchOpen(false)}
+                />
+              )}
             </div>
 
             {divider(0)}
