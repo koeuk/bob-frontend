@@ -123,14 +123,14 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
             </div>
             <div>
               <p className="font-semibold text-[14px] text-gray-900">{copied ? 'Link copied!' : 'Copy link'}</p>
-              <p className="text-[12px] text-gray-400 truncate max-w-[180px]">{postUrl}</p>
+              <p className="text-[12px] text-gray-400 truncate min-w-0">{postUrl}</p>
             </div>
           </div>
 
           {/* Platform buttons */}
           <div>
             <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide mb-2.5">Share to</p>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-4 gap-2">
               {PLATFORMS.map((p) => (
                 <button
                   key={p.id}

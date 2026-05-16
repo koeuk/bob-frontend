@@ -8,9 +8,12 @@ export function cn(...inputs) {
 export function assetUrl(path) {
   if (!path) return null
   if (path.startsWith('http')) {
-    // Normalize: replace any stored host with the current API host
     const url = new URL(path)
     return 'http://127.0.0.1:8001' + url.pathname
+  }
+  // Path already contains the /storage/ prefix — don't add it again
+  if (path.startsWith('/storage/') || path.startsWith('storage/')) {
+    return 'http://127.0.0.1:8001/' + path.replace(/^\//, '')
   }
   const slash = path.startsWith('/') ? '' : '/'
   return 'http://127.0.0.1:8001/storage' + slash + path
