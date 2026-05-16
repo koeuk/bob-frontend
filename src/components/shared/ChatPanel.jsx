@@ -122,8 +122,6 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
   // Clean up preview URLs on unmount
   useEffect(() => () => previews.forEach(URL.revokeObjectURL), [previews])
 
-  const canSend = (body.trim() || images.length > 0) && !mutation?.isPending
-
   const mutation = useMutation({
     mutationFn: () => sendMessage(convUuid, body.trim(), images),
     onSuccess: () => {
@@ -134,6 +132,8 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
       qc.invalidateQueries({ queryKey: ['conversations'] })
     },
   })
+
+  const canSend = (body.trim() || images.length > 0) && !mutation.isPending
 
   const handleSend = () => {
     if (!canSend) return
