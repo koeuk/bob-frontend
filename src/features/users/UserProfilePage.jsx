@@ -126,16 +126,21 @@ function FriendCard({ friend }) {
       to={`/users/${friend.uuid}`}
       className="flex flex-col items-center gap-2 p-3 rounded-2xl transition-all duration-200 hover:bg-gray-50 dark:hover:bg-white/5"
     >
-      {friend.avatar ? (
-        <img src={assetUrl(friend.avatar)} alt={friend.name} className="h-16 w-16 rounded-full object-cover" />
-      ) : (
-        <div
-          className="h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold"
-          style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
-        >
-          {friend.name?.[0]?.toUpperCase()}
-        </div>
-      )}
+      <div className="relative shrink-0">
+        {friend.avatar ? (
+          <img src={assetUrl(friend.avatar)} alt={friend.name} className="h-16 w-16 rounded-full object-cover" />
+        ) : (
+          <div
+            className="h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold"
+            style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
+          >
+            {friend.name?.[0]?.toUpperCase()}
+          </div>
+        )}
+        {friend.is_online && (
+          <span className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white dark:border-[#242526]" />
+        )}
+      </div>
       <p className="text-[13px] font-semibold text-center text-gray-900 dark:text-gray-100 leading-tight line-clamp-2">{friend.name}</p>
     </Link>
   )
@@ -253,6 +258,9 @@ export default function UserProfilePage() {
                 >
                   {user.name?.[0]?.toUpperCase()}
                 </div>
+              )}
+              {user.is_online && (
+                <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full bg-green-500 border-2 border-white dark:border-[#242526]" />
               )}
             </div>
 
