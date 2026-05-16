@@ -1,23 +1,22 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { login, getMe } from '../../api/auth'
+import { login } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
-import { Label } from '../../components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 const schema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 })
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const setAuth = useAuthStore((s) => s.setAuth)
+  const [showPass, setShowPass] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -35,39 +34,82 @@ export default function LoginPage() {
   })
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-2xl">Sign in</CardTitle>
-        <CardDescription>Enter your credentials to continue</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
-            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+    <div className="space-y-8">
+      {/* Heading */}
+      <div className="space-y-1.5">
+        <h2 className="text-[28px] font-black text-gray-900 tracking-tight">Welcome back</h2>
+        <p className="text-[15px] text-gray-500">Sign in to your account to continue</p>
+      </div>
+
+      {/* Form card */}
+      <div className="bg-white rounded-2xl p-7 space-y-5" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)' }}>
+        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="block text-[13px] font-semibold text-gray-700">Email address</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              {...register('email')}
+              className="w-full h-11 rounded-xl px-4 text-[15px] outline-none transition-all duration-200 bg-gray-50 border border-gray-200 placeholder:text-gray-400 text-gray-900 focus:bg-white focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/15"
+            />
+            {errors.email && <p className="text-[12px] text-red-500 font-medium">{errors.email.message}</p>}
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
-            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+
+          {/* Password */}
+          <div className="space-y-1.5">
+            <label className="block text-[13px] font-semibold text-gray-700">Password</label>
+            <div className="relative">
+              <input
+                type={showPass ? 'text' : 'password'}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                {...register('password')}
+                className="w-full h-11 rounded-xl px-4 pr-11 text-[15px] outline-none transition-all duration-200 bg-gray-50 border border-gray-200 placeholder:text-gray-400 text-gray-900 focus:bg-white focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/15"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
+                {showPass ? <EyeOff className="h-4.5 w-4.5" style={{ height: 18, width: 18 }} /> : <Eye className="h-4.5 w-4.5" style={{ height: 18, width: 18 }} />}
+              </button>
+            </div>
+            {errors.password && <p className="text-[12px] text-red-500 font-medium">{errors.password.message}</p>}
           </div>
+
+          {/* Server error */}
           {mutation.isError && (
-            <p className="text-sm text-destructive">
-              {mutation.error?.response?.data?.message || 'Invalid credentials'}
-            </p>
+            <div className="rounded-xl px-4 py-3 bg-red-50 border border-red-100">
+              <p className="text-[13px] text-red-600 font-medium">
+                {mutation.error?.response?.data?.message || 'Invalid email or password'}
+              </p>
+            </div>
           )}
-          <Button type="submit" className="w-full" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Signing in…' : 'Sign in'}
-          </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            No account?{' '}
-            <Link to="/register" className="underline underline-offset-4 hover:text-primary">
-              Register
-            </Link>
-          </p>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={mutation.isPending}
+            className="cursor-pointer w-full h-11 rounded-xl text-[15px] font-bold text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2"
+            style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)', boxShadow: '0 4px 14px rgba(24,119,242,0.35)' }}
+          >
+            {mutation.isPending ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Signing in…</>
+            ) : 'Sign in'}
+          </button>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Footer */}
+      <p className="text-center text-[14px] text-gray-500">
+        Don't have an account?{' '}
+        <Link to="/register" className="font-bold text-[#1877F2] hover:underline">
+          Create one
+        </Link>
+      </p>
+    </div>
   )
 }
