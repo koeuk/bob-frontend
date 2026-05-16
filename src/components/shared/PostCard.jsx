@@ -399,6 +399,36 @@ export default function PostCard({ post, queryKey }) {
           onImageClick={(i) => setLightboxIndex(i)}
         />
 
+        {/* Shared post embed */}
+        {post.shared_post && (
+          <Link
+            to={`/posts/${post.shared_post.uuid}`}
+            className="block mx-3 mb-2 rounded-xl overflow-hidden transition-opacity duration-150 hover:opacity-90"
+            style={{ border: '1px solid rgba(0,0,0,0.09)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
+              <UserAvatar name={post.shared_post.user?.name} avatar={post.shared_post.user?.avatar} size="sm" />
+              <div>
+                <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">{post.shared_post.user?.name}</span>
+                <p className="text-[11px] text-gray-400">{formatDistanceToNow(post.shared_post.created_at)}</p>
+              </div>
+            </div>
+            {post.shared_post.body && (
+              <p className="px-3 pb-2 text-[13px] text-gray-600 dark:text-gray-300 line-clamp-4 whitespace-pre-wrap">
+                {post.shared_post.body}
+              </p>
+            )}
+            {(post.shared_post.images?.[0] || post.shared_post.image) && (
+              <img
+                src={assetUrl(post.shared_post.images?.[0] ?? post.shared_post.image)}
+                alt=""
+                className="w-full max-h-48 object-cover"
+              />
+            )}
+          </Link>
+        )}
+
         {/* Engagement stats */}
         {(post.likes_count > 0 || post.comments_count > 0) && (
           <div className="flex items-center justify-between px-4 py-2 text-[13px] text-gray-400 dark:text-gray-500">
@@ -456,7 +486,7 @@ export default function PostCard({ post, queryKey }) {
             className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 dark:text-gray-400 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-200 hover:scale-[1.02]"
           >
             <MessageCircle className="h-5 w-5" />
-            <span>Comment</span>
+            <span>Comment{post.comments_count > 0 ? ` ${post.comments_count}` : ''}</span>
           </Link>
 
           <button
@@ -464,7 +494,7 @@ export default function PostCard({ post, queryKey }) {
             className="cursor-pointer flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold text-gray-500 dark:text-gray-400 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-200 hover:scale-[1.02]"
           >
             <Share2 className="h-5 w-5" />
-            <span>Share</span>
+            <span>Share{post.shares_count > 0 ? ` ${post.shares_count}` : ''}</span>
           </button>
         </div>
       </div>

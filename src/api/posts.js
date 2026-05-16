@@ -8,6 +8,7 @@ export const createPost = (data) => {
   if (data.body) form.append('body', data.body)
   if (data.feeling) form.append('feeling', data.feeling)
   if (data.visibility) form.append('visibility', data.visibility)
+  if (data.shared_post_id) form.append('shared_post_id', data.shared_post_id)
   ;(data.images ?? []).forEach((file) => form.append('images[]', file))
   return client.post('/posts', form, { headers: { 'Content-Type': 'multipart/form-data' } })
 }

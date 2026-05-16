@@ -5,7 +5,7 @@ import useAuthStore from '../../store/authStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { toast } from 'sonner'
-import { Copy, Check, ExternalLink } from 'lucide-react'
+import { Copy, Check } from 'lucide-react'
 import { assetUrl } from '../../lib/utils'
 
 const PLATFORMS = [
@@ -83,7 +83,8 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
 
   const shareMutation = useMutation({
     mutationFn: () => createPost({
-      body: shareBody.trim() ? `${shareBody.trim()}\n\n${postUrl}` : postUrl,
+      body: shareBody.trim() || undefined,
+      shared_post_id: post?.id,
       visibility: 'public',
     }),
     onSuccess: () => {
@@ -121,16 +122,16 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
                 : <Copy className="h-5 w-5 text-gray-600" />
               }
             </div>
-            <div>
+            <div className="min-w-0 overflow-hidden">
               <p className="font-semibold text-[14px] text-gray-900">{copied ? 'Link copied!' : 'Copy link'}</p>
-              <p className="text-[12px] text-gray-400 truncate min-w-0">{postUrl}</p>
+              <p className="text-[12px] text-gray-400 truncate">{postUrl}</p>
             </div>
           </div>
 
           {/* Platform buttons */}
           <div>
             <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide mb-2.5">Share to</p>
-            <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {PLATFORMS.map((p) => (
                 <button
                   key={p.id}
@@ -172,13 +173,27 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
                   />
                 </div>
 
-                {/* Post preview chip */}
+                {/* Post preview */}
                 <div
-                  className="mx-3 mb-3 flex items-center gap-2 rounded-lg px-3 py-2"
-                  style={{ background: 'rgba(24,119,242,0.06)', border: '1px solid rgba(24,119,242,0.12)' }}
+                  className="mx-3 mb-3 rounded-xl overflow-hidden"
+                  style={{ border: '1px solid rgba(0,0,0,0.09)' }}
                 >
-                  <ExternalLink className="h-3.5 w-3.5 text-[#1877F2] shrink-0" />
-                  <p className="text-[12px] text-[#1877F2] font-medium truncate">{postText || postUrl}</p>
+                  <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
+                    {post?.user?.avatar ? (
+                      <img src={assetUrl(post.user.avatar)} alt="" className="h-6 w-6 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="h-6 w-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0" style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)' }}>
+                        {post?.user?.name?.[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    <span className="text-[12px] font-semibold text-gray-700 truncate">{post?.user?.name}</span>
+                  </div>
+                  {post?.body && (
+                    <p className="px-3 pb-2 text-[13px] text-gray-600 line-clamp-3">{post.body}</p>
+                  )}
+                  {post?.images?.[0] && (
+                    <img src={assetUrl(post.images[0])} alt="" className="w-full max-h-32 object-cover" />
+                  )}
                 </div>
               </div>
 
