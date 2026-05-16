@@ -5,6 +5,7 @@ import { getNotifications, markRead, markAllRead } from '../../api/notifications
 import { acceptFriendRequest, declineFriendRequest } from '../../api/friends'
 import { Bell, ThumbsUp, MessageCircle, CheckCheck, UserPlus, Users } from 'lucide-react'
 import { formatDistanceToNow } from '../../lib/utils'
+import useThemeStore from '../../store/themeStore'
 
 const REACTION_EMOJIS = { like: '👍', love: '❤️', haha: '😂', wow: '😮', sad: '😢', angry: '😡' }
 
@@ -142,6 +143,7 @@ function NotifItem({ notif, onMarkRead }) {
 }
 
 export default function NotificationsPage() {
+  const { dark } = useThemeStore()
   const queryClient = useQueryClient()
   const queryKey = ['notifications']
 
@@ -165,7 +167,10 @@ export default function NotificationsPage() {
   const unreadCount = data?.unread_count ?? 0
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.92)', boxShadow: '0 2px 16px rgba(0,0,0,0.08)' }}>
+    <div className="rounded-2xl overflow-hidden" style={{
+      background: dark ? 'rgba(36,37,38,0.97)' : 'rgba(255,255,255,0.92)',
+      boxShadow: dark ? '0 2px 16px rgba(0,0,0,0.4)' : '0 2px 16px rgba(0,0,0,0.08)',
+    }}>
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/10">
         <h1 className="font-bold text-[20px] text-gray-900 dark:text-gray-100">Notifications</h1>
         {unreadCount > 0 && (
