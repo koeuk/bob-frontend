@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getUser } from '../../api/users'
@@ -10,7 +11,7 @@ import useThemeStore from '../../store/themeStore'
 import useChatStore from '../../store/chatStore'
 import PostCard from '../../components/shared/PostCard'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog'
-import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil, MessageCircle, Camera, UserMinus } from 'lucide-react'
+import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil, MessageCircle, Camera, UserMinus, X, ZoomIn } from 'lucide-react'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 import { toast } from 'sonner'
 
@@ -155,6 +156,7 @@ export default function UserProfilePage() {
   const { openWith } = useChatStore()
   const queryKey = ['user-profile', uuid]
   const [tab, setTab] = useState('Posts')
+  const [viewImage, setViewImage] = useState(null)
   const coverInputRef = useRef(null)
   const queryClient = useQueryClient()
 
@@ -207,7 +209,12 @@ export default function UserProfilePage() {
         {/* Cover banner */}
         <div className="relative h-36 w-full group">
           {user.cover ? (
-            <img src={assetUrl(user.cover)} alt="" className="w-full h-full object-cover" />
+            <img
+              src={assetUrl(user.cover)}
+              alt=""
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => setViewImage(assetUrl(user.cover))}
+            />
           ) : (
             <div className="w-full h-full" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 60%,#a5d8ff 100%)' }} />
           )}
@@ -242,12 +249,20 @@ export default function UserProfilePage() {
           <div className="flex items-end justify-between -mt-10 mb-3">
             <div className="relative shrink-0">
               {user.avatar ? (
-                <img
-                  src={assetUrl(user.avatar)}
-                  alt={user.name}
-                  className="h-24 w-24 rounded-full object-cover border-4"
-                  style={{ borderColor: dark ? '#242526' : 'white' }}
-                />
+                <button
+                  onClick={() => setViewImage(assetUrl(user.avatar))}
+                  className="cursor-pointer relative group/av block rounded-full"
+                >
+                  <img
+                    src={assetUrl(user.avatar)}
+                    alt={user.name}
+                    className="h-24 w-24 rounded-full object-cover border-4 transition-opacity duration-150 group-hover/av:opacity-90"
+                    style={{ borderColor: dark ? '#242526' : 'white' }}
+                  />
+                  <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 group-hover/av:bg-black/20 transition-all duration-150">
+                    <ZoomIn className="h-6 w-6 text-white opacity-0 group-hover/av:opacity-100 transition-opacity duration-150" />
+                  </div>
+                </button>
               ) : (
                 <div
                   className="h-24 w-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4"
@@ -405,6 +420,29 @@ export default function UserProfilePage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Photo viewer lightbox */}
+      {viewImage && createPortal(
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.92)' }}
+          onClick={() => setViewImage(null)}
+        >
+          <button
+            onClick={() => setViewImage(null)}
+            className="cursor-pointer absolute top-4 right-4 h-10 w-10 rounded-full flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img
+            src={viewImage}
+            alt=""
+            className="max-w-[92vw] max-h-[92vh] object-contain rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>,
+        document.body
       )}
     </div>
   )
