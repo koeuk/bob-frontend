@@ -3,10 +3,12 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getUser } from '../../api/users'
 import { sendFriendRequest, cancelFriendRequest, acceptFriendRequest } from '../../api/friends'
+import { findOrCreateConversation } from '../../api/chat'
 import useAuthStore from '../../store/authStore'
 import useThemeStore from '../../store/themeStore'
+import useChatStore from '../../store/chatStore'
 import PostCard from '../../components/shared/PostCard'
-import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil } from 'lucide-react'
+import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil, MessageCircle } from 'lucide-react'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 
 function FriendButton({ friendship, profileUuid, queryKey }) {
@@ -109,6 +111,7 @@ export default function UserProfilePage() {
   const { uuid } = useParams()
   const { user: me, isAuthenticated } = useAuthStore()
   const { dark } = useThemeStore()
+  const { openWith } = useChatStore()
   const queryKey = ['user-profile', uuid]
   const [tab, setTab] = useState('Posts')
 
@@ -188,7 +191,21 @@ export default function UserProfilePage() {
                   Edit Profile
                 </Link>
               ) : (
-                <FriendButton friendship={friendship} profileUuid={uuid} queryKey={queryKey} />
+                <div className="flex items-center gap-2">
+                  <FriendButton friendship={friendship} profileUuid={uuid} queryKey={queryKey} />
+                  {isAuthenticated && (
+                    <button
+                      onClick={async () => {
+                        const res = await findOrCreateConversation(uuid)
+                        openWith(res.data.uuid, user)
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200 cursor-pointer"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Message
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           </div>

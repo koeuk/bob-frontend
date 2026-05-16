@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Outlet, useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { logout as logoutApi } from '../../api/auth'
+import { getUnreadCount } from '../../api/chat'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { Home, FileText, LayoutDashboard, Flag, Bell, UserCircle, LogOut, Search, MessageCircle, Sun, Moon } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
+import ChatPanel from './ChatPanel'
 import useThemeStore from '../../store/themeStore'
+import useChatStore from '../../store/chatStore'
 import { assetUrl } from '../../lib/utils'
 
 const publicNavItems = [
@@ -216,11 +219,20 @@ function SearchPopup({ anchorRef, search, dark, onSearch, onClose }) {
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const { dark, toggle, init } = useThemeStore()
+  const { open: chatOpen, openPanel: openChat } = useChatStore()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') ?? '')
   const [searchOpen, setSearchOpen] = useState(false)
   const searchInputRef = useRef(null)
+
+  const { data: unreadData } = useQuery({
+    queryKey: ['chat-unread'],
+    queryFn: () => getUnreadCount().then(r => r.data),
+    refetchInterval: 10000,
+    enabled: isAuthenticated,
+  })
+  const unreadCount = unreadData?.count ?? 0
 
   useEffect(() => { init() }, [])
 
@@ -364,7 +376,14 @@ export default function AppLayout() {
             <div className="flex items-center gap-1.5">
               {isAuthenticated ? (
                 <>
-                  <IconBtn icon={MessageCircle} title="Messages" />
+                  <div className="relative">
+                    <IconBtn icon={MessageCircle} title="Messages" onClick={openChat} />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center pointer-events-none" style={{ background: '#1877F2' }}>
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
                   <NotificationDropdown />
                   <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
                   {userDropdown}
@@ -446,7 +465,14 @@ export default function AppLayout() {
             {/* Bottom icons */}
             {isAuthenticated ? (
               <div className="flex items-center gap-1.5">
-                <IconBtn icon={MessageCircle} title="Messages" />
+                <div className="relative">
+                  <IconBtn icon={MessageCircle} title="Messages" onClick={openChat} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center pointer-events-none" style={{ background: '#1877F2' }}>
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
                 <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
                 <IconBtn icon={LogOut} title="Sign out" onClick={() => logoutMutation.mutate()} />
                 <Link
@@ -480,6 +506,7 @@ export default function AppLayout() {
 
       </div>
 
+      <ChatPanel />
       <Toaster />
     </div>
   )
