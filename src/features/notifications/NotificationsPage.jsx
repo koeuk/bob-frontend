@@ -32,18 +32,31 @@ function NotifIcon({ type }) {
   )
 }
 
+function ActorLink({ data }) {
+  const to = data.actor_uuid ? `/users/${data.actor_uuid}` : '#'
+  return (
+    <Link
+      to={to}
+      onClick={(e) => e.stopPropagation()}
+      className="font-bold hover:underline"
+    >
+      {data.actor_name}
+    </Link>
+  )
+}
+
 function notifText(data) {
   if (data.type === 'post_liked') {
     const emoji = REACTION_EMOJIS[data.reaction] ?? '👍'
-    return <><strong>{data.actor_name}</strong> reacted {emoji} to your post{data.post_excerpt ? `: "${data.post_excerpt}"` : ''}</>
+    return <><ActorLink data={data} /> reacted {emoji} to your post{data.post_excerpt ? `: "${data.post_excerpt}"` : ''}</>
   }
   if (data.type === 'friend_request') {
-    return <><strong>{data.actor_name}</strong> sent you a friend request</>
+    return <><ActorLink data={data} /> sent you a friend request</>
   }
   if (data.type === 'friend_accepted') {
-    return <><strong>{data.actor_name}</strong> accepted your friend request</>
+    return <><ActorLink data={data} /> accepted your friend request</>
   }
-  return <><strong>{data.actor_name}</strong> commented on your post{data.comment_excerpt ? `: "${data.comment_excerpt}"` : ''}</>
+  return <><ActorLink data={data} /> commented on your post{data.comment_excerpt ? `: "${data.comment_excerpt}"` : ''}</>
 }
 
 function FriendRequestActions({ notif, onResolve }) {
@@ -126,7 +139,13 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
 
   const inner = (
     <>
-      <NotifIcon type={notif.data.type} />
+      <Link
+        to={notif.data.actor_uuid ? `/users/${notif.data.actor_uuid}` : '#'}
+        onClick={(e) => e.stopPropagation()}
+        className="shrink-0 hover:opacity-80 transition-opacity"
+      >
+        <NotifIcon type={notif.data.type} />
+      </Link>
       <div className="flex-1 min-w-0">
         <p className="text-[14px] text-gray-800 dark:text-gray-200 leading-snug">
           {notifText(notif.data)}
