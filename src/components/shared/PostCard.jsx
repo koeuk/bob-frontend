@@ -45,6 +45,42 @@ const REACTIONS = [
   { type: 'angry', emoji: '😡', label: 'Angry', color: '#E9710F' },
 ]
 
+function ReactionIcons({ summary, myReaction }) {
+  // Show distinct emoji types sorted by count (most reacted first), up to 3
+  const icons = Object.entries(summary ?? {})
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([type]) => REACTIONS.find(r => r.type === type))
+    .filter(Boolean)
+
+  if (icons.length > 0) {
+    return (
+      <div className="flex items-center">
+        {icons.map((r, i) => (
+          <span
+            key={r.type}
+            className="text-[17px] leading-none"
+            style={{ marginLeft: i > 0 ? -4 : 0, zIndex: icons.length - i, position: 'relative' }}
+          >
+            {r.emoji}
+          </span>
+        ))}
+      </div>
+    )
+  }
+
+  // Fallback when no summary available
+  if (myReaction) return <span className="text-[18px] leading-none">{myReaction.emoji}</span>
+  return (
+    <div
+      className="h-[20px] w-[20px] rounded-full flex items-center justify-center"
+      style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 1px 4px rgba(24,119,242,0.3)' }}
+    >
+      <ThumbsUp className="h-2.5 w-2.5 text-white fill-white" />
+    </div>
+  )
+}
+
 function ReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
   const [hovered, setHovered] = useState(null)
   return (
@@ -368,16 +404,7 @@ export default function PostCard({ post, queryKey }) {
           <div className="flex items-center justify-between px-4 py-2 text-[13px] text-gray-400 dark:text-gray-500">
             {post.likes_count > 0 ? (
               <div className="flex items-center gap-1.5">
-                {myReaction ? (
-                  <span className="text-[18px] leading-none">{myReaction.emoji}</span>
-                ) : (
-                  <div
-                    className="h-[20px] w-[20px] rounded-full flex items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 1px 4px rgba(24,119,242,0.3)' }}
-                  >
-                    <ThumbsUp className="h-2.5 w-2.5 text-white fill-white" />
-                  </div>
-                )}
+                <ReactionIcons summary={post.reactions_summary} myReaction={myReaction} />
                 <span className="font-medium">{post.likes_count}</span>
               </div>
             ) : <span />}
