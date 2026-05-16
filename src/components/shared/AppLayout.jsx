@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Outlet, useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { logout as logoutApi } from '../../api/auth'
+import { getNotifications } from '../../api/notifications'
 import { getUnreadCount } from '../../api/chat'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
@@ -29,7 +30,7 @@ function isNavActive(to, pathname) {
   return pathname === to || (to === '/feed' && (pathname === '/' || pathname === '/feed'))
 }
 
-function SidebarNav({ items }) {
+function SidebarNav({ items, badges = {} }) {
   const location = useLocation()
   const { dark } = useThemeStore()
 
@@ -37,6 +38,7 @@ function SidebarNav({ items }) {
     <nav className="flex flex-col gap-0.5">
       {items.map(({ to, label, icon: Icon }) => {
         const active = isNavActive(to, location.pathname)
+        const badge = badges[to] ?? 0
         return (
           <Link
             key={to}
@@ -50,7 +52,15 @@ function SidebarNav({ items }) {
             }`}
           >
             <Icon className={`h-5 w-5 shrink-0 transition-colors duration-200 ${active ? 'text-[#1877F2]' : ''}`} />
-            <span>{label}</span>
+            <span className="flex-1">{label}</span>
+            {badge > 0 && (
+              <span
+                className="h-5 min-w-[20px] px-1.5 rounded-full text-[11px] font-bold text-white flex items-center justify-center"
+                style={{ background: '#1877F2' }}
+              >
+                {badge > 99 ? '99+' : badge}
+              </span>
+            )}
           </Link>
         )
       })}
@@ -58,7 +68,7 @@ function SidebarNav({ items }) {
   )
 }
 
-function MobileNav({ items }) {
+function MobileNav({ items, badges = {} }) {
   const location = useLocation()
   const { dark } = useThemeStore()
 
@@ -69,6 +79,7 @@ function MobileNav({ items }) {
     >
       {items.map(({ to, label, icon: Icon }) => {
         const active = isNavActive(to, location.pathname)
+        const badge = badges[to] ?? 0
         return (
           <Link
             key={to}
@@ -81,6 +92,14 @@ function MobileNav({ items }) {
           >
             <Icon className="h-4 w-4" />
             {label}
+            {badge > 0 && (
+              <span
+                className="h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
+                style={{ background: '#1877F2' }}
+              >
+                {badge > 99 ? '99+' : badge}
+              </span>
+            )}
           </Link>
         )
       })}
@@ -233,6 +252,16 @@ export default function AppLayout() {
     enabled: isAuthenticated,
   })
   const unreadCount = unreadData?.count ?? 0
+
+  const { data: notifData } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => getNotifications().then(r => r.data),
+    refetchInterval: 30000,
+    enabled: isAuthenticated,
+  })
+  const unreadNotifCount = notifData?.unread_count ?? 0
+
+  const navBadges = { '/notifications': unreadNotifCount }
 
   useEffect(() => { init() }, [])
 
@@ -401,7 +430,7 @@ export default function AppLayout() {
             </div>
           </div>
           <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
-          <MobileNav items={navItems} />
+          <MobileNav items={navItems} badges={navBadges} />
           <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
           <div className="px-4 py-3 flex items-center">
             <div className="relative w-full">
@@ -454,7 +483,7 @@ export default function AppLayout() {
 
             {/* Nav items */}
             <div className="mt-3">
-              <SidebarNav items={navItems} />
+              <SidebarNav items={navItems} badges={navBadges} />
             </div>
 
             {/* Push icons to bottom */}

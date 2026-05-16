@@ -51,26 +51,23 @@ function FriendRequestActions({ notif, onDone }) {
   const [resolved, setResolved] = useState(false)
   const [result, setResult] = useState(null)
 
+  const decrementUnread = () => {
+    if (!notif.read_at) {
+      queryClient.setQueryData(['notifications'], (old) =>
+        old ? { ...old, unread_count: Math.max(0, (old.unread_count ?? 0) - 1) } : old
+      )
+    }
+  }
+
   const acceptMutation = useMutation({
     mutationFn: () => acceptFriendRequest(notif.data.friend_request_id),
-    onSuccess: () => {
-      setResolved(true)
-      setResult('accepted')
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-    },
-    onError: () => {
-      setResolved(true)
-      setResult('accepted') // treat as already accepted
-    },
+    onSuccess: () => { setResolved(true); setResult('accepted'); decrementUnread() },
+    onError: () => { setResolved(true); setResult('accepted') },
   })
 
   const declineMutation = useMutation({
     mutationFn: () => declineFriendRequest(notif.data.friend_request_id),
-    onSuccess: () => {
-      setResolved(true)
-      setResult('declined')
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-    },
+    onSuccess: () => { setResolved(true); setResult('declined'); decrementUnread() },
   })
 
   if (resolved) {

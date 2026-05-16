@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { X, ArrowLeft, Send } from 'lucide-react'
 import { getConversations, getMessages, sendMessage } from '../../api/chat'
@@ -157,10 +158,16 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
         >
           <ArrowLeft className="h-4 w-4" style={{ color: dark ? '#9ca3af' : '#6b7280' }} />
         </button>
-        <Avatar user={other} size={32} />
-        <span className="text-[13px] font-semibold flex-1 truncate" style={{ color: dark ? '#e4e6eb' : '#1c1e21' }}>
-          {other?.name ?? 'Unknown'}
-        </span>
+        <Link
+          to={`/users/${other?.uuid}`}
+          onClick={close}
+          className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-75 transition-opacity"
+        >
+          <Avatar user={other} size={32} />
+          <span className="text-[13px] font-semibold truncate" style={{ color: dark ? '#e4e6eb' : '#1c1e21' }}>
+            {other?.name ?? 'Unknown'}
+          </span>
+        </Link>
       </div>
 
       {/* Messages */}

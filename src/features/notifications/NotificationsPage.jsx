@@ -1,4 +1,4 @@
-import { useState } from 'react'
+
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNotifications, markRead, markAllRead } from '../../api/notifications'
@@ -46,26 +46,46 @@ function notifText(data) {
   return <><strong>{data.actor_name}</strong> commented on your post{data.comment_excerpt ? `: "${data.comment_excerpt}"` : ''}</>
 }
 
-function FriendRequestActions({ notif }) {
+function FriendRequestActions({ notif, onResolve }) {
   const queryClient = useQueryClient()
-  const [resolved, setResolved] = useState(false)
-  const [result, setResult] = useState(null)
+
+  // Use the status from the backend (survives refresh), fall back to local optimistic state
+  const serverStatus = notif.data.friend_request_status
+  const isAlreadyHandled = serverStatus === 'accepted' || serverStatus === 'declined'
+
+  const updateStatus = (status) => {
+    // Optimistically update the cached notification data so UI updates instantly
+    queryClient.setQueryData(['notifications'], (old) => {
+      if (!old) return old
+      const updated = old.notifications.data.map((n) =>
+        n.id === notif.id
+          ? { ...n, data: { ...n.data, friend_request_status: status } }
+          : n
+      )
+      return {
+        ...old,
+        unread_count: !notif.read_at ? Math.max(0, (old.unread_count ?? 0) - 1) : old.unread_count,
+        notifications: { ...old.notifications, data: updated },
+      }
+    })
+    onResolve(notif.id, status)
+  }
 
   const acceptMutation = useMutation({
     mutationFn: () => acceptFriendRequest(notif.data.friend_request_id),
-    onSuccess: () => { setResolved(true); setResult('accepted'); queryClient.invalidateQueries({ queryKey: ['notifications'] }) },
-    onError: () => { setResolved(true); setResult('accepted') },
+    onSuccess: () => updateStatus('accepted'),
+    onError: () => updateStatus('accepted'),
   })
 
   const declineMutation = useMutation({
     mutationFn: () => declineFriendRequest(notif.data.friend_request_id),
-    onSuccess: () => { setResolved(true); setResult('declined'); queryClient.invalidateQueries({ queryKey: ['notifications'] }) },
+    onSuccess: () => updateStatus('declined'),
   })
 
-  if (resolved) {
+  if (isAlreadyHandled) {
     return (
-      <span className="text-[12px] font-semibold" style={{ color: result === 'accepted' ? '#10b981' : '#9ca3af' }}>
-        {result === 'accepted' ? 'Now friends ✓' : 'Declined'}
+      <span className="text-[12px] font-semibold" style={{ color: serverStatus === 'accepted' ? '#10b981' : '#9ca3af' }}>
+        {serverStatus === 'accepted' ? 'Now friends ✓' : 'Declined'}
       </span>
     )
   }
@@ -78,7 +98,7 @@ function FriendRequestActions({ notif }) {
         className="cursor-pointer px-4 py-1.5 rounded-full text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)' }}
       >
-        Accept
+        {acceptMutation.isPending ? 'Accepting…' : 'Accept'}
       </button>
       <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); declineMutation.mutate() }}
@@ -92,7 +112,7 @@ function FriendRequestActions({ notif }) {
   )
 }
 
-function NotifItem({ notif, onMarkRead }) {
+function NotifItem({ notif, onMarkRead, onResolve }) {
   const unreadBg = 'rgba(24,119,242,0.05)'
   const isFriendRequest = notif.data.type === 'friend_request'
   const isPostNotif = notif.data.type === 'post_liked' || notif.data.type === 'post_commented'
@@ -111,7 +131,9 @@ function NotifItem({ notif, onMarkRead }) {
         <p className="text-[14px] text-gray-800 dark:text-gray-200 leading-snug">
           {notifText(notif.data)}
         </p>
-        {isFriendRequest && <FriendRequestActions notif={notif} />}
+        {isFriendRequest && (
+          <FriendRequestActions notif={notif} onResolve={onResolve} />
+        )}
         <p className="text-[12px] text-[#1877F2] font-medium mt-1.5">
           {formatDistanceToNow(notif.created_at)}
         </p>
@@ -146,6 +168,7 @@ export default function NotificationsPage() {
   const { dark } = useThemeStore()
   const queryClient = useQueryClient()
   const queryKey = ['notifications']
+  const handleResolve = () => {}
 
   const { data, isLoading } = useQuery({
     queryKey,
@@ -199,6 +222,7 @@ export default function NotificationsPage() {
               key={notif.id}
               notif={notif}
               onMarkRead={(id) => { if (!notif.read_at) markReadMutation.mutate(id) }}
+              onResolve={handleResolve}
             />
           ))}
         </div>
