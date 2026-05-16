@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { X, ArrowLeft, Send } from 'lucide-react'
+import { X, ArrowLeft, Send, ImagePlus } from 'lucide-react'
 import { getConversations, getMessages, sendMessage } from '../../api/chat'
 import { assetUrl, formatDistanceToNow } from '../../lib/utils'
 import useThemeStore from '../../store/themeStore'
@@ -99,7 +99,10 @@ function ConversationList({ dark, authUser, onSelect }) {
 function MessageThread({ dark, authUser, convUuid, other, onBack }) {
   const qc = useQueryClient()
   const bottomRef = useRef(null)
+  const fileInputRef = useRef(null)
   const [body, setBody] = useState('')
+  const [images, setImages] = useState([]) // File[]
+  const [previews, setPreviews] = useState([]) // object URL strings
 
   const { data: messages = [] } = useQuery({
     queryKey: ['messages', convUuid],
@@ -116,22 +119,42 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length])
 
+  // Clean up preview URLs on unmount
+  useEffect(() => () => previews.forEach(URL.revokeObjectURL), [previews])
+
+  const canSend = (body.trim() || images.length > 0) && !mutation?.isPending
+
   const mutation = useMutation({
-    mutationFn: () => sendMessage(convUuid, body.trim()),
+    mutationFn: () => sendMessage(convUuid, body.trim(), images),
     onSuccess: () => {
       setBody('')
+      setImages([])
+      setPreviews(prev => { prev.forEach(URL.revokeObjectURL); return [] })
       qc.invalidateQueries({ queryKey: ['messages', convUuid] })
       qc.invalidateQueries({ queryKey: ['conversations'] })
     },
   })
 
   const handleSend = () => {
-    if (!body.trim() || mutation.isPending) return
+    if (!canSend) return
     mutation.mutate()
   }
 
   const handleKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
+  }
+
+  const handleFiles = (e) => {
+    const files = Array.from(e.target.files ?? []).slice(0, 5)
+    setImages(files)
+    setPreviews(prev => { prev.forEach(URL.revokeObjectURL); return files.map(f => URL.createObjectURL(f)) })
+    e.target.value = ''
+  }
+
+  const removeImage = (i) => {
+    URL.revokeObjectURL(previews[i])
+    setImages(prev => prev.filter((_, idx) => idx !== i))
+    setPreviews(prev => prev.filter((_, idx) => idx !== i))
   }
 
   const groupedMessages = messages.reduce((acc, msg, i) => {
@@ -185,29 +208,87 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
               </div>
             )}
             {!msg.isMe && msg.sameSender && <div style={{ width: 24 }} />}
-            <div
-              className="max-w-[75%] px-3 py-2 rounded-2xl text-[13px] leading-snug break-words"
-              style={msg.isMe
-                ? { background: '#1877F2', color: 'white', borderBottomRightRadius: msg.sameSender ? 8 : undefined }
-                : {
-                    background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
-                    color: dark ? '#e4e6eb' : '#1c1e21',
-                    borderBottomLeftRadius: msg.sameSender ? 8 : undefined,
+            <div className="max-w-[78%] flex flex-col gap-1">
+              {/* Images grid */}
+              {msg.images?.length > 0 && (
+                <div className={`grid gap-1 ${msg.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                  {msg.images.map((src, i) => (
+                    <img
+                      key={i}
+                      src={assetUrl(src)}
+                      alt=""
+                      className="rounded-xl object-cover w-full cursor-pointer"
+                      style={{ maxHeight: 180 }}
+                      onClick={() => window.open(assetUrl(src), '_blank')}
+                    />
+                  ))}
+                </div>
+              )}
+              {/* Text bubble */}
+              {msg.body && (
+                <div
+                  className="px-3 py-2 rounded-2xl text-[13px] leading-snug break-words"
+                  style={msg.isMe
+                    ? { background: '#1877F2', color: 'white', borderBottomRightRadius: msg.sameSender ? 8 : undefined }
+                    : {
+                        background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
+                        color: dark ? '#e4e6eb' : '#1c1e21',
+                        borderBottomLeftRadius: msg.sameSender ? 8 : undefined,
+                      }
                   }
-              }
-            >
-              {msg.body}
+                >
+                  {msg.body}
+                </div>
+              )}
             </div>
           </div>
         ))}
         <div ref={bottomRef} />
       </div>
 
+      {/* Image previews */}
+      {previews.length > 0 && (
+        <div
+          className="px-3 pt-2 flex gap-2 flex-wrap shrink-0"
+          style={{ borderTop: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'}` }}
+        >
+          {previews.map((src, i) => (
+            <div key={i} className="relative shrink-0">
+              <img src={src} alt="" className="h-16 w-16 rounded-xl object-cover" />
+              <button
+                onClick={() => removeImage(i)}
+                className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-gray-800 text-white flex items-center justify-center text-[11px] font-bold cursor-pointer hover:bg-red-500 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Input */}
       <div
         className="px-3 py-3 shrink-0 flex items-end gap-2"
-        style={{ borderTop: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'}` }}
+        style={{ borderTop: previews.length > 0 ? 'none' : `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'}` }}
       >
+        {/* Image picker */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleFiles}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-colors"
+          style={{ background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}
+          title="Send images"
+        >
+          <ImagePlus className="h-4 w-4" style={{ color: images.length > 0 ? '#1877F2' : (dark ? '#9ca3af' : '#6b7280') }} />
+        </button>
+
         <textarea
           rows={1}
           placeholder="Message…"
@@ -227,14 +308,14 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
         />
         <button
           onClick={handleSend}
-          disabled={!body.trim() || mutation.isPending}
+          disabled={!canSend}
           className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 transition-all"
           style={{
-            background: body.trim() ? '#1877F2' : (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'),
-            cursor: body.trim() ? 'pointer' : 'default',
+            background: canSend ? '#1877F2' : (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'),
+            cursor: canSend ? 'pointer' : 'default',
           }}
         >
-          <Send className="h-4 w-4" style={{ color: body.trim() ? 'white' : (dark ? '#4b5563' : '#9ca3af') }} />
+          <Send className="h-4 w-4" style={{ color: canSend ? 'white' : (dark ? '#4b5563' : '#9ca3af') }} />
         </button>
       </div>
     </div>

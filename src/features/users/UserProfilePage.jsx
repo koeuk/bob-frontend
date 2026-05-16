@@ -9,13 +9,15 @@ import useAuthStore from '../../store/authStore'
 import useThemeStore from '../../store/themeStore'
 import useChatStore from '../../store/chatStore'
 import PostCard from '../../components/shared/PostCard'
-import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil, MessageCircle, Camera } from 'lucide-react'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog'
+import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil, MessageCircle, Camera, UserMinus } from 'lucide-react'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 import { toast } from 'sonner'
 
-function FriendButton({ friendship, profileUuid, queryKey }) {
+function FriendButton({ friendship, profileUuid, profileName, queryKey }) {
   const { isAuthenticated } = useAuthStore()
   const queryClient = useQueryClient()
+  const [unfriendOpen, setUnfriendOpen] = useState(false)
 
   const sendMut = useMutation({
     mutationFn: () => sendFriendRequest(profileUuid),
@@ -25,6 +27,11 @@ function FriendButton({ friendship, profileUuid, queryKey }) {
   const cancelMut = useMutation({
     mutationFn: () => cancelFriendRequest(friendship?.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  })
+  const unfriendMut = useMutation({
+    mutationFn: () => cancelFriendRequest(friendship?.id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey }); toast.success('Friend removed') },
+    onError: () => toast.error('Failed to remove friend'),
   })
   const acceptMut = useMutation({
     mutationFn: () => acceptFriendRequest(friendship?.id),
@@ -49,10 +56,37 @@ function FriendButton({ friendship, profileUuid, queryKey }) {
 
   if (friendship.status === 'accepted') {
     return (
-      <div className="flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400">
-        <UserCheck className="h-4 w-4" />
-        Friends
-      </div>
+      <>
+        <button
+          onClick={() => setUnfriendOpen(true)}
+          disabled={unfriendMut.isPending}
+          className="cursor-pointer flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all duration-200 disabled:opacity-60"
+        >
+          <UserCheck className="h-4 w-4" />
+          Friends
+        </button>
+
+        <AlertDialog open={unfriendOpen} onOpenChange={setUnfriendOpen}>
+          <AlertDialogContent className="rounded-2xl max-w-sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove friend?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to remove <span className="font-semibold text-gray-900 dark:text-gray-100">{profileName}</span> as a friend? You can always add them again later.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-xl cursor-pointer">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => unfriendMut.mutate()}
+                className="rounded-xl cursor-pointer bg-red-500 hover:bg-red-600 text-white"
+              >
+                <UserMinus className="h-4 w-4 mr-1.5" />
+                Unfriend
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     )
   }
 
@@ -233,7 +267,7 @@ export default function UserProfilePage() {
                 </Link>
               ) : (
                 <div className="flex items-center gap-2">
-                  <FriendButton friendship={friendship} profileUuid={uuid} queryKey={queryKey} />
+                  <FriendButton friendship={friendship} profileUuid={uuid} profileName={user.name} queryKey={queryKey} />
                   {isAuthenticated && (
                     <button
                       onClick={async () => {
