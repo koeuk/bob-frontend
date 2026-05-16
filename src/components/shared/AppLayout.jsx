@@ -307,6 +307,19 @@ export default function AppLayout() {
           </div>
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate(`/users/${user?.uuid}`)}>
+          <UserCircle className="h-4 w-4 mr-2" /> View Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/my-posts')}>
+          <FileText className="h-4 w-4 mr-2" /> My Posts
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/dashboard')}>
+          <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/notifications')}>
+          <Bell className="h-4 w-4 mr-2" /> Notifications
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/account')}>
           <UserCircle className="h-4 w-4 mr-2" /> My Account
         </DropdownMenuItem>

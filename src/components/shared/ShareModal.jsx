@@ -98,7 +98,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-        className="max-w-sm p-0 gap-0 overflow-hidden rounded-2xl border-0"
+        className="w-[calc(100vw-2rem)] max-w-sm p-0 gap-0 overflow-hidden rounded-2xl border-0"
         style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08)' }}
       >
         <DialogHeader className="px-5 pt-5 pb-4 border-b border-gray-100">
