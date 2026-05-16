@@ -18,7 +18,7 @@ export function UserAvatar({ name, avatar, size = 'md', active = false }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
   const dotSz = size === 'sm' ? 'h-2.5 w-2.5 border-[1.5px]' : 'h-3 w-3 border-2'
   const inner = avatar ? (
-    <img src={avatar} alt={name} className={`${sz} rounded-full object-cover shrink-0`} style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }} />
+    <img src={assetUrl(avatar)} alt={name} className={`${sz} rounded-full object-cover shrink-0`} style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }} />
   ) : (
     <div
       className={`${sz} rounded-full flex items-center justify-center text-white font-bold shrink-0`}

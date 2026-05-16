@@ -6,6 +6,7 @@ import useThemeStore from '../../store/themeStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { ImageIcon, Smile, X, Globe, Lock } from 'lucide-react'
+import { assetUrl } from '../../lib/utils'
 
 const FEELINGS = [
   { value: 'happy',     emoji: '😊' },
@@ -69,7 +70,7 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
           {/* Author row */}
           <div className="flex items-center gap-3">
             {user?.avatar ? (
-              <img src={user.avatar} alt="" className="h-11 w-11 rounded-full object-cover shrink-0" />
+              <img src={assetUrl(user.avatar)} alt="" className="h-11 w-11 rounded-full object-cover shrink-0" />
             ) : (
               <div
                 className="h-11 w-11 rounded-full flex items-center justify-center text-white font-bold shrink-0"

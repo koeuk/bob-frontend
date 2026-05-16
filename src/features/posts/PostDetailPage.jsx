@@ -9,7 +9,7 @@ import ReportModal from '../../components/shared/ReportModal'
 import { Button } from '../../components/ui/button'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog'
 import { Loader2, ArrowLeft, Trash2, Flag, ThumbsUp, SendHorizonal } from 'lucide-react'
-import { formatDistanceToNow } from '../../lib/utils'
+import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 import { toast } from 'sonner'
 
 const REACTIONS = [
@@ -55,7 +55,7 @@ function CommentReactionPicker({ onReact, onMouseEnter, onMouseLeave }) {
 function UserAvatar({ name, avatar, size = 'md' }) {
   const sz = size === 'sm' ? 'h-8 w-8 text-sm' : 'h-10 w-10 text-base'
   if (avatar) {
-    return <img src={avatar} alt={name} className={`${sz} rounded-full object-cover shrink-0`} />
+    return <img src={assetUrl(avatar)} alt={name} className={`${sz} rounded-full object-cover shrink-0`} />
   }
   return (
     <div className={`${sz} rounded-full bg-[#1877F2] flex items-center justify-center text-white font-semibold shrink-0`}>

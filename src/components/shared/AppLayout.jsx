@@ -10,6 +10,7 @@ import { Home, FileText, LayoutDashboard, Flag, Bell, UserCircle, LogOut, Search
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
 import useThemeStore from '../../store/themeStore'
+import { assetUrl } from '../../lib/utils'
 
 const publicNavItems = [
   { to: '/feed',      label: 'Feed',      icon: Home },
@@ -274,7 +275,7 @@ export default function AppLayout() {
       }}
     >
       {user?.avatar
-        ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+        ? <img src={assetUrl(user.avatar)} alt="" className="w-full h-full object-cover" />
         : user?.name?.[0]?.toUpperCase()
       }
     </div>
@@ -296,7 +297,7 @@ export default function AppLayout() {
             style={user?.avatar ? {} : { background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
           >
             {user?.avatar
-              ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+              ? <img src={assetUrl(user.avatar)} alt="" className="w-full h-full object-cover" />
               : user?.name?.[0]?.toUpperCase()
             }
           </div>
@@ -434,7 +435,17 @@ export default function AppLayout() {
               <div className="flex items-center gap-1.5">
                 <IconBtn icon={MessageCircle} title="Messages" />
                 <IconBtn icon={dark ? Sun : Moon} title={dark ? 'Light mode' : 'Dark mode'} onClick={toggle} />
-                {userDropdown}
+                <IconBtn icon={LogOut} title="Sign out" onClick={() => logoutMutation.mutate()} />
+                <Link
+                  to={`/users/${user?.uuid}`}
+                  className="relative shrink-0 transition-all duration-200 hover:scale-105 hover:opacity-90"
+                >
+                  {userAvatarEl()}
+                  <span
+                    className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2"
+                    style={{ background: '#22c55e', borderColor: dark ? '#242526' : 'white' }}
+                  />
+                </Link>
               </div>
             ) : (
               <div className="flex flex-col gap-2">

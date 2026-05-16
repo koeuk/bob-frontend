@@ -80,7 +80,7 @@ export default function EditPostModal({ open, onClose, post, queryKey }) {
           {/* Author row */}
           <div className="flex items-center gap-3">
             {user?.avatar ? (
-              <img src={user.avatar} alt="" className="h-11 w-11 rounded-full object-cover shrink-0" />
+              <img src={assetUrl(user.avatar)} alt="" className="h-11 w-11 rounded-full object-cover shrink-0" />
             ) : (
               <div
                 className="h-11 w-11 rounded-full flex items-center justify-center text-white font-bold shrink-0"

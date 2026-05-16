@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getDashboard } from '../../api/dashboard'
 import { Link } from 'react-router-dom'
 import { Loader2, FileText, MessageCircle, Heart, TrendingUp, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react'
+import { assetUrl } from '../../lib/utils'
 
 function StatCard({ icon: Icon, label, value, sub, iconColor, trend }) {
   const trendEl = trend != null
@@ -170,7 +171,7 @@ export default function DashboardPage() {
             {activity.map((c) => (
               <Link key={c.id} to={`/posts/${c.post?.uuid}`} className="flex items-start gap-3 group">
                 {c.user?.avatar ? (
-                  <img src={c.user.avatar} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
+                  <img src={assetUrl(c.user.avatar)} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
                 ) : (
                   <div
                     className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"

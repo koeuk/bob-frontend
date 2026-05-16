@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { toast } from 'sonner'
 import { Copy, Check, ExternalLink } from 'lucide-react'
+import { assetUrl } from '../../lib/utils'
 
 const PLATFORMS = [
   {
@@ -159,7 +160,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
                     style={user?.avatar ? {} : { background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)' }}
                   >
                     {user?.avatar
-                      ? <img src={user.avatar} alt="" className="w-full h-full object-cover rounded-full" />
+                      ? <img src={assetUrl(user.avatar)} alt="" className="w-full h-full object-cover rounded-full" />
                       : user?.name?.[0]?.toUpperCase()
                     }
                   </div>

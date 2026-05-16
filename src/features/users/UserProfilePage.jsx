@@ -6,7 +6,7 @@ import { sendFriendRequest, cancelFriendRequest, acceptFriendRequest } from '../
 import useAuthStore from '../../store/authStore'
 import useThemeStore from '../../store/themeStore'
 import PostCard from '../../components/shared/PostCard'
-import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText } from 'lucide-react'
+import { Loader2, UserPlus, UserCheck, Clock, Users, Images, FileText, Pencil } from 'lucide-react'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 
 function FriendButton({ friendship, profileUuid, queryKey }) {
@@ -89,7 +89,7 @@ function FriendCard({ friend }) {
       className="flex flex-col items-center gap-2 p-3 rounded-2xl transition-all duration-200 hover:bg-gray-50 dark:hover:bg-white/5"
     >
       {friend.avatar ? (
-        <img src={friend.avatar} alt={friend.name} className="h-16 w-16 rounded-full object-cover" />
+        <img src={assetUrl(friend.avatar)} alt={friend.name} className="h-16 w-16 rounded-full object-cover" />
       ) : (
         <div
           className="h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold"
@@ -160,7 +160,7 @@ export default function UserProfilePage() {
             <div className="relative shrink-0">
               {user.avatar ? (
                 <img
-                  src={user.avatar}
+                  src={assetUrl(user.avatar)}
                   alt={user.name}
                   className="h-24 w-24 rounded-full object-cover border-4"
                   style={{ borderColor: dark ? '#242526' : 'white' }}
@@ -179,7 +179,15 @@ export default function UserProfilePage() {
             </div>
 
             <div className="pb-1">
-              {!isMe && (
+              {isMe ? (
+                <Link
+                  to="/account"
+                  className="flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit Profile
+                </Link>
+              ) : (
                 <FriendButton friendship={friendship} profileUuid={uuid} queryKey={queryKey} />
               )}
             </div>

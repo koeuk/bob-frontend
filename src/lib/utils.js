@@ -7,8 +7,13 @@ export function cn(...inputs) {
 
 export function assetUrl(path) {
   if (!path) return null
-  if (path.startsWith('http')) return path
-  return 'http://127.0.0.1:8001' + path
+  if (path.startsWith('http')) {
+    // Normalize: replace any stored host with the current API host
+    const url = new URL(path)
+    return 'http://127.0.0.1:8001' + url.pathname
+  }
+  const slash = path.startsWith('/') ? '' : '/'
+  return 'http://127.0.0.1:8001/storage' + slash + path
 }
 
 export function formatDistanceToNow(dateString) {

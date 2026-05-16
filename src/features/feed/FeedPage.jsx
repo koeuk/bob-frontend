@@ -7,6 +7,7 @@ import PostCard from '../../components/shared/PostCard'
 import CreatePostModal from '../../components/shared/CreatePostModal'
 import { Button } from '../../components/ui/button'
 import { Loader2, ImageIcon, Smile } from 'lucide-react'
+import { assetUrl } from '../../lib/utils'
 
 export default function FeedPage() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -54,7 +55,7 @@ export default function FeedPage() {
         >
           <div className="flex items-center gap-3">
             {user?.avatar ? (
-              <img src={user.avatar} alt="" className="h-10 w-10 rounded-full object-cover shrink-0" />
+              <img src={assetUrl(user.avatar)} alt="" className="h-10 w-10 rounded-full object-cover shrink-0" />
             ) : (
               <div
                 className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
