@@ -369,7 +369,7 @@ export default function UserProfilePage() {
             </div>
           ) : (
             posts.map((post) => (
-              <PostCard key={post.uuid} post={post} queryKey={['user-posts', uuid]} />
+              <PostCard key={post.uuid} post={post} queryKey={queryKey} />
             ))
           )}
         </div>
