@@ -1,5 +1,5 @@
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNotifications, markRead, markAllRead } from '../../api/notifications'
 import { acceptFriendRequest, declineFriendRequest } from '../../api/friends'
@@ -126,6 +126,7 @@ function FriendRequestActions({ notif, onResolve }) {
 }
 
 function NotifItem({ notif, onMarkRead, onResolve }) {
+  const navigate = useNavigate()
   const unreadBg = 'rgba(24,119,242,0.05)'
   const isFriendRequest = notif.data.type === 'friend_request'
   const isPostNotif = notif.data.type === 'post_liked' || notif.data.type === 'post_commented'
@@ -165,14 +166,13 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
 
   if (isPostNotif) {
     return (
-      <Link
-        to={`/posts/${notif.data.post_uuid}`}
-        onClick={() => onMarkRead(notif.id)}
+      <div
+        onClick={() => { onMarkRead(notif.id); navigate(`/posts/${notif.data.post_uuid}`) }}
         className={sharedClass}
         style={sharedStyle}
       >
         {inner}
-      </Link>
+      </div>
     )
   }
 

@@ -124,7 +124,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
             </div>
             <div className="min-w-0 overflow-hidden">
               <p className="font-semibold text-[14px] text-gray-900">{copied ? 'Link copied!' : 'Copy link'}</p>
-              <p className="text-[12px] text-gray-400 truncate">{postUrl}</p>
+              <p className="text-[12px] text-gray-400 break-all line-clamp-2">{postUrl}</p>
             </div>
           </div>
 
