@@ -5,18 +5,19 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
+const STORAGE_BASE = (import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000').replace(/\/api$/, '')
+
 export function assetUrl(path) {
   if (!path) return null
   if (path.startsWith('http')) {
     const url = new URL(path)
-    return 'http://127.0.0.1:8001' + url.pathname
+    return STORAGE_BASE + url.pathname
   }
-  // Path already contains the /storage/ prefix — don't add it again
   if (path.startsWith('/storage/') || path.startsWith('storage/')) {
-    return 'http://127.0.0.1:8001/' + path.replace(/^\//, '')
+    return STORAGE_BASE + '/' + path.replace(/^\//, '')
   }
   const slash = path.startsWith('/') ? '' : '/'
-  return 'http://127.0.0.1:8001/storage' + slash + path
+  return STORAGE_BASE + '/storage' + slash + path
 }
 
 export function formatDistanceToNow(dateString) {
