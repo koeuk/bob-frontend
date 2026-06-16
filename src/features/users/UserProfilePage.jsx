@@ -46,8 +46,7 @@ function FriendButton({ friendship, profileUuid, profileName, queryKey }) {
       <button
         onClick={() => sendMut.mutate()}
         disabled={sendMut.isPending}
-        className="cursor-pointer flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-white transition-all duration-200 hover:opacity-90 disabled:opacity-60"
-        style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)', boxShadow: '0 2px 10px rgba(24,119,242,0.35)' }}
+        className="cursor-pointer flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white bg-primary hover:opacity-90 transition-all duration-200 disabled:opacity-60"
       >
         <UserPlus className="h-4 w-4" />
         Add Friend
@@ -61,7 +60,7 @@ function FriendButton({ friendship, profileUuid, profileName, queryKey }) {
         <button
           onClick={() => setUnfriendOpen(true)}
           disabled={unfriendMut.isPending}
-          className="cursor-pointer flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all duration-200 disabled:opacity-60"
+          className="cursor-pointer flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all duration-200 disabled:opacity-60"
         >
           <UserCheck className="h-4 w-4" />
           Friends
@@ -96,7 +95,7 @@ function FriendButton({ friendship, profileUuid, profileName, queryKey }) {
       <button
         onClick={() => cancelMut.mutate()}
         disabled={cancelMut.isPending}
-        className="cursor-pointer flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200 disabled:opacity-60"
+        className="cursor-pointer flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200 disabled:opacity-60"
       >
         <Clock className="h-4 w-4" />
         Pending
@@ -109,8 +108,7 @@ function FriendButton({ friendship, profileUuid, profileName, queryKey }) {
       <button
         onClick={() => acceptMut.mutate()}
         disabled={acceptMut.isPending}
-        className="cursor-pointer flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-white transition-all duration-200 hover:opacity-90 disabled:opacity-60"
-        style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)', boxShadow: '0 2px 10px rgba(24,119,242,0.35)' }}
+        className="cursor-pointer flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white bg-primary hover:opacity-90 transition-all duration-200 disabled:opacity-60"
       >
         <UserCheck className="h-4 w-4" />
         Accept
@@ -133,7 +131,7 @@ function FriendCard({ friend }) {
         ) : (
           <div
             className="h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold"
-            style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
+            className="bg-primary"
           >
             {friend.name?.[0]?.toUpperCase()}
           </div>
@@ -178,7 +176,7 @@ export default function UserProfilePage() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-[#1877F2]" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     )
   }
@@ -216,7 +214,7 @@ export default function UserProfilePage() {
               onClick={() => setViewImage(assetUrl(user.cover))}
             />
           ) : (
-            <div className="w-full h-full" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 60%,#a5d8ff 100%)' }} />
+            <div className="w-full h-full bg-primary/80" />
           )}
           {isMe && (
             <>
@@ -265,11 +263,8 @@ export default function UserProfilePage() {
                 </button>
               ) : (
                 <div
-                  className="h-24 w-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4"
-                  style={{
-                    background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-                    borderColor: dark ? '#242526' : 'white',
-                  }}
+                  className="h-24 w-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4 bg-primary"
+                  style={{ borderColor: dark ? '#242526' : 'white' }}
                 >
                   {user.name?.[0]?.toUpperCase()}
                 </div>
@@ -283,7 +278,7 @@ export default function UserProfilePage() {
               {isMe ? (
                 <Link
                   to="/account"
-                  className="flex items-center gap-2 px-5 py-2 rounded-full text-[14px] font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200"
                 >
                   <Pencil className="h-4 w-4" />
                   Edit Profile
@@ -297,7 +292,7 @@ export default function UserProfilePage() {
                         const res = await findOrCreateConversation(uuid)
                         openWith(res.data.uuid, user)
                       }}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200 cursor-pointer"
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-all duration-200 cursor-pointer"
                     >
                       <MessageCircle className="h-4 w-4" />
                       Message
@@ -315,8 +310,7 @@ export default function UserProfilePage() {
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             {roleLabel && (
               <span
-                className="text-[12px] font-semibold px-2.5 py-0.5 rounded-full"
-                style={{ background: 'rgba(24,119,242,0.1)', color: '#1877F2' }}
+                className="text-[12px] font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary"
               >
                 {roleLabel}
               </span>
@@ -343,8 +337,8 @@ export default function UserProfilePage() {
                 onClick={() => setTab(t)}
                 className="flex-1 flex items-center justify-center gap-1.5 py-3 text-[14px] font-semibold transition-colors duration-200 border-b-2 cursor-pointer"
                 style={{
-                  borderColor: active ? '#1877F2' : 'transparent',
-                  color: active ? '#1877F2' : dark ? '#9ca3af' : '#6b7280',
+                  borderColor: active ? 'oklch(0.38 0.13 143)' : 'transparent',
+                  color: active ? 'oklch(0.38 0.13 143)' : dark ? '#9ca3af' : '#6b7280',
                 }}
               >
                 {t === 'Posts' && <FileText className="h-4 w-4" />}

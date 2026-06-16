@@ -17,8 +17,8 @@ function Avatar({ user, size = 36 }) {
       style={{
         width: size, height: size, fontSize: size * 0.38,
         ...(user?.avatar
-          ? { border: '2px solid rgba(24,119,242,0.25)' }
-          : { background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }),
+          ? { border: '2px solid oklch(0.38 0.13 143 / 0.25)' }
+          : { background: 'oklch(0.38 0.13 143)' }),
       }}
     >
       {user?.avatar
@@ -37,7 +37,7 @@ function ConversationList({ dark, authUser, onSelect }) {
 
   if (isLoading) return (
     <div className="flex-1 flex items-center justify-center">
-      <div className="h-5 w-5 rounded-full border-2 border-[#1877F2] border-t-transparent animate-spin" />
+      <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
     </div>
   )
 
@@ -82,7 +82,7 @@ function ConversationList({ dark, authUser, onSelect }) {
                 {unread > 0 && (
                   <span
                     className="shrink-0 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
-                    style={{ background: '#1877F2' }}
+                    style={{ background: 'oklch(0.38 0.13 143)' }}
                   >
                     {unread}
                   </span>
@@ -229,7 +229,7 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
                 <div
                   className="px-3 py-2 rounded-2xl text-[13px] leading-snug break-words"
                   style={msg.isMe
-                    ? { background: '#1877F2', color: 'white', borderBottomRightRadius: msg.sameSender ? 8 : undefined }
+                    ? { background: 'oklch(0.38 0.13 143)', color: 'white', borderBottomRightRadius: msg.sameSender ? 8 : undefined }
                     : {
                         background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
                         color: dark ? '#e4e6eb' : '#1c1e21',
@@ -286,7 +286,7 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
           style={{ background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}
           title="Send images"
         >
-          <ImagePlus className="h-4 w-4" style={{ color: images.length > 0 ? '#1877F2' : (dark ? '#9ca3af' : '#6b7280') }} />
+          <ImagePlus className="h-4 w-4" style={{ color: images.length > 0 ? 'oklch(0.38 0.13 143)' : (dark ? '#9ca3af' : '#6b7280') }} />
         </button>
 
         <textarea
@@ -303,7 +303,7 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
             maxHeight: 96,
             lineHeight: '1.4',
           }}
-          onFocus={e => { e.target.style.border = '1.5px solid rgba(24,119,242,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.1)' }}
+          onFocus={e => { e.target.style.border = '1.5px solid oklch(0.38 0.13 143 / 0.5)'; e.target.style.boxShadow = '0 0 0 3px oklch(0.38 0.13 143 / 0.1)' }}
           onBlur={e => { e.target.style.border = '1.5px solid transparent'; e.target.style.boxShadow = 'none' }}
         />
         <button
@@ -311,7 +311,7 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
           disabled={!canSend}
           className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 transition-all"
           style={{
-            background: canSend ? '#1877F2' : (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'),
+            background: canSend ? 'oklch(0.38 0.13 143)' : (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'),
             cursor: canSend ? 'pointer' : 'default',
           }}
         >

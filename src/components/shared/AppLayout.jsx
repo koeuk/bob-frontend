@@ -47,16 +47,16 @@ function SidebarNav({ items, badges = {} }) {
               active
                 ? dark
                   ? 'bg-[rgba(255,255,255,0.1)] text-gray-100'
-                  : 'bg-[rgba(24,119,242,0.08)] text-gray-900'
+                  : 'bg-primary/10 text-gray-900'
                 : 'text-gray-500 dark:text-gray-400 hover:bg-[rgba(0,0,0,0.05)] dark:hover:bg-[rgba(255,255,255,0.06)] hover:text-gray-800 dark:hover:text-gray-200'
             }`}
           >
-            <Icon className={`h-5 w-5 shrink-0 transition-colors duration-200 ${active ? 'text-[#1877F2]' : ''}`} />
+            <Icon className={`h-5 w-5 shrink-0 transition-colors duration-200 ${active ? 'text-primary' : ''}`} />
             <span className="flex-1">{label}</span>
             {badge > 0 && (
               <span
                 className="h-5 min-w-[20px] px-1.5 rounded-full text-[11px] font-bold text-white flex items-center justify-center"
-                style={{ background: '#1877F2' }}
+                style={{ background: 'oklch(0.38 0.13 143)' }}
               >
                 {badge > 99 ? '99+' : badge}
               </span>
@@ -86,8 +86,8 @@ function MobileNav({ items, badges = {} }) {
             to={to}
             className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold whitespace-nowrap border-b-2 transition-colors duration-200"
             style={{
-              borderColor: active ? '#1877F2' : 'transparent',
-              color: active ? '#1877F2' : dark ? '#9ca3af' : '#6b7280',
+              borderColor: active ? 'oklch(0.38 0.13 143)' : 'transparent',
+              color: active ? 'oklch(0.38 0.13 143)' : dark ? '#9ca3af' : '#6b7280',
             }}
           >
             <Icon className="h-4 w-4" />
@@ -95,7 +95,7 @@ function MobileNav({ items, badges = {} }) {
             {badge > 0 && (
               <span
                 className="h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
-                style={{ background: '#1877F2' }}
+                style={{ background: 'oklch(0.38 0.13 143)' }}
               >
                 {badge > 99 ? '99+' : badge}
               </span>
@@ -181,7 +181,7 @@ function SearchPopup({ anchorRef, search, dark, onSearch, onClose }) {
               onMouseDown={(e) => { e.preventDefault(); go(search || '', type) }}
               className="cursor-pointer px-3 py-1 rounded-full text-[12px] font-semibold transition-all duration-150"
               style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: textColor }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(24,119,242,0.18)'; e.currentTarget.style.color = '#1877F2' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'oklch(0.38 0.13 143 / 0.18)'; e.currentTarget.style.color = 'oklch(0.38 0.13 143)' }}
               onMouseLeave={e => { e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'; e.currentTarget.style.color = textColor }}
             >
               {label}
@@ -196,7 +196,7 @@ function SearchPopup({ anchorRef, search, dark, onSearch, onClose }) {
           <div style={{ height: 1, background: border }} />
           <div className="px-3 pt-2.5 pb-1 flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: dark ? '#6b7280' : '#9ca3af' }}>Recent</p>
-            <button onMouseDown={(e) => { e.preventDefault(); clearRecent() }} className="text-[11px] font-semibold text-[#1877F2] cursor-pointer hover:underline">Clear</button>
+            <button onMouseDown={(e) => { e.preventDefault(); clearRecent() }} className="text-[11px] font-semibold text-primary cursor-pointer hover:underline">Clear</button>
           </div>
           {recent.map(q => (
             <button
@@ -221,8 +221,8 @@ function SearchPopup({ anchorRef, search, dark, onSearch, onClose }) {
           <button
             onMouseDown={(e) => { e.preventDefault(); go(search.trim()) }}
             className="w-full flex items-center gap-2.5 px-3 py-3 text-[13px] text-left cursor-pointer transition-colors duration-100"
-            style={{ color: '#1877F2', background: 'transparent' }}
-            onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(24,119,242,0.1)' : 'rgba(24,119,242,0.05)'}
+            style={{ color: 'oklch(0.38 0.13 143)', background: 'transparent' }}
+            onMouseEnter={e => e.currentTarget.style.background = dark ? 'oklch(0.38 0.13 143 / 0.1)' : 'oklch(0.38 0.13 143 / 0.05)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
             <Search className="h-4 w-4 shrink-0" />
@@ -297,8 +297,8 @@ export default function AppLayout() {
     style: { background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', border: '1.5px solid transparent' },
     onFocus: (e) => {
       e.target.style.background = dark ? 'rgba(255,255,255,0.12)' : 'white'
-      e.target.style.border = '1.5px solid rgba(24,119,242,0.4)'
-      e.target.style.boxShadow = '0 0 0 3px rgba(24,119,242,0.12)'
+      e.target.style.border = '1.5px solid oklch(0.38 0.13 143 / 0.4)'
+      e.target.style.boxShadow = '0 0 0 3px oklch(0.38 0.13 143 / 0.12)'
     },
     onBlur: (e) => {
       e.target.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'
@@ -310,9 +310,9 @@ export default function AppLayout() {
   const userAvatarEl = (size = 'h-9 w-9') => (
     <div
       className={`${size} rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm`}
-      style={user?.avatar ? { border: '2px solid rgba(24,119,242,0.3)' } : {
-        background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-        boxShadow: '0 2px 8px rgba(24,119,242,0.35)',
+      style={user?.avatar ? { border: '2px solid oklch(0.38 0.13 143 / 0.3)' } : {
+        background: 'oklch(0.38 0.13 143)',
+        boxShadow: '0 2px 8px oklch(0.38 0.13 143 / 0.35)',
       }}
     >
       {user?.avatar
@@ -335,7 +335,7 @@ export default function AppLayout() {
         <div className="flex items-center gap-3 p-3 mb-1">
           <div
             className="h-11 w-11 rounded-full overflow-hidden flex items-center justify-center text-white font-bold shrink-0"
-            style={user?.avatar ? {} : { background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)' }}
+            style={user?.avatar ? {} : { background: 'oklch(0.38 0.13 143)' }}
           >
             {user?.avatar
               ? <img src={assetUrl(user.avatar)} alt="" className="w-full h-full object-cover" />
@@ -396,8 +396,8 @@ export default function AppLayout() {
               to="/feed"
               className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none"
               style={{
-                background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-                boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
+                background: 'oklch(0.38 0.13 143)',
+                boxShadow: '0 3px 10px oklch(0.38 0.13 143 / 0.38)',
               }}
             >
               b
@@ -408,7 +408,7 @@ export default function AppLayout() {
                   <div className="relative">
                     <IconBtn icon={MessageCircle} title="Messages" onClick={openChat} />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center pointer-events-none" style={{ background: '#1877F2' }}>
+                      <span className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center pointer-events-none" style={{ background: 'oklch(0.38 0.13 143)' }}>
                         {unreadCount}
                       </span>
                     )}
@@ -422,7 +422,7 @@ export default function AppLayout() {
                   <Button variant="ghost" size="sm" className="rounded-full text-[13px]" asChild>
                     <Link to="/login">Sign in</Link>
                   </Button>
-                  <Button size="sm" className="rounded-full text-[13px] bg-[#1877F2] hover:bg-[#166FE5]" asChild>
+                  <Button size="sm" className="rounded-full text-[13px] bg-primary hover:bg-primary/90" asChild>
                     <Link to="/register">Join</Link>
                   </Button>
                 </>
@@ -453,8 +453,8 @@ export default function AppLayout() {
               to="/feed"
               className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none transition-all duration-200 hover:scale-105 hover:opacity-90 mb-5 shrink-0"
               style={{
-                background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)',
-                boxShadow: '0 3px 10px rgba(24,119,242,0.38)',
+                background: 'oklch(0.38 0.13 143)',
+                boxShadow: '0 3px 10px oklch(0.38 0.13 143 / 0.38)',
               }}
             >
               b
@@ -497,7 +497,7 @@ export default function AppLayout() {
                 <div className="relative">
                   <IconBtn icon={MessageCircle} title="Messages" onClick={openChat} />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center pointer-events-none" style={{ background: '#1877F2' }}>
+                    <span className="absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center pointer-events-none" style={{ background: 'oklch(0.38 0.13 143)' }}>
                       {unreadCount}
                     </span>
                   )}
@@ -520,7 +520,7 @@ export default function AppLayout() {
                 <Button variant="ghost" size="sm" className="rounded-full text-[13px] w-full" asChild>
                   <Link to="/login">Sign in</Link>
                 </Button>
-                <Button size="sm" className="rounded-full text-[13px] bg-[#1877F2] hover:bg-[#166FE5] w-full" asChild>
+                <Button size="sm" className="rounded-full text-[13px] bg-primary hover:bg-primary/90 w-full" asChild>
                   <Link to="/register">Join</Link>
                 </Button>
               </div>
