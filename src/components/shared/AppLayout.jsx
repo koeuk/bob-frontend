@@ -420,18 +420,30 @@ export default function AppLayout() {
           </div>
           ) : (
           <>
-          <div className="relative px-4 h-[58px] flex items-center justify-between">
-            <Link
-              to="/feed"
-              className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none"
-              style={{
-                background: 'oklch(0.46 0.15 143)',
-                boxShadow: '0 3px 10px oklch(0.46 0.15 143 / 0.38)',
-              }}
-            >
-              b
-            </Link>
-            <div className="flex items-center gap-1.5">
+          <div className="relative px-4 h-[58px] flex items-center justify-between gap-2">
+            {profileUuid ? (
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 min-w-0 cursor-pointer bg-transparent border-0 p-0 -ml-1 transition-opacity duration-200 hover:opacity-80"
+              >
+                <ArrowLeft className="h-6 w-6 shrink-0 text-gray-700 dark:text-gray-200" />
+                <span className="font-bold text-[16px] leading-tight truncate text-gray-900 dark:text-gray-100">
+                  {profileName ?? 'Profile'}
+                </span>
+              </button>
+            ) : (
+              <Link
+                to="/feed"
+                className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none shrink-0"
+                style={{
+                  background: 'oklch(0.46 0.15 143)',
+                  boxShadow: '0 3px 10px oklch(0.46 0.15 143 / 0.38)',
+                }}
+              >
+                b
+              </Link>
+            )}
+            <div className="flex items-center gap-1.5 shrink-0">
               {isAuthenticated ? (
                 <>
                   <div className="relative">
@@ -458,13 +470,17 @@ export default function AppLayout() {
               )}
             </div>
           </div>
-          <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
-          <div className="px-4 py-3 flex items-center">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              <input {...searchInputProps()} />
-            </div>
-          </div>
+          {!profileUuid && (
+            <>
+              <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
+              <div className="px-4 py-3 flex items-center">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <input {...searchInputProps()} />
+                </div>
+              </div>
+            </>
+          )}
           </>
           )}
         </div>
