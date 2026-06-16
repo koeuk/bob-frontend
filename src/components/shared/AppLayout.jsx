@@ -5,10 +5,11 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { logout as logoutApi } from '../../api/auth'
 import { getNotifications } from '../../api/notifications'
 import { getUnreadCount } from '../../api/chat'
+import { getUser } from '../../api/users'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, Bell, UserCircle, LogOut, Search, MessageCircle, Sun, Moon } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, Bell, UserCircle, LogOut, Search, MessageCircle, Sun, Moon, ArrowLeft } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
 import ChatPanel from './ChatPanel'
@@ -68,43 +69,41 @@ function SidebarNav({ items, badges = {} }) {
   )
 }
 
-function MobileNav({ items, badges = {} }) {
+function BottomNav({ items, badges = {}, dark, panelStyle }) {
   const location = useLocation()
-  const { dark } = useThemeStore()
 
   return (
-    <div
-      className="flex overflow-x-auto"
-      style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-3 pb-[env(safe-area-inset-bottom)]"
     >
-      {items.map(({ to, label, icon: Icon }) => {
-        const active = isNavActive(to, location.pathname)
-        const badge = badges[to] ?? 0
-        return (
-          <Link
-            key={to}
-            to={to}
-            onClick={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}
-            className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold whitespace-nowrap border-b-2 select-none transition-all duration-300 ease-out active:scale-95"
-            style={{
-              borderColor: active ? 'oklch(0.38 0.13 143)' : 'transparent',
-              color: active ? 'oklch(0.38 0.13 143)' : dark ? '#9ca3af' : '#6b7280',
-            }}
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-            {badge > 0 && (
-              <span
-                className="h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
-                style={{ background: 'oklch(0.38 0.13 143)' }}
-              >
-                {badge > 99 ? '99+' : badge}
-              </span>
-            )}
-          </Link>
-        )
-      })}
-    </div>
+      <div className="rounded-2xl mx-auto max-w-md mb-2 flex items-stretch justify-around overflow-hidden" style={panelStyle}>
+        {items.map(({ to, label, icon: Icon }) => {
+          const active = isNavActive(to, location.pathname)
+          const badge = badges[to] ?? 0
+          return (
+            <Link
+              key={to}
+              to={to}
+              className="relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2 select-none transition-all duration-200 active:scale-95"
+              style={{ color: active ? 'oklch(0.38 0.13 143)' : dark ? '#9ca3af' : '#6b7280' }}
+            >
+              <div className="relative">
+                <Icon className="h-5 w-5" />
+                {badge > 0 && (
+                  <span
+                    className="absolute -top-1.5 -right-2 h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
+                    style={{ background: 'oklch(0.38 0.13 143)' }}
+                  >
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-semibold leading-none">{label}</span>
+            </Link>
+          )
+        })}
+      </div>
+    </nav>
   )
 }
 
@@ -431,8 +430,6 @@ export default function AppLayout() {
             </div>
           </div>
           <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
-          <MobileNav items={navItems} badges={navBadges} />
-          <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
           <div className="px-4 py-3 flex items-center">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -530,11 +527,14 @@ export default function AppLayout() {
         </aside>
 
         {/* ── Main content ── */}
-        <main className="flex-1 px-4 py-5 min-w-0">
+        <main className="flex-1 px-4 py-5 min-w-0 pb-24 md:pb-5">
           <Outlet />
         </main>
 
       </div>
+
+      {/* ── Mobile bottom nav ── */}
+      <BottomNav items={navItems} badges={navBadges} dark={dark} panelStyle={panelStyle} />
 
       <ChatPanel />
       <Toaster />

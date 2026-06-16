@@ -246,11 +246,10 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
     <button
       onClick={() => sendMutation.mutate()}
       disabled={sendMutation.isPending}
-      className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold text-primary px-2.5 py-1 rounded-full transition-colors hover:bg-primary/10 dark:hover:bg-primary/20"
-      style={{ border: '1.5px solid oklch(0.38 0.13 143 / 0.35)' }}
+      className="cursor-pointer flex items-center gap-1.5 text-[12px] font-semibold text-white bg-primary px-3 py-1.5 rounded-full transition-all hover:opacity-90 disabled:opacity-60 shadow-sm"
     >
       <UserPlus className="h-3.5 w-3.5" />
-      Add
+      Add Friend
     </button>
   )
 }
