@@ -223,8 +223,8 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
         <button
           onClick={() => acceptMutation.mutate()}
           disabled={acceptMutation.isPending}
-          className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold text-white px-2.5 py-1 rounded-full transition-opacity hover:opacity-90"
-          style={{ background: 'oklch(0.46 0.15 143)' }}
+          className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1 rounded-full transition-opacity hover:opacity-90"
+          style={{ background: 'oklch(0.46 0.15 143)', color: '#ffffff' }}
         >
           <UserCheck className="h-3.5 w-3.5" />
           Accept
@@ -246,7 +246,8 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
     <button
       onClick={() => sendMutation.mutate()}
       disabled={sendMutation.isPending}
-      className="cursor-pointer flex items-center gap-1.5 text-[12px] font-semibold text-white bg-primary px-3 py-1.5 rounded-full transition-all hover:opacity-90 disabled:opacity-60 shadow-sm"
+      className="cursor-pointer flex items-center gap-1.5 text-[12px] font-semibold bg-primary px-3 py-1.5 rounded-full transition-all hover:opacity-90 disabled:opacity-60 shadow-sm"
+      style={{ color: '#ffffff' }}
     >
       <UserPlus className="h-3.5 w-3.5" />
       Add Friend

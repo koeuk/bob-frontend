@@ -238,12 +238,22 @@ function SearchPopup({ anchorRef, search, dark, onSearch, onClose }) {
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const { dark, toggle, init } = useThemeStore()
-  const { open: chatOpen, openPanel: openChat } = useChatStore()
+  const { openPanel: openChat } = useChatStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') ?? '')
   const [searchOpen, setSearchOpen] = useState(false)
   const searchInputRef = useRef(null)
+
+  // On a user profile, the mobile header becomes a back + title app bar
+  const profileUuid = location.pathname.match(/^\/users\/([^/]+)/)?.[1] ?? null
+  const { data: profileData } = useQuery({
+    queryKey: ['user-profile', profileUuid],
+    queryFn: () => getUser(profileUuid).then((r) => r.data),
+    enabled: !!profileUuid,
+  })
+  const profileName = profileData?.user?.name
 
   const { data: unreadData } = useQuery({
     queryKey: ['chat-unread'],
@@ -391,6 +401,25 @@ export default function AppLayout() {
       {/* ── Mobile header ── */}
       <header className="md:hidden sticky top-0 z-40 w-full p-3">
         <div className="rounded-2xl overflow-hidden" style={panelStyle}>
+          {profileUuid ? (
+          /* Profile screen: back button + title */
+          <div className="px-2 h-[58px] flex items-center gap-1">
+            <button
+              onClick={() => navigate(-1)}
+              title="Back"
+              className="cursor-pointer h-9 w-9 rounded-full flex items-center justify-center transition-colors shrink-0"
+              style={{ background: 'transparent' }}
+              onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            <span className="text-[16px] font-bold truncate" style={{ color: dark ? '#e4e6eb' : '#1c1e21' }}>
+              {profileName ?? 'Profile'}
+            </span>
+          </div>
+          ) : (
+          <>
           <div className="relative px-4 h-[58px] flex items-center justify-between">
             <Link
               to="/feed"
@@ -436,6 +465,8 @@ export default function AppLayout() {
               <input {...searchInputProps()} />
             </div>
           </div>
+          </>
+          )}
         </div>
       </header>
 
