@@ -11,7 +11,7 @@ const REACTION_EMOJIS = { like: '👍', love: '❤️', haha: '😂', wow: '😮
 
 function NotifIcon({ type }) {
   if (type === 'post_liked') return (
-    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)' }}>
+    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'oklch(0.38 0.13 143)' }}>
       <ThumbsUp className="h-5 w-5 text-white fill-white" />
     </div>
   )
@@ -109,7 +109,7 @@ function FriendRequestActions({ notif, onResolve }) {
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); acceptMutation.mutate() }}
         disabled={acceptMutation.isPending || declineMutation.isPending}
         className="cursor-pointer px-4 py-1.5 rounded-full text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)' }}
+        style={{ background: 'oklch(0.38 0.13 143)' }}
       >
         {acceptMutation.isPending ? 'Accepting…' : 'Accept'}
       </button>
@@ -127,14 +127,14 @@ function FriendRequestActions({ notif, onResolve }) {
 
 function NotifItem({ notif, onMarkRead, onResolve }) {
   const navigate = useNavigate()
-  const unreadBg = 'rgba(24,119,242,0.05)'
+  const unreadBg = 'oklch(0.38 0.13 143 / 0.05)'
   const isFriendRequest = notif.data.type === 'friend_request'
   const isPostNotif = notif.data.type === 'post_liked' || notif.data.type === 'post_commented'
 
   const sharedClass = `flex items-start gap-4 px-5 py-4 transition-colors duration-150 cursor-pointer ${
     notif.read_at
       ? 'hover:bg-gray-50 dark:hover:bg-white/5'
-      : 'hover:bg-blue-50/60 dark:hover:bg-blue-900/20'
+      : 'hover:bg-primary/10 dark:hover:bg-primary/20'
   }`
   const sharedStyle = !notif.read_at ? { background: unreadBg } : {}
 
@@ -154,12 +154,12 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
         {isFriendRequest && (
           <FriendRequestActions notif={notif} onResolve={onResolve} />
         )}
-        <p className="text-[12px] text-[#1877F2] font-medium mt-1.5">
+        <p className="text-[12px] text-primary font-medium mt-1.5">
           {formatDistanceToNow(notif.created_at)}
         </p>
       </div>
       {!notif.read_at && (
-        <div className="h-2.5 w-2.5 rounded-full shrink-0 mt-2" style={{ background: '#1877F2' }} />
+        <div className="h-2.5 w-2.5 rounded-full shrink-0 mt-2" style={{ background: 'oklch(0.38 0.13 143)' }} />
       )}
     </>
   )
@@ -219,7 +219,7 @@ export default function NotificationsPage() {
           <button
             onClick={() => markAllMutation.mutate()}
             disabled={markAllMutation.isPending}
-            className="cursor-pointer flex items-center gap-1.5 text-[13px] font-semibold text-[#1877F2] hover:text-[#166FE5] transition-colors disabled:opacity-50"
+            className="cursor-pointer flex items-center gap-1.5 text-[13px] font-semibold text-primary hover:text-primary/90 transition-colors disabled:opacity-50"
           >
             <CheckCheck className="h-4 w-4" />
             Mark all read

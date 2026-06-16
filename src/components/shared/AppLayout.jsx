@@ -84,7 +84,7 @@ function MobileNav({ items, badges = {} }) {
           <Link
             key={to}
             to={to}
-            className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold whitespace-nowrap border-b-2 transition-colors duration-200"
+            className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold whitespace-nowrap border-b-2 select-none transition-all duration-300 ease-out active:scale-95"
             style={{
               borderColor: active ? 'oklch(0.38 0.13 143)' : 'transparent',
               color: active ? 'oklch(0.38 0.13 143)' : dark ? '#9ca3af' : '#6b7280',

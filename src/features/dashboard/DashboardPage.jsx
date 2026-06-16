@@ -55,13 +55,13 @@ export default function DashboardPage() {
       <div className="bg-white dark:bg-zinc-800 rounded-2xl p-4 border border-zinc-100 dark:border-zinc-700/60">
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Weekly goal</span>
-          <span className="text-sm font-semibold text-blue-500">{goalPct}%</span>
+          <span className="text-sm font-semibold text-primary">{goalPct}%</span>
         </div>
         <p className="text-xs text-zinc-400 mb-2.5">{goal.progress} / {goal.target} posts</p>
         <div className="h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${goalPct}%`, background: goalPct >= 100 ? '#22c55e' : '#3b82f6' }}
+            style={{ width: `${goalPct}%`, background: goalPct >= 100 ? '#22c55e' : 'oklch(0.38 0.13 143)' }}
           />
         </div>
         {goalPct >= 100 && (
@@ -87,7 +87,7 @@ export default function DashboardPage() {
                   <p className="text-[13px] leading-snug">
                     <span className="font-semibold text-zinc-800 dark:text-zinc-200">{c.user?.name}</span>
                     <span className="text-zinc-400"> on </span>
-                    <span className="text-zinc-600 dark:text-zinc-300 group-hover:text-blue-500 transition-colors">
+                    <span className="text-zinc-600 dark:text-zinc-300 group-hover:text-primary transition-colors">
                       {c.post?.body?.slice(0, 40) || 'your post'}
                     </span>
                   </p>

@@ -262,8 +262,8 @@ export default function AccountPage() {
                 onClick={() => setTab(id)}
                 className="flex-1 flex items-center justify-center gap-1.5 py-3 text-[14px] font-semibold transition-colors duration-200 border-b-2 cursor-pointer"
                 style={{
-                  borderColor: active ? (id === 'danger' ? '#ef4444' : '#1877F2') : 'transparent',
-                  color: active ? (id === 'danger' ? '#ef4444' : '#1877F2') : dark ? '#9ca3af' : '#6b7280',
+                  borderColor: active ? (id === 'danger' ? '#ef4444' : 'oklch(0.38 0.13 143)') : 'transparent',
+                  color: active ? (id === 'danger' ? '#ef4444' : 'oklch(0.38 0.13 143)') : dark ? '#9ca3af' : '#6b7280',
                 }}
               >
                 <Icon className="h-4 w-4" />
@@ -281,15 +281,15 @@ export default function AccountPage() {
           <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)} className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400">Display name</Label>
-              <Input {...profileForm.register('name')} className="rounded-xl h-10 bg-gray-50 dark:bg-white/10 border-gray-200 dark:border-white/10 focus:border-[#1877F2] focus:ring-[#1877F2]/20 dark:text-gray-200" />
+              <Input {...profileForm.register('name')} className="rounded-xl h-10 bg-gray-50 dark:bg-white/10 border-gray-200 dark:border-white/10 focus:border-primary focus:ring-primary/20 dark:text-gray-200" />
               {profileForm.formState.errors.name && <p className="text-[12px] text-red-500">{profileForm.formState.errors.name.message}</p>}
             </div>
             <div className="space-y-1.5">
               <Label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400">Email address</Label>
-              <Input type="email" {...profileForm.register('email')} className="rounded-xl h-10 bg-gray-50 dark:bg-white/10 border-gray-200 dark:border-white/10 focus:border-[#1877F2] focus:ring-[#1877F2]/20 dark:text-gray-200" />
+              <Input type="email" {...profileForm.register('email')} className="rounded-xl h-10 bg-gray-50 dark:bg-white/10 border-gray-200 dark:border-white/10 focus:border-primary focus:ring-primary/20 dark:text-gray-200" />
               {profileForm.formState.errors.email && <p className="text-[12px] text-red-500">{profileForm.formState.errors.email.message}</p>}
             </div>
-            <Button type="submit" disabled={profileMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)', boxShadow: '0 4px 14px rgba(24,119,242,0.3)' }}>
+            <Button type="submit" disabled={profileMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 4px 14px oklch(0.38 0.13 143 / 0.3)' }}>
               {profileMutation.isPending ? 'Saving…' : <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Save changes</span>}
             </Button>
           </form>
@@ -307,11 +307,11 @@ export default function AccountPage() {
             ].map(({ name, label }) => (
               <div key={name} className="space-y-1.5">
                 <Label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400">{label}</Label>
-                <Input type="password" {...passwordForm.register(name)} className="rounded-xl h-10 bg-gray-50 dark:bg-white/10 border-gray-200 dark:border-white/10 focus:border-[#1877F2] focus:ring-[#1877F2]/20 dark:text-gray-200" />
+                <Input type="password" {...passwordForm.register(name)} className="rounded-xl h-10 bg-gray-50 dark:bg-white/10 border-gray-200 dark:border-white/10 focus:border-primary focus:ring-primary/20 dark:text-gray-200" />
                 {passwordForm.formState.errors[name] && <p className="text-[12px] text-red-500">{passwordForm.formState.errors[name].message}</p>}
               </div>
             ))}
-            <Button type="submit" disabled={passwordMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)', boxShadow: '0 4px 14px rgba(24,119,242,0.3)' }}>
+            <Button type="submit" disabled={passwordMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 4px 14px oklch(0.38 0.13 143 / 0.3)' }}>
               {passwordMutation.isPending ? 'Changing…' : 'Change password'}
             </Button>
           </form>
