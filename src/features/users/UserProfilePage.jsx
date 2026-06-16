@@ -46,7 +46,8 @@ function FriendButton({ friendship, profileUuid, profileName, queryKey }) {
       <button
         onClick={() => sendMut.mutate()}
         disabled={sendMut.isPending}
-        className="cursor-pointer flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white bg-primary hover:opacity-90 transition-all duration-200 disabled:opacity-60"
+        className="cursor-pointer flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold bg-primary hover:opacity-90 transition-all duration-200 disabled:opacity-60"
+        style={{ color: '#ffffff' }}
       >
         <UserPlus className="h-4 w-4" />
         Add Friend
@@ -337,8 +338,8 @@ export default function UserProfilePage() {
                 onClick={() => setTab(t)}
                 className="flex-1 flex items-center justify-center gap-1.5 py-3 text-[14px] font-semibold transition-colors duration-200 border-b-2 cursor-pointer"
                 style={{
-                  borderColor: active ? 'oklch(0.38 0.13 143)' : 'transparent',
-                  color: active ? 'oklch(0.38 0.13 143)' : dark ? '#9ca3af' : '#6b7280',
+                  borderColor: active ? 'oklch(0.46 0.15 143)' : 'transparent',
+                  color: active ? 'oklch(0.46 0.15 143)' : dark ? '#9ca3af' : '#6b7280',
                 }}
               >
                 {t === 'Posts' && <FileText className="h-4 w-4" />}

@@ -38,7 +38,7 @@ export default function MyPostsPage() {
         <Button
           onClick={() => setModalOpen(true)}
           className="cursor-pointer rounded-full text-[14px] font-semibold shrink-0"
-          style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 8px oklch(0.38 0.13 143 / 0.3)' }}
+          style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 2px 8px oklch(0.46 0.15 143 / 0.3)' }}
         >
           <PenLine className="h-4 w-4 mr-1.5" />
           New post
@@ -66,7 +66,7 @@ export default function MyPostsPage() {
           <Button
             onClick={() => setModalOpen(true)}
             className="cursor-pointer rounded-full"
-            style={{ background: 'oklch(0.38 0.13 143)' }}
+            style={{ background: 'oklch(0.46 0.15 143)' }}
           >
             Create your first post
           </Button>

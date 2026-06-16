@@ -22,7 +22,7 @@ export function UserAvatar({ name, avatar, size = 'md', active = false }) {
   ) : (
     <div
       className={`${sz} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
-      style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 6px oklch(0.38 0.13 143 / 0.25)' }}
+      style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 2px 6px oklch(0.46 0.15 143 / 0.25)' }}
     >
       {name?.[0]?.toUpperCase() ?? '?'}
     </div>
@@ -37,7 +37,7 @@ export function UserAvatar({ name, avatar, size = 'md', active = false }) {
 }
 
 const REACTIONS = [
-  { type: 'like',  emoji: '👍', label: 'Like',  color: 'oklch(0.38 0.13 143)' },
+  { type: 'like',  emoji: '👍', label: 'Like',  color: 'oklch(0.46 0.15 143)' },
   { type: 'love',  emoji: '❤️', label: 'Love',  color: '#F33E58' },
   { type: 'haha',  emoji: '😂', label: 'Haha',  color: '#F7B125' },
   { type: 'wow',   emoji: '😮', label: 'Wow',   color: '#F7B125' },
@@ -74,7 +74,7 @@ function ReactionIcons({ summary, myReaction }) {
   return (
     <div
       className="h-[20px] w-[20px] rounded-full flex items-center justify-center"
-      style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 1px 4px oklch(0.38 0.13 143 / 0.3)' }}
+      style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 1px 4px oklch(0.46 0.15 143 / 0.3)' }}
     >
       <ThumbsUp className="h-2.5 w-2.5 text-white fill-white" />
     </div>
@@ -195,7 +195,7 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
 
   if (status === 'friends') {
     return (
-      <span className="flex items-center gap-1 text-[12px] font-semibold text-primary px-2 py-1 rounded-full" style={{ background: 'oklch(0.38 0.13 143 / 0.08)' }}>
+      <span className="flex items-center gap-1 text-[12px] font-semibold text-primary px-2 py-1 rounded-full" style={{ background: 'oklch(0.46 0.15 143 / 0.08)' }}>
         <UserCheck className="h-3.5 w-3.5" />
         Friends
       </span>
@@ -224,7 +224,7 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
           onClick={() => acceptMutation.mutate()}
           disabled={acceptMutation.isPending}
           className="cursor-pointer flex items-center gap-1 text-[12px] font-semibold text-white px-2.5 py-1 rounded-full transition-opacity hover:opacity-90"
-          style={{ background: 'oklch(0.38 0.13 143)' }}
+          style={{ background: 'oklch(0.46 0.15 143)' }}
         >
           <UserCheck className="h-3.5 w-3.5" />
           Accept
@@ -463,7 +463,7 @@ export default function PostCard({ post, queryKey }) {
               onClick={handleLike}
               className="cursor-pointer w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold transition-all duration-200 hover:scale-[1.02]"
               style={isLiked
-                ? { color: myReaction?.color ?? 'oklch(0.38 0.13 143)' }
+                ? { color: myReaction?.color ?? 'oklch(0.46 0.15 143)' }
                 : { color: '#65676b' }
               }
               onMouseEnter={(e) => {

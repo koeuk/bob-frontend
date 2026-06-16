@@ -74,7 +74,7 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
             ) : (
               <div
                 className="h-11 w-11 rounded-full flex items-center justify-center text-white font-bold shrink-0"
-                style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 8px oklch(0.38 0.13 143 / 0.28)' }}
+                style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 2px 8px oklch(0.46 0.15 143 / 0.28)' }}
               >
                 {user?.name?.[0]?.toUpperCase()}
               </div>
@@ -107,7 +107,7 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
           {feeling && (
             <div
               className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 fade-in"
-              style={{ background: 'oklch(0.38 0.13 143 / 0.08)', border: '1px solid oklch(0.38 0.13 143 / 0.15)' }}
+              style={{ background: 'oklch(0.46 0.15 143 / 0.08)', border: '1px solid oklch(0.46 0.15 143 / 0.15)' }}
             >
               <span className="text-lg leading-none">{feeling.emoji}</span>
               <span className="text-[13px] font-medium text-primary">feeling {feeling.value}</span>
@@ -160,7 +160,7 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
                         ? 'ring-2 ring-primary'
                         : dark ? 'hover:bg-white/8' : 'hover:bg-white'
                     }`}
-                    style={feeling?.value === f.value ? { background: 'oklch(0.38 0.13 143 / 0.10)' } : {}}
+                    style={feeling?.value === f.value ? { background: 'oklch(0.46 0.15 143 / 0.10)' } : {}}
                   >
                     <span className="text-2xl leading-none">{f.emoji}</span>
                     <span className={`text-[11px] capitalize leading-tight font-medium ${dark ? 'text-gray-400' : 'text-gray-500'}`}>{f.value}</span>
@@ -207,7 +207,7 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
           <Button
             className="w-full rounded-xl text-[15px] font-semibold h-10 cursor-pointer transition-all duration-200"
             style={canPost
-              ? { background: 'oklch(0.38 0.13 143)', boxShadow: '0 4px 14px oklch(0.38 0.13 143 / 0.35)' }
+              ? { background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.35)' }
               : {}
             }
             disabled={!canPost}

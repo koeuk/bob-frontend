@@ -11,7 +11,7 @@ const REACTION_EMOJIS = { like: '👍', love: '❤️', haha: '😂', wow: '😮
 
 function NotifIcon({ type }) {
   if (type === 'post_liked') return (
-    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'oklch(0.38 0.13 143)' }}>
+    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'oklch(0.46 0.15 143)' }}>
       <ThumbsUp className="h-5 w-5 text-white fill-white" />
     </div>
   )
@@ -109,7 +109,7 @@ function FriendRequestActions({ notif, onResolve }) {
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); acceptMutation.mutate() }}
         disabled={acceptMutation.isPending || declineMutation.isPending}
         className="cursor-pointer px-4 py-1.5 rounded-full text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        style={{ background: 'oklch(0.38 0.13 143)' }}
+        style={{ background: 'oklch(0.46 0.15 143)' }}
       >
         {acceptMutation.isPending ? 'Accepting…' : 'Accept'}
       </button>
@@ -127,7 +127,7 @@ function FriendRequestActions({ notif, onResolve }) {
 
 function NotifItem({ notif, onMarkRead, onResolve }) {
   const navigate = useNavigate()
-  const unreadBg = 'oklch(0.38 0.13 143 / 0.05)'
+  const unreadBg = 'oklch(0.46 0.15 143 / 0.05)'
   const isFriendRequest = notif.data.type === 'friend_request'
   const isPostNotif = notif.data.type === 'post_liked' || notif.data.type === 'post_commented'
 
@@ -159,7 +159,7 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
         </p>
       </div>
       {!notif.read_at && (
-        <div className="h-2.5 w-2.5 rounded-full shrink-0 mt-2" style={{ background: 'oklch(0.38 0.13 143)' }} />
+        <div className="h-2.5 w-2.5 rounded-full shrink-0 mt-2" style={{ background: 'oklch(0.46 0.15 143)' }} />
       )}
     </>
   )

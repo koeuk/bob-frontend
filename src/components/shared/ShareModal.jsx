@@ -12,7 +12,7 @@ const PLATFORMS = [
   {
     id: 'facebook',
     label: 'Facebook',
-    color: 'oklch(0.38 0.13 143)',
+    color: 'oklch(0.46 0.15 143)',
     bg: '#E7F0FD',
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
@@ -158,7 +158,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
                 <div className="flex items-start gap-2.5 p-3">
                   <div
                     className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-                    style={user?.avatar ? {} : { background: 'oklch(0.38 0.13 143)' }}
+                    style={user?.avatar ? {} : { background: 'oklch(0.46 0.15 143)' }}
                   >
                     {user?.avatar
                       ? <img src={assetUrl(user.avatar)} alt="" className="w-full h-full object-cover rounded-full" />
@@ -182,7 +182,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
                     {post?.user?.avatar ? (
                       <img src={assetUrl(post.user.avatar)} alt="" className="h-6 w-6 rounded-full object-cover shrink-0" />
                     ) : (
-                      <div className="h-6 w-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0" style={{ background: 'oklch(0.38 0.13 143)' }}>
+                      <div className="h-6 w-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0" style={{ background: 'oklch(0.46 0.15 143)' }}>
                         {post?.user?.name?.[0]?.toUpperCase()}
                       </div>
                     )}
@@ -199,7 +199,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
 
               <Button
                 className="w-full rounded-xl h-9 text-[14px] font-semibold cursor-pointer transition-all duration-200"
-                style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 4px 14px oklch(0.38 0.13 143 / 0.3)' }}
+                style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.3)' }}
                 disabled={shareMutation.isPending}
                 onClick={() => shareMutation.mutate()}
               >

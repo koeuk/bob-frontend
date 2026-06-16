@@ -61,7 +61,7 @@ export default function DashboardPage() {
         <div className="h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${goalPct}%`, background: goalPct >= 100 ? '#22c55e' : 'oklch(0.38 0.13 143)' }}
+            style={{ width: `${goalPct}%`, background: goalPct >= 100 ? '#22c55e' : 'oklch(0.46 0.15 143)' }}
           />
         </div>
         {goalPct >= 100 && (

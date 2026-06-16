@@ -59,7 +59,7 @@ export default function FeedPage() {
             ) : (
               <div
                 className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
-                style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 6px oklch(0.38 0.13 143 / 0.25)' }}
+                style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 2px 6px oklch(0.46 0.15 143 / 0.25)' }}
               >
                 {user?.name?.[0]?.toUpperCase()}
               </div>

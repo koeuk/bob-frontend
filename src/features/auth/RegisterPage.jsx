@@ -148,7 +148,7 @@ export default function RegisterPage() {
             type="submit"
             disabled={mutation.isPending}
             className="cursor-pointer w-full h-11 rounded-xl text-[15px] font-bold text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2"
-            style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 4px 14px oklch(0.38 0.13 143 / 0.35)' }}
+            style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.35)' }}
           >
             {mutation.isPending ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Creating account…</>

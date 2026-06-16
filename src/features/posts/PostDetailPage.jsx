@@ -13,7 +13,7 @@ import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 import { toast } from 'sonner'
 
 const REACTIONS = [
-  { type: 'like',  emoji: '👍', label: 'Like',  color: 'oklch(0.38 0.13 143)' },
+  { type: 'like',  emoji: '👍', label: 'Like',  color: 'oklch(0.46 0.15 143)' },
   { type: 'love',  emoji: '❤️', label: 'Love',  color: '#F33E58' },
   { type: 'haha',  emoji: '😂', label: 'Haha',  color: '#F7B125' },
   { type: 'wow',   emoji: '😮', label: 'Wow',   color: '#F7B125' },
@@ -148,7 +148,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
               <button
                 onClick={handleLike}
                 className="cursor-pointer hover:underline transition-colors"
-                style={isLiked ? { color: myReaction?.color ?? 'oklch(0.38 0.13 143)' } : {}}
+                style={isLiked ? { color: myReaction?.color ?? 'oklch(0.46 0.15 143)' } : {}}
               >
                 {myReaction ? `${myReaction.emoji} ${myReaction.label}` : 'Like'}
               </button>
@@ -208,7 +208,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
                   onClick={() => replyBody.trim() && replyMutation.mutate()}
                   disabled={!replyBody.trim() || replyMutation.isPending}
                   className="cursor-pointer shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
-                  style={replyBody.trim() ? { background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 8px oklch(0.38 0.13 143 / 0.35)' } : { background: 'transparent' }}
+                  style={replyBody.trim() ? { background: 'oklch(0.46 0.15 143)', boxShadow: '0 2px 8px oklch(0.46 0.15 143 / 0.35)' } : { background: 'transparent' }}
                 >
                   {replyMutation.isPending
                     ? <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
@@ -318,7 +318,7 @@ export default function PostDetailPage() {
                 onClick={() => commentBody.trim() && commentMutation.mutate()}
                 disabled={!commentBody.trim() || commentMutation.isPending}
                 className="cursor-pointer shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
-                style={commentBody.trim() ? { background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 8px oklch(0.38 0.13 143 / 0.35)' } : { background: 'transparent' }}
+                style={commentBody.trim() ? { background: 'oklch(0.46 0.15 143)', boxShadow: '0 2px 8px oklch(0.46 0.15 143 / 0.35)' } : { background: 'transparent' }}
               >
                 {commentMutation.isPending
                   ? <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
