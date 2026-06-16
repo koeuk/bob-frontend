@@ -53,7 +53,7 @@ export default function LoginPage() {
               placeholder="you@example.com"
               autoComplete="email"
               {...register('email')}
-              className="w-full h-11 rounded-xl px-4 text-[15px] outline-none transition-all duration-200 bg-gray-50 border border-gray-200 placeholder:text-gray-400 text-gray-900 focus:bg-white focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/15"
+              className="w-full h-11 rounded-xl px-4 text-[15px] outline-none transition-all duration-200 bg-gray-50 border border-gray-200 placeholder:text-gray-400 text-gray-900 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
             {errors.email && <p className="text-[12px] text-red-500 font-medium">{errors.email.message}</p>}
           </div>
@@ -67,7 +67,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 autoComplete="current-password"
                 {...register('password')}
-                className="w-full h-11 rounded-xl px-4 pr-11 text-[15px] outline-none transition-all duration-200 bg-gray-50 border border-gray-200 placeholder:text-gray-400 text-gray-900 focus:bg-white focus:border-[#1877F2] focus:ring-2 focus:ring-[#1877F2]/15"
+                className="w-full h-11 rounded-xl px-4 pr-11 text-[15px] outline-none transition-all duration-200 bg-gray-50 border border-gray-200 placeholder:text-gray-400 text-gray-900 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/15"
               />
               <button
                 type="button"
@@ -94,7 +94,7 @@ export default function LoginPage() {
             type="submit"
             disabled={mutation.isPending}
             className="cursor-pointer w-full h-11 rounded-xl text-[15px] font-bold text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)', boxShadow: '0 4px 14px rgba(24,119,242,0.35)' }}
+            style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 4px 14px oklch(0.38 0.13 143 / 0.35)' }}
           >
             {mutation.isPending ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Signing in…</>

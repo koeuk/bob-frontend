@@ -464,7 +464,7 @@ export default function PostCard({ post, queryKey }) {
               onClick={handleLike}
               className="cursor-pointer w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[14px] font-semibold transition-all duration-200 hover:scale-[1.02]"
               style={isLiked
-                ? { color: myReaction?.color ?? 'oklch(0.38 0.13 143)', background: `${myReaction?.color ?? 'oklch(0.38 0.13 143 / 0.07)'}` }
+                ? { color: myReaction?.color ?? 'oklch(0.38 0.13 143)' }
                 : { color: '#65676b' }
               }
               onMouseEnter={(e) => {

@@ -6,7 +6,7 @@ export default function AuthLayout() {
       {/* Left panel — brand */}
       <div
         className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12 relative overflow-hidden"
-        style={{ background: 'linear-gradient(145deg, #0f52cc 0%, #1877F2 40%, #4facfe 80%, #a5d8ff 100%)' }}
+        style={{ background: 'linear-gradient(145deg, oklch(0.28 0.12 143) 0%, oklch(0.38 0.13 143) 50%, oklch(0.48 0.14 143) 100%)' }}
       >
         {/* Decorative blobs */}
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full opacity-20" style={{ background: 'rgba(255,255,255,0.35)' }} />
@@ -49,7 +49,7 @@ export default function AuthLayout() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#f5f6fb]">
         {/* Mobile logo */}
         <div className="lg:hidden mb-8">
-          <Link to="/feed" className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white font-black text-[22px] leading-none" style={{ background: 'linear-gradient(135deg,#1877F2,#4facfe)', boxShadow: '0 4px 16px rgba(24,119,242,0.4)' }}>
+          <Link to="/feed" className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white font-black text-[22px] leading-none" style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 4px 16px oklch(0.38 0.13 143 / 0.4)' }}>
             b
           </Link>
         </div>
