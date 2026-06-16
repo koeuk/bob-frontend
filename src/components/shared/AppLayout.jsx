@@ -246,14 +246,15 @@ export default function AppLayout() {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchInputRef = useRef(null)
 
-  // On a user profile, the mobile header becomes a back + title app bar
+  // On detail pages, the mobile header becomes a back + title app bar
   const profileUuid = location.pathname.match(/^\/users\/([^/]+)/)?.[1] ?? null
+  const isPostDetail = /^\/posts\/[^/]+/.test(location.pathname)
   const { data: profileData } = useQuery({
     queryKey: ['user-profile', profileUuid],
     queryFn: () => getUser(profileUuid).then((r) => r.data),
     enabled: !!profileUuid,
   })
-  const profileName = profileData?.user?.name
+  const appBarTitle = profileUuid ? (profileData?.user?.name ?? 'Profile') : isPostDetail ? 'Post' : null
 
   const { data: unreadData } = useQuery({
     queryKey: ['chat-unread'],
@@ -421,14 +422,14 @@ export default function AppLayout() {
           ) : (
           <>
           <div className="relative px-4 h-[58px] flex items-center justify-between gap-2">
-            {profileUuid ? (
+            {appBarTitle ? (
               <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 min-w-0 cursor-pointer bg-transparent border-0 p-0 -ml-1 transition-opacity duration-200 hover:opacity-80"
               >
                 <ArrowLeft className="h-6 w-6 shrink-0 text-gray-700 dark:text-gray-200" />
                 <span className="font-bold text-[16px] leading-tight truncate text-gray-900 dark:text-gray-100">
-                  {profileName ?? 'Profile'}
+                  {appBarTitle}
                 </span>
               </button>
             ) : (
@@ -470,7 +471,7 @@ export default function AppLayout() {
               )}
             </div>
           </div>
-          {!profileUuid && (
+          {!appBarTitle && (
             <>
               <div style={{ height: 1, margin: '0 16px', background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }} />
               <div className="px-4 py-3 flex items-center">

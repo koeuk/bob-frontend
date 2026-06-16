@@ -195,7 +195,7 @@ export default function EditPostModal({ open, onClose, post, queryKey }) {
 
           <Button
             className="w-full rounded-xl text-[15px] font-semibold h-10 cursor-pointer transition-all duration-200"
-            style={canPost ? { background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.35)' } : {}}
+            style={canPost ? { background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.35)', color: '#ffffff' } : {}}
             disabled={!canPost}
             onClick={() => updateMutation.mutate()}
           >

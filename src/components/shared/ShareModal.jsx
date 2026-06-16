@@ -199,7 +199,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
 
               <Button
                 className="w-full rounded-xl h-9 text-[14px] font-semibold cursor-pointer transition-all duration-200"
-                style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.3)' }}
+                style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.3)', color: '#ffffff' }}
                 disabled={shareMutation.isPending}
                 onClick={() => shareMutation.mutate()}
               >

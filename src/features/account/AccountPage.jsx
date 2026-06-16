@@ -289,7 +289,7 @@ export default function AccountPage() {
               <Input type="email" {...profileForm.register('email')} className="rounded-xl h-10 bg-gray-50 dark:bg-white/10 border-gray-200 dark:border-white/10 focus:border-primary focus:ring-primary/20 dark:text-gray-200" />
               {profileForm.formState.errors.email && <p className="text-[12px] text-red-500">{profileForm.formState.errors.email.message}</p>}
             </div>
-            <Button type="submit" disabled={profileMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.3)' }}>
+            <Button type="submit" disabled={profileMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.3)', color: '#ffffff' }}>
               {profileMutation.isPending ? 'Saving…' : <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />Save changes</span>}
             </Button>
           </form>
@@ -311,7 +311,7 @@ export default function AccountPage() {
                 {passwordForm.formState.errors[name] && <p className="text-[12px] text-red-500">{passwordForm.formState.errors[name].message}</p>}
               </div>
             ))}
-            <Button type="submit" disabled={passwordMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.3)' }}>
+            <Button type="submit" disabled={passwordMutation.isPending} className="cursor-pointer w-full rounded-xl h-10 font-semibold" style={{ background: 'oklch(0.46 0.15 143)', boxShadow: '0 4px 14px oklch(0.46 0.15 143 / 0.3)', color: '#ffffff' }}>
               {passwordMutation.isPending ? 'Changing…' : 'Change password'}
             </Button>
           </form>
