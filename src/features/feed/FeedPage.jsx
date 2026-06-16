@@ -59,7 +59,7 @@ export default function FeedPage() {
             ) : (
               <div
                 className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
-                style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 2px 6px rgba(24,119,242,0.25)' }}
+                style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 6px oklch(0.38 0.13 143 / 0.25)' }}
               >
                 {user?.name?.[0]?.toUpperCase()}
               </div>
@@ -99,7 +99,7 @@ export default function FeedPage() {
             <Button variant="outline" size="sm" className="rounded-full" asChild>
               <Link to="/login">Sign in</Link>
             </Button>
-            <Button size="sm" className="rounded-full bg-[#1877F2] hover:bg-[#166FE5]" asChild>
+            <Button size="sm" className="rounded-full bg-primary hover:bg-primary/90" asChild>
               <Link to="/register">Join</Link>
             </Button>
           </div>
@@ -110,7 +110,7 @@ export default function FeedPage() {
 
       {isLoading && (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-[#1877F2]" />
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       )}
 
@@ -131,7 +131,7 @@ export default function FeedPage() {
 
       {/* Infinite scroll sentinel */}
       <div ref={sentinelRef} className="flex justify-center py-4">
-        {isFetchingNextPage && <Loader2 className="h-5 w-5 animate-spin text-[#1877F2]" />}
+        {isFetchingNextPage && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
       </div>
     </div>
   )

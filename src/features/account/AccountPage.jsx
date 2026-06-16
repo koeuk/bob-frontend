@@ -46,7 +46,7 @@ function Avatar({ user, size = 'lg' }) {
   return (
     <div
       className={`${sz} rounded-full flex items-center justify-center text-white font-bold shrink-0`}
-      style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: `0 0 0 4px ${ring}, 0 2px 12px rgba(24,119,242,0.3)` }}
+      style={{ background: 'oklch(0.38 0.13 143)', boxShadow: `0 0 0 4px ${ring}, 0 2px 12px oklch(0.38 0.13 143 / 0.3)` }}
     >
       {user?.name?.[0]?.toUpperCase()}
     </div>
@@ -54,7 +54,7 @@ function Avatar({ user, size = 'lg' }) {
 }
 
 const ROLE_COLORS = {
-  admin: '#1877F2', super_admin: '#8B5CF6', moderator: '#10B981', user: '#6B7280',
+  admin: 'oklch(0.38 0.13 143)', super_admin: '#8B5CF6', moderator: '#10B981', user: '#6B7280',
 }
 
 const TABS = [
@@ -159,7 +159,7 @@ export default function AccountPage() {
           {user?.cover ? (
             <img src={assetUrl(user.cover)} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 60%,#a5d8ff 100%)' }} />
+            <div className="w-full h-full" style={{ background: 'oklch(0.38 0.13 143)' }} />
           )}
         </div>
 
@@ -175,7 +175,7 @@ export default function AccountPage() {
                 ) : user?.avatar ? (
                   <img src={assetUrl(user.avatar)} alt={user.name} className="h-24 w-24 rounded-full object-cover border-4" style={{ borderColor: dark ? '#242526' : 'white' }} />
                 ) : (
-                  <div className="h-24 w-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4" style={{ background: 'linear-gradient(135deg,#1877F2 0%,#4facfe 100%)', borderColor: dark ? '#242526' : 'white' }}>
+                  <div className="h-24 w-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4" style={{ background: 'oklch(0.38 0.13 143)', borderColor: dark ? '#242526' : 'white' }}>
                     {user?.name?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -200,9 +200,9 @@ export default function AccountPage() {
                   </button>
                   <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }} />
                   <button onClick={() => { avatarRef.current.click(); setAvatarMenu(false) }}
-                    onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(24,119,242,0.15)' : 'rgba(24,119,242,0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background = dark ? 'oklch(0.38 0.13 143 / 0.15)' : 'oklch(0.38 0.13 143 / 0.06)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-[#1877F2] transition-colors"
+                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-primary transition-colors"
                   >
                     <Upload className="h-4 w-4" /> Upload photo
                   </button>
@@ -245,7 +245,7 @@ export default function AccountPage() {
           <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">{user?.email}</p>
 
           {avatarFile && (
-            <div className="mt-3 flex items-center gap-2 text-[13px] text-[#1877F2] bg-blue-50 dark:bg-blue-900/20 rounded-xl px-3 py-2">
+            <div className="mt-3 flex items-center gap-2 text-[13px] text-primary bg-primary/10 dark:bg-primary/20 rounded-xl px-3 py-2">
               <Camera className="h-4 w-4 shrink-0" />
               <span>New photo selected — save profile to apply</span>
             </div>

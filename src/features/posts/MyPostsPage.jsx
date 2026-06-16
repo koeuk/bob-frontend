@@ -38,7 +38,7 @@ export default function MyPostsPage() {
         <Button
           onClick={() => setModalOpen(true)}
           className="cursor-pointer rounded-full text-[14px] font-semibold shrink-0"
-          style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)', boxShadow: '0 2px 8px rgba(24,119,242,0.3)' }}
+          style={{ background: 'oklch(0.38 0.13 143)', boxShadow: '0 2px 8px oklch(0.38 0.13 143 / 0.3)' }}
         >
           <PenLine className="h-4 w-4 mr-1.5" />
           New post
@@ -49,7 +49,7 @@ export default function MyPostsPage() {
 
       {isLoading && (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-[#1877F2]" />
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       )}
 
@@ -66,7 +66,7 @@ export default function MyPostsPage() {
           <Button
             onClick={() => setModalOpen(true)}
             className="cursor-pointer rounded-full"
-            style={{ background: 'linear-gradient(135deg, #1877F2 0%, #4facfe 100%)' }}
+            style={{ background: 'oklch(0.38 0.13 143)' }}
           >
             Create your first post
           </Button>
