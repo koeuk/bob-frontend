@@ -4,30 +4,32 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNotifications, markRead, markAllRead } from '../../api/notifications'
 import { acceptFriendRequest, declineFriendRequest } from '../../api/friends'
 import { Bell, ThumbsUp, MessageCircle, CheckCheck, UserPlus, Users } from 'lucide-react'
-import { formatDistanceToNow } from '../../lib/utils'
+import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 import useThemeStore from '../../store/themeStore'
 
 const REACTION_EMOJIS = { like: '👍', love: '❤️', haha: '😂', wow: '😮', sad: '😢', angry: '😡' }
 
-function NotifIcon({ type }) {
-  if (type === 'post_liked') return (
-    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'oklch(0.46 0.15 143)' }}>
-      <ThumbsUp className="h-5 w-5 text-white fill-white" />
-    </div>
-  )
-  if (type === 'friend_request') return (
-    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#8B5CF6,#a78bfa)' }}>
-      <UserPlus className="h-5 w-5 text-white" />
-    </div>
-  )
-  if (type === 'friend_accepted') return (
-    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#10b981,#34d399)' }}>
-      <Users className="h-5 w-5 text-white" />
-    </div>
-  )
+function NotifIcon({ type, actorName, actorAvatar }) {
+  const badgeStyle = {
+    post_liked:      { bg: 'oklch(0.46 0.15 143)', icon: <ThumbsUp className="h-3 w-3 text-white fill-white" /> },
+    friend_request:  { bg: 'linear-gradient(135deg,#8B5CF6,#a78bfa)', icon: <UserPlus className="h-3 w-3 text-white" /> },
+    friend_accepted: { bg: 'linear-gradient(135deg,#10b981,#34d399)', icon: <Users className="h-3 w-3 text-white" /> },
+    post_commented:  { bg: 'linear-gradient(135deg,#25c267,#4ade80)', icon: <MessageCircle className="h-3 w-3 text-white" /> },
+  }
+  const badge = badgeStyle[type] ?? badgeStyle.post_commented
+
   return (
-    <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#25c267,#4ade80)' }}>
-      <MessageCircle className="h-5 w-5 text-white" />
+    <div className="relative shrink-0">
+      {actorAvatar ? (
+        <img src={assetUrl(actorAvatar)} alt={actorName} className="h-11 w-11 rounded-full object-cover" />
+      ) : (
+        <div className="h-11 w-11 rounded-full flex items-center justify-center text-white font-bold text-base" style={{ background: 'linear-gradient(135deg,#8B5CF6,#a78bfa)' }}>
+          {actorName?.[0]?.toUpperCase() ?? '?'}
+        </div>
+      )}
+      <div className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full flex items-center justify-center border-2 border-white dark:border-[#242526]" style={{ background: badge.bg }}>
+        {badge.icon}
+      </div>
     </div>
   )
 }
@@ -133,7 +135,6 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
   const navigate = useNavigate()
   const unreadBg = 'oklch(0.46 0.15 143 / 0.05)'
   const isFriendRequest = notif.data.type === 'friend_request'
-  const isPostNotif = notif.data.type === 'post_liked' || notif.data.type === 'post_commented'
 
   const sharedClass = `flex items-start gap-4 px-5 py-4 transition-colors duration-150 cursor-pointer ${
     notif.read_at
@@ -145,7 +146,7 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
   const inner = (
     <>
       <div className="shrink-0">
-        <NotifIcon type={notif.data.type} />
+        <NotifIcon type={notif.data.type} actorName={notif.data.actor_name} actorAvatar={notif.data.actor_avatar} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[14px] text-gray-800 dark:text-gray-200 leading-snug">
@@ -164,36 +165,14 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
     </>
   )
 
-  if (isPostNotif) {
-    return (
-      <div
-        onClick={() => { onMarkRead(notif.id); navigate(`/posts/${notif.data.post_uuid}`) }}
-        className={sharedClass}
-        style={sharedStyle}
-      >
-        {inner}
-      </div>
-    )
-  }
-
-  if (isFriendRequest && notif.data.actor_uuid) {
-    return (
-      <div
-        onClick={(e) => { if (e.target.closest('button')) return; onMarkRead(notif.id); navigate(`/users/${notif.data.actor_uuid}`) }}
-        className={sharedClass}
-        style={sharedStyle}
-      >
-        {inner}
-      </div>
-    )
+  const handleClick = (e) => {
+    if (e.target.closest('button')) return
+    onMarkRead(notif.id)
+    if (notif.data.actor_uuid) navigate(`/users/${notif.data.actor_uuid}`)
   }
 
   return (
-    <div
-      onClick={() => { onMarkRead(notif.id); if (notif.data.actor_uuid) navigate(`/users/${notif.data.actor_uuid}`) }}
-      className={sharedClass}
-      style={sharedStyle}
-    >
+    <div onClick={handleClick} className={sharedClass} style={sharedStyle}>
       {inner}
     </div>
   )

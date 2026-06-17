@@ -502,9 +502,9 @@ export default function AppLayout() {
         <aside className="hidden md:flex flex-col w-[248px] shrink-0 p-3 sticky top-0 h-screen z-40">
           <div className="flex flex-col h-full rounded-2xl p-4" style={panelStyle}>
 
-            {/* Logo */}
+            {/* Logo / own profile */}
             <Link
-              to="/feed"
+              to={isAuthenticated && user?.uuid ? `/users/${user.uuid}` : '/feed'}
               className="h-9 w-9 rounded-full flex items-center justify-center text-white font-black text-[17px] leading-none transition-all duration-200 hover:scale-105 hover:opacity-90 mb-5 shrink-0"
               style={{
                 background: 'oklch(0.46 0.15 143)',
