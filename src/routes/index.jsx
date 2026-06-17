@@ -8,6 +8,7 @@ import AdminLayout from '../features/admin/AdminLayout'
 
 // Admin
 import AdminDashboardPage from '../features/admin/AdminDashboardPage'
+import AdminReportsPage from '../features/admin/AdminReportsPage'
 import AdminPlaceholder from '../features/admin/AdminPlaceholder'
 
 // Auth
@@ -78,7 +79,7 @@ const router = createBrowserRouter([
           { path: '/admin/users', element: <AdminPlaceholder title="Users" /> },
           { path: '/admin/posts', element: <AdminPlaceholder title="Posts" /> },
           { path: '/admin/comments', element: <AdminPlaceholder title="Comments" /> },
-          { path: '/admin/reports', element: <AdminPlaceholder title="Reports" /> },
+          { path: '/admin/reports', element: <AdminReportsPage /> },
           { path: '/admin/bans', element: <AdminPlaceholder title="Bans" /> },
           { path: '/admin/likes', element: <AdminPlaceholder title="Likes" /> },
           { path: '/admin/pages', element: <AdminPlaceholder title="Pages" /> },

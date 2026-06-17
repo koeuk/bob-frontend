@@ -144,13 +144,9 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
 
   const inner = (
     <>
-      <Link
-        to={notif.data.actor_uuid ? `/users/${notif.data.actor_uuid}` : '#'}
-        onClick={(e) => e.stopPropagation()}
-        className="shrink-0 hover:opacity-80 transition-opacity"
-      >
+      <div className="shrink-0">
         <NotifIcon type={notif.data.type} />
-      </Link>
+      </div>
       <div className="flex-1 min-w-0">
         <p className="text-[14px] text-gray-800 dark:text-gray-200 leading-snug">
           {notifText(notif.data)}
@@ -193,7 +189,11 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
   }
 
   return (
-    <div onClick={() => onMarkRead(notif.id)} className={sharedClass} style={sharedStyle}>
+    <div
+      onClick={() => { onMarkRead(notif.id); if (notif.data.actor_uuid) navigate(`/users/${notif.data.actor_uuid}`) }}
+      className={sharedClass}
+      style={sharedStyle}
+    >
       {inner}
     </div>
   )

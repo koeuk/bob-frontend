@@ -124,11 +124,13 @@ function CommentItem({ comment, postUuid, queryKey }) {
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <UserAvatar name={comment.user?.name} avatar={comment.user?.avatar} size="sm" />
+        <Link to={comment.user?.uuid ? `/users/${comment.user.uuid}` : '#'} className="shrink-0 hover:opacity-80 transition-opacity">
+          <UserAvatar name={comment.user?.name} avatar={comment.user?.avatar} size="sm" />
+        </Link>
         <div className="flex-1">
           {/* Comment bubble */}
           <div className="bg-[#F0F2F5] dark:bg-white/10 rounded-2xl px-3 py-2 inline-block max-w-full">
-            <p className="font-semibold text-[13px] leading-tight">{comment.user?.name}</p>
+            <Link to={comment.user?.uuid ? `/users/${comment.user.uuid}` : '#'} className="font-semibold text-[13px] leading-tight hover:underline">{comment.user?.name}</Link>
             <p className="text-[15px] whitespace-pre-wrap mt-0.5">{comment.body}</p>
           </div>
 
