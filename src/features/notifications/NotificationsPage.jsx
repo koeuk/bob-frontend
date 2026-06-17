@@ -93,9 +93,13 @@ function FriendRequestActions({ notif, onResolve }) {
   const declineMutation = useMutation({
     mutationFn: () => declineFriendRequest(notif.data.friend_request_id),
     onSuccess: () => updateStatus('declined'),
+    onError: () => updateStatus('cancelled'),
   })
 
   if (isAlreadyHandled) {
+    if (serverStatus === 'cancelled') return (
+      <span className="text-[12px] font-medium text-gray-400 dark:text-gray-500 mt-1 block">Request cancelled</span>
+    )
     return (
       <span className="text-[12px] font-semibold" style={{ color: serverStatus === 'accepted' ? '#10b981' : '#9ca3af' }}>
         {serverStatus === 'accepted' ? 'Now friends ✓' : 'Declined'}
@@ -187,7 +191,7 @@ export default function NotificationsPage() {
   const { dark } = useThemeStore()
   const queryClient = useQueryClient()
   const queryKey = ['notifications']
-  const handleResolve = () => {}
+  const handleResolve = () => queryClient.invalidateQueries({ queryKey })
 
   const { data, isLoading } = useQuery({
     queryKey,
@@ -235,7 +239,7 @@ export default function NotificationsPage() {
           <p className="text-[15px] font-medium">No notifications yet</p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-100 dark:divide-white/08">
+        <div className="divide-y divide-gray-100 dark:divide-white/10">
           {notifications.map((notif) => (
             <NotifItem
               key={notif.id}

@@ -135,8 +135,7 @@ function FriendCard({ friend }) {
           <img src={assetUrl(friend.avatar)} alt={friend.name} className="h-16 w-16 rounded-full object-cover" />
         ) : (
           <div
-            className="h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold"
-            className="bg-primary"
+            className="h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold bg-primary"
           >
             {friend.name?.[0]?.toUpperCase()}
           </div>

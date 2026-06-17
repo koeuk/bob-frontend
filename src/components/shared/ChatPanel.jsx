@@ -96,7 +96,7 @@ function ConversationList({ dark, authUser, onSelect }) {
   )
 }
 
-function MessageThread({ dark, authUser, convUuid, other, onBack }) {
+function MessageThread({ dark, authUser, convUuid, other, onBack, onClose }) {
   const qc = useQueryClient()
   const bottomRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -183,7 +183,7 @@ function MessageThread({ dark, authUser, convUuid, other, onBack }) {
         </button>
         <Link
           to={`/users/${other?.uuid}`}
-          onClick={close}
+          onClick={onClose}
           className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-75 transition-opacity"
         >
           <Avatar user={other} size={32} />
@@ -386,6 +386,7 @@ export default function ChatPanel() {
             convUuid={activeConv.uuid}
             other={activeConv.other}
             onBack={() => setActiveConv(null)}
+            onClose={close}
           />
         ) : (
           <ConversationList
