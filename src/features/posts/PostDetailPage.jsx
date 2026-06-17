@@ -64,7 +64,7 @@ function UserAvatar({ name, avatar, size = 'md' }) {
   )
 }
 
-function CommentItem({ comment, postUuid, queryKey }) {
+function CommentItem({ comment, postUuid, queryKey, rootId }) {
   const user = useAuthStore((s) => s.user)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const queryClient = useQueryClient()
@@ -90,10 +90,21 @@ function CommentItem({ comment, postUuid, queryKey }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   })
 
+  // Replies are flattened to a single level: a reply always attaches to the
+  // top-level comment (rootId), since the API only returns one level of replies.
+  const isReply = rootId != null
+  const threadParentId = rootId ?? comment.id
+
   const replyMutation = useMutation({
-    mutationFn: () => createComment(postUuid, { body: replyBody, parent_id: comment.id }),
+    mutationFn: () => createComment(postUuid, { body: replyBody, parent_id: threadParentId }),
     onSuccess: () => { setReplyBody(''); setReplyOpen(false); queryClient.invalidateQueries({ queryKey }) },
   })
+
+  const openReply = () => {
+    // When replying to a reply, prefill @mention so the target stays clear
+    setReplyBody(isReply && comment.user?.name ? `@${comment.user.name} ` : '')
+    setReplyOpen((v) => !v)
+  }
 
   const openPicker = () => {
     if (!isAuthenticated) return
@@ -157,7 +168,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
             </div>
 
             {isAuthenticated && (
-              <button className="cursor-pointer hover:underline hover:text-gray-700 transition-colors" onClick={() => setReplyOpen(!replyOpen)}>
+              <button className="cursor-pointer hover:underline hover:text-gray-700 transition-colors" onClick={openReply}>
                 Reply
               </button>
             )}
@@ -227,7 +238,7 @@ function CommentItem({ comment, postUuid, queryKey }) {
       {comment.replies?.length > 0 && (
         <div className="ml-10 space-y-3">
           {comment.replies.map((reply) => (
-            <CommentItem key={reply.uuid} comment={reply} postUuid={postUuid} queryKey={queryKey} />
+            <CommentItem key={reply.uuid} comment={reply} postUuid={postUuid} queryKey={queryKey} rootId={threadParentId} />
           ))}
         </div>
       )}
