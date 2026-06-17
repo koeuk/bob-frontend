@@ -416,7 +416,7 @@ export default function AppLayout() {
               <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             </button>
             <span className="text-[16px] font-bold truncate" style={{ color: dark ? '#e4e6eb' : '#1c1e21' }}>
-              {profileName ?? 'Profile'}
+              {appBarTitle ?? 'Profile'}
             </span>
           </div>
           ) : (
