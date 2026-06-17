@@ -9,7 +9,7 @@ import { getUser } from '../../api/users'
 import useAuthStore from '../../store/authStore'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Home, FileText, LayoutDashboard, Flag, Bell, UserCircle, LogOut, Search, MessageCircle, Sun, Moon, ArrowLeft } from 'lucide-react'
+import { Home, FileText, LayoutDashboard, Flag, Bell, UserCircle, LogOut, Search, MessageCircle, Sun, Moon, ArrowLeft, Shield } from 'lucide-react'
 import { Toaster } from '../ui/sonner'
 import NotificationDropdown from './NotificationDropdown'
 import ChatPanel from './ChatPanel'
@@ -371,6 +371,14 @@ export default function AppLayout() {
         <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/notifications')}>
           <Bell className="h-4 w-4 mr-2" /> Notifications
         </DropdownMenuItem>
+        {['moderator', 'admin', 'super_admin'].includes(user?.role) && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer rounded-xl text-primary font-semibold" onClick={() => navigate('/admin')}>
+              <Shield className="h-4 w-4 mr-2" /> Admin Panel
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={() => navigate('/account')}>
           <UserCircle className="h-4 w-4 mr-2" /> My Account

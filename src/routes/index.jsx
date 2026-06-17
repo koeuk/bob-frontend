@@ -1,9 +1,14 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { PrivateRoute, GuestRoute } from './guards'
+import { PrivateRoute, GuestRoute, AdminRoute } from './guards'
 
 // Layouts
 import AppLayout from '../components/shared/AppLayout'
 import AuthLayout from '../components/shared/AuthLayout'
+import AdminLayout from '../features/admin/AdminLayout'
+
+// Admin
+import AdminDashboardPage from '../features/admin/AdminDashboardPage'
+import AdminPlaceholder from '../features/admin/AdminPlaceholder'
 
 // Auth
 import LoginPage from '../features/auth/LoginPage'
@@ -57,6 +62,28 @@ const router = createBrowserRouter([
           { path: '/notifications', element: <NotificationsPage /> },
           { path: '/reports', element: <MyReportsPage /> },
           { path: '/account', element: <AccountPage /> },
+        ],
+      },
+    ],
+  },
+
+  // Admin routes (require moderator/admin/super_admin role)
+  {
+    element: <AdminRoute />,
+    children: [
+      {
+        element: <AdminLayout />,
+        children: [
+          { path: '/admin', element: <AdminDashboardPage /> },
+          { path: '/admin/users', element: <AdminPlaceholder title="Users" /> },
+          { path: '/admin/posts', element: <AdminPlaceholder title="Posts" /> },
+          { path: '/admin/comments', element: <AdminPlaceholder title="Comments" /> },
+          { path: '/admin/reports', element: <AdminPlaceholder title="Reports" /> },
+          { path: '/admin/bans', element: <AdminPlaceholder title="Bans" /> },
+          { path: '/admin/likes', element: <AdminPlaceholder title="Likes" /> },
+          { path: '/admin/pages', element: <AdminPlaceholder title="Pages" /> },
+          { path: '/admin/settings', element: <AdminPlaceholder title="Settings" /> },
+          { path: '/admin/activity', element: <AdminPlaceholder title="Activity Logs" /> },
         ],
       },
     ],

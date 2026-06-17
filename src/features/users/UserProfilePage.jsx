@@ -175,6 +175,9 @@ export default function UserProfilePage() {
   const { data, isLoading } = useQuery({
     queryKey,
     queryFn: () => getUser(uuid).then((r) => r.data),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 8000,
   })
 
   if (isLoading) {

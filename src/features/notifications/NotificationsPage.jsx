@@ -180,6 +180,18 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
     )
   }
 
+  if (isFriendRequest && notif.data.actor_uuid) {
+    return (
+      <div
+        onClick={(e) => { if (e.target.closest('button')) return; onMarkRead(notif.id); navigate(`/users/${notif.data.actor_uuid}`) }}
+        className={sharedClass}
+        style={sharedStyle}
+      >
+        {inner}
+      </div>
+    )
+  }
+
   return (
     <div onClick={() => onMarkRead(notif.id)} className={sharedClass} style={sharedStyle}>
       {inner}
