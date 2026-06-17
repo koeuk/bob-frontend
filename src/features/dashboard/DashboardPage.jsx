@@ -4,12 +4,12 @@ import { Link } from 'react-router-dom'
 import { Loader2, FileText, MessageCircle, Heart, TrendingUp } from 'lucide-react'
 import { assetUrl } from '../../lib/utils'
 
-function StatCard({ icon: Icon, label, value, sub }) {
+function StatCard({ icon: Icon, label, value, sub, color }) {
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-2xl p-4 border border-zinc-100 dark:border-zinc-700/60">
-      <div className="flex items-center gap-1.5 text-zinc-400 mb-2">
-        <Icon className="h-3.5 w-3.5" />
-        <span className="text-xs font-medium">{label}</span>
+      <div className="flex items-center gap-1.5 mb-2">
+        <Icon className="h-3.5 w-3.5" style={{ color }} />
+        <span className="text-xs font-medium text-zinc-400">{label}</span>
       </div>
       <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 leading-none">{value ?? 0}</p>
       {sub && <p className="text-[11px] text-zinc-400 mt-1">{sub}</p>}
@@ -45,10 +45,10 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2.5">
-        <StatCard icon={FileText} label="Posts" value={stats.posts_total} sub={`${stats.posts_this_week ?? 0} this week`} />
-        <StatCard icon={MessageCircle} label="Comments" value={stats.comments_received} sub={`${stats.comments_this_month ?? 0} this month`} />
-        <StatCard icon={Heart} label="Reactions" value={stats.reactions_total} sub={`${stats.reactions_this_month ?? 0} this month`} />
-        <StatCard icon={TrendingUp} label="This week" value={stats.posts_this_week} sub={`${stats.posts_last_week ?? 0} last week`} />
+        <StatCard icon={FileText}     label="Posts"     value={stats.posts_total}       sub={`${stats.posts_this_week ?? 0} this week`}   color="oklch(0.46 0.15 143)" />
+        <StatCard icon={MessageCircle} label="Comments"  value={stats.comments_received} sub={`${stats.comments_this_month ?? 0} this month`} color="oklch(0.55 0.18 252)" />
+        <StatCard icon={Heart}         label="Reactions" value={stats.reactions_total}   sub={`${stats.reactions_this_month ?? 0} this month`} color="oklch(0.58 0.22 15)"  />
+        <StatCard icon={TrendingUp}    label="This week" value={stats.posts_this_week}   sub={`${stats.posts_last_week ?? 0} last week`}       color="oklch(0.58 0.18 300)" />
       </div>
 
       {/* Weekly goal */}
