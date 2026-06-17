@@ -23,4 +23,16 @@ client.interceptors.response.use(
   }
 )
 
+export const MULTIPART = { headers: { 'Content-Type': 'multipart/form-data' } }
+
+export const buildFormData = (data) => {
+  const form = new FormData()
+  for (const [key, val] of Object.entries(data)) {
+    if (val == null) continue
+    if (Array.isArray(val)) val.forEach((v) => form.append(`${key}[]`, v))
+    else form.append(key, val)
+  }
+  return form
+}
+
 export default client

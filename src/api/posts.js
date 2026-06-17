@@ -1,25 +1,28 @@
-import client from './client'
+import client, { buildFormData, MULTIPART } from './client'
 
-export const getFeed = (page = 1, seed, q = '') => client.get(`/feed?page=${page}&seed=${seed}${q ? `&q=${encodeURIComponent(q)}` : ''}`)
+export const getFeed = (page = 1, seed, q = '') =>
+  client.get('/feed', { params: { page, ...(seed != null && { seed }), ...(q && { q }) } })
+
 export const getMyPosts = () => client.get('/posts/mine')
 export const getPost = (uuid) => client.get(`/posts/${uuid}`)
-export const createPost = (data) => {
-  const form = new FormData()
-  if (data.body) form.append('body', data.body)
-  if (data.feeling) form.append('feeling', data.feeling)
-  if (data.visibility) form.append('visibility', data.visibility)
-  if (data.shared_post_id) form.append('shared_post_id', data.shared_post_id)
-  ;(data.images ?? []).forEach((file) => form.append('images[]', file))
-  return client.post('/posts', form, { headers: { 'Content-Type': 'multipart/form-data' } })
-}
-export const updatePost = (uuid, data) => {
-  const form = new FormData()
-  if (data.body) form.append('body', data.body)
-  if (data.feeling) form.append('feeling', data.feeling)
-  if (data.visibility) form.append('visibility', data.visibility)
-  ;(data.keepImages ?? []).forEach((url) => form.append('keep_images[]', url))
-  ;(data.newImages ?? []).forEach((file) => form.append('new_images[]', file))
-  return client.post(`/posts/${uuid}`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
-}
+
+export const createPost = (data) =>
+  client.post('/posts', buildFormData({
+    ...(data.body      && { body: data.body }),
+    ...(data.feeling   && { feeling: data.feeling }),
+    ...(data.visibility && { visibility: data.visibility }),
+    ...(data.shared_post_id && { shared_post_id: data.shared_post_id }),
+    images: data.images ?? [],
+  }), MULTIPART)
+
+export const updatePost = (uuid, data) =>
+  client.post(`/posts/${uuid}`, buildFormData({
+    ...(data.body      && { body: data.body }),
+    ...(data.feeling   && { feeling: data.feeling }),
+    ...(data.visibility && { visibility: data.visibility }),
+    keep_images: data.keepImages ?? [],
+    new_images:  data.newImages  ?? [],
+  }), MULTIPART)
+
 export const deletePost = (uuid) => client.delete(`/posts/${uuid}`)
 export const likePost = (uuid, type = 'like') => client.post(`/posts/${uuid}/like`, { type })
