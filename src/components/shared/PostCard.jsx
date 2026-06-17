@@ -175,20 +175,24 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
     },
   })
 
+  const resetToNone = () => { setLocalStatus({ status: 'none' }); invalidate() }
+
   const cancelMutation = useMutation({
     mutationFn: () => cancelFriendRequest(localStatus?.request_id),
-    onSuccess: () => { setLocalStatus({ status: 'none' }); invalidate() },
+    onSuccess: resetToNone,
+    onError: (err) => { if (err.response?.status === 404) resetToNone(); else toast.error('Could not cancel request') },
   })
 
   const acceptMutation = useMutation({
     mutationFn: () => acceptFriendRequest(localStatus?.request_id),
     onSuccess: () => { setLocalStatus({ status: 'friends' }); invalidate() },
-    onError: () => toast.error('Could not accept request'),
+    onError: (err) => { if (err.response?.status === 404) resetToNone(); else toast.error('Could not accept request') },
   })
 
   const declineMutation = useMutation({
     mutationFn: () => declineFriendRequest(localStatus?.request_id),
-    onSuccess: () => { setLocalStatus({ status: 'none' }); invalidate() },
+    onSuccess: resetToNone,
+    onError: (err) => { if (err.response?.status === 404) resetToNone(); else toast.error('Could not decline request') },
   })
 
   const status = localStatus?.status ?? 'none'

@@ -25,18 +25,22 @@ function FriendButton({ friendship, profileUuid, profileName, queryKey }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
     onError: () => queryClient.invalidateQueries({ queryKey }),
   })
+  const invalidate = () => queryClient.invalidateQueries({ queryKey })
+
   const cancelMut = useMutation({
     mutationFn: () => cancelFriendRequest(friendship?.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onSuccess: invalidate,
+    onError: (err) => { if (err.response?.status === 404) invalidate(); else toast.error('Could not cancel request') },
   })
   const unfriendMut = useMutation({
     mutationFn: () => cancelFriendRequest(friendship?.id),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey }); toast.success('Friend removed') },
-    onError: () => toast.error('Failed to remove friend'),
+    onSuccess: () => { invalidate(); toast.success('Friend removed') },
+    onError: (err) => { if (err.response?.status === 404) invalidate(); else toast.error('Failed to remove friend') },
   })
   const acceptMut = useMutation({
     mutationFn: () => acceptFriendRequest(friendship?.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onSuccess: invalidate,
+    onError: (err) => { if (err.response?.status === 404) invalidate(); else toast.error('Could not accept request') },
   })
 
   if (!isAuthenticated) return null

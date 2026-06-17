@@ -64,7 +64,7 @@ function FriendRequestActions({ notif, onResolve }) {
 
   // Use the status from the backend (survives refresh), fall back to local optimistic state
   const serverStatus = notif.data.friend_request_status
-  const isAlreadyHandled = serverStatus === 'accepted' || serverStatus === 'declined'
+  const isAlreadyHandled = serverStatus === 'accepted' || serverStatus === 'declined' || serverStatus === 'cancelled'
 
   const updateStatus = (status) => {
     // Optimistically update the cached notification data so UI updates instantly
