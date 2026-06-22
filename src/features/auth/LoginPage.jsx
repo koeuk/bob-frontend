@@ -7,6 +7,7 @@ import { useMutation } from '@tanstack/react-query'
 import { login } from '../../api/auth'
 import useAuthStore from '../../store/authStore'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import GoogleAuthButton, { AuthDivider } from './GoogleAuthButton'
 
 const schema = z.object({
   email: z.string().email('Invalid email address'),
@@ -43,6 +44,8 @@ export default function LoginPage() {
 
       {/* Form card */}
       <div className="bg-white rounded-2xl p-7 space-y-5" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)' }}>
+        <GoogleAuthButton />
+        <AuthDivider />
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
 
           {/* Email */}

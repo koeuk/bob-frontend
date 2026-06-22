@@ -12,3 +12,11 @@ export const updateMe = (data) => {
     return client.post('/auth/me', buildFormData(data), MULTIPART)
   return client.patch('/auth/me', data)
 }
+
+export const getGoogleAuthUrl = () => {
+  const apiOrigin = (import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000')
+    .replace(/\/+$/, '')
+    .replace(/\/api$/, '')
+
+  return `${apiOrigin}/auth/google/redirect`
+}

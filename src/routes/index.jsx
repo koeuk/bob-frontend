@@ -15,6 +15,7 @@ import AdminPlaceholder from '../features/admin/AdminPlaceholder'
 // Auth
 import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
+import GoogleCallbackPage from '../features/auth/GoogleCallbackPage'
 
 // User
 import FeedPage from '../features/feed/FeedPage'
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
         children: [
           { path: '/login', element: <LoginPage /> },
           { path: '/register', element: <RegisterPage /> },
+          { path: '/auth/google/callback', element: <GoogleCallbackPage /> },
         ],
       },
     ],
