@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createPost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
@@ -65,7 +65,6 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
   const queryClient = useQueryClient()
   const [copied, setCopied] = useState(false)
   const [shareBody, setShareBody] = useState('')
-  const [sharing, setSharing] = useState(false)
 
   const postUrl = window.location.origin + `/posts/${post?.uuid}`
   const postText = post?.body?.slice(0, 100) ?? ''

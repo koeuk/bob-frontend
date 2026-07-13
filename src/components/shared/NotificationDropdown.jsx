@@ -107,7 +107,6 @@ function NotifItem({ notif, onMarkRead, onClose }) {
   const isDark = document.documentElement.classList.contains('dark')
   const unreadBg = isDark ? 'oklch(0.46 0.15 143 / 0.08)' : 'oklch(0.46 0.15 143 / 0.05)'
   const isFriendRequest = notif.data.type === 'friend_request'
-  const isFriendAccepted = notif.data.type === 'friend_accepted'
   const isPostNotif = notif.data.type === 'post_liked' || notif.data.type === 'post_commented'
 
   const sharedClass = `flex items-start gap-3 px-4 py-3 transition-colors duration-150 ${
