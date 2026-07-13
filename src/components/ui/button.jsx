@@ -44,14 +44,22 @@ function Button({
   className,
   variant = "default",
   size = "default",
-  asChild,
+  asChild = false,
+  render,
+  children,
   ...props
 }) {
+  // Support the shadcn `asChild` API on top of base-ui's `render` prop so the
+  // child element (e.g. a router <Link>) is rendered *as* the button instead
+  // of nested inside a real <button>.
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
-      {...props} />
+      render={asChild ? children : render}
+      {...props}>
+      {asChild ? null : children}
+    </ButtonPrimitive>
   );
 }
 

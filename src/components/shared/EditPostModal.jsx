@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updatePost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
@@ -39,6 +39,25 @@ export default function EditPostModal({ open, onClose, post, queryKey }) {
   const [showFeelings, setShowFeelings] = useState(false)
   const fileRef = useRef(null)
 
+  // The modal stays mounted (only `open` toggles), so re-seed the form from the
+  // latest post every time it opens — otherwise it shows stale content and a
+  // save would overwrite the post with the outdated text.
+  useEffect(() => {
+    if (!open) return
+    setBody(post?.body ?? '')
+    setKept(post?.images ?? (post?.image ? [post.image] : []))
+    setNewImages([])
+    setFeeling(FEELINGS.find((f) => f.value === post?.feeling) ?? null)
+    setVisibility(post?.visibility ?? 'public')
+    setShowFeelings(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, post?.uuid, post?.body, post?.updated_at])
+
+  // Revoke any newly-added image object URLs on unmount (leak prevention).
+  const newImagesRef = useRef([])
+  useEffect(() => { newImagesRef.current = newImages }, [newImages])
+  useEffect(() => () => newImagesRef.current.forEach((i) => URL.revokeObjectURL(i.preview)), [])
+
   const updateMutation = useMutation({
     mutationFn: () => updatePost(post.uuid, {
       body, feeling: feeling?.value ?? null, visibility,
@@ -48,9 +67,15 @@ export default function EditPostModal({ open, onClose, post, queryKey }) {
   })
 
   const handleClose = () => {
+    newImages.forEach((i) => URL.revokeObjectURL(i.preview))
     setBody(post?.body ?? ''); setKept(initialImages); setNewImages([])
     setFeeling(initialFeeling); setVisibility(post?.visibility ?? 'public')
     setShowFeelings(false); onClose()
+  }
+
+  const removeNewImage = (idx) => {
+    URL.revokeObjectURL(newImages[idx]?.preview)
+    setNewImages((prev) => prev.filter((_, i) => i !== idx))
   }
 
   const handleImageChange = (e) => {
@@ -135,7 +160,7 @@ export default function EditPostModal({ open, onClose, post, queryKey }) {
               {newImages.map((img, idx) => (
                 <div key={`n-${idx}`} className="relative rounded-xl overflow-hidden aspect-square" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                   <img src={img.preview} alt="" className="w-full h-full object-cover" />
-                  <button onClick={() => setNewImages((prev) => prev.filter((_, i) => i !== idx))} className="cursor-pointer absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-black/55 hover:bg-black/75 flex items-center justify-center text-white transition-all duration-200 hover:scale-105">
+                  <button onClick={() => removeNewImage(idx)} className="cursor-pointer absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-black/55 hover:bg-black/75 flex items-center justify-center text-white transition-all duration-200 hover:scale-105">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>

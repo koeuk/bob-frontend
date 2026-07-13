@@ -7,7 +7,10 @@ const storedUser = () => {
 const useAuthStore = create((set) => ({
   user: storedUser(),
   token: localStorage.getItem('token') || null,
-  isAuthenticated: !!localStorage.getItem('token'),
+  // Require BOTH a token and a parseable user; otherwise a valid token with a
+  // corrupted/missing `user` entry would hydrate as authenticated with user:null
+  // and crash any component that reads user.name/avatar behind the auth guard.
+  isAuthenticated: !!localStorage.getItem('token') && !!storedUser(),
 
   setAuth: (user, token) => {
     localStorage.setItem('token', token)

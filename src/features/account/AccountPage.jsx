@@ -131,8 +131,13 @@ export default function AccountPage() {
     const file = e.target.files?.[0]
     if (!file) return
     setAvatarFile(file)
-    setAvatarPreview(URL.createObjectURL(file))
+    setAvatarPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file) })
   }
+
+  // Revoke the avatar preview object URL on unmount (leak prevention).
+  const avatarPreviewRef = useRef(null)
+  useEffect(() => { avatarPreviewRef.current = avatarPreview }, [avatarPreview])
+  useEffect(() => () => { if (avatarPreviewRef.current) URL.revokeObjectURL(avatarPreviewRef.current) }, [])
 
   const handleProfileSubmit = (data) => {
     profileMutation.mutate(avatarFile ? { ...data, avatar: avatarFile } : data)

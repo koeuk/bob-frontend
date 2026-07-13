@@ -11,7 +11,10 @@ export function assetUrl(path) {
   if (!path) return null
   if (path.startsWith('http')) {
     const url = new URL(path)
-    return STORAGE_BASE + url.pathname
+    // Only re-point URLs under our own /storage path (the host can differ per
+    // environment). Leave external URLs (e.g. Google avatars) fully intact.
+    if (url.pathname.startsWith('/storage/')) return STORAGE_BASE + url.pathname
+    return path
   }
   if (path.startsWith('/storage/') || path.startsWith('storage/')) {
     return STORAGE_BASE + '/' + path.replace(/^\//, '')

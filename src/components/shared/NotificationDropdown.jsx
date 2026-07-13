@@ -61,13 +61,16 @@ function FriendRequestActions({ notif, onDone }) {
 
   const acceptMutation = useMutation({
     mutationFn: () => acceptFriendRequest(notif.data.friend_request_id),
-    onSuccess: () => { setResolved(true); setResult('accepted'); decrementUnread() },
+    // onDone() marks the notification read server-side; without it the refetch
+    // re-increments unread_count since accept/decline don't touch the notif.
+    onSuccess: () => { setResolved(true); setResult('accepted'); decrementUnread(); onDone?.() },
     onError: () => { setResolved(true); setResult('accepted') },
   })
 
   const declineMutation = useMutation({
     mutationFn: () => declineFriendRequest(notif.data.friend_request_id),
-    onSuccess: () => { setResolved(true); setResult('declined'); decrementUnread() },
+    onSuccess: () => { setResolved(true); setResult('declined'); decrementUnread(); onDone?.() },
+    onError: () => { setResolved(true); setResult('declined') },
   })
 
   if (resolved) {

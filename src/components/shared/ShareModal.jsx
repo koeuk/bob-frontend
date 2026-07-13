@@ -84,7 +84,7 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
   const shareMutation = useMutation({
     mutationFn: () => createPost({
       body: shareBody.trim() || undefined,
-      shared_post_id: post?.id,
+      shared_post_id: post?.uuid,
       visibility: 'public',
     }),
     onSuccess: () => {

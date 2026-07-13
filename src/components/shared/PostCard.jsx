@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { MoreHorizontal, Trash2, Flag, Pencil, MessageCircle, ThumbsUp, Globe, Lock, Share2, UserPlus, UserCheck, Clock, UserX } from 'lucide-react'
@@ -158,6 +158,11 @@ function FriendButton({ friendshipStatus, authorUuid, queryKey }) {
   const queryClient = useQueryClient()
   const [localStatus, setLocalStatus] = useState(friendshipStatus)
 
+  // Re-sync when the server-provided status actually changes (e.g. the request
+  // was accepted elsewhere and a refetch arrives) instead of only on mount.
+  // Keyed on primitives so an inline/new object prop can't reset it every render.
+  useEffect(() => { setLocalStatus(friendshipStatus) }, [friendshipStatus?.status, friendshipStatus?.request_id])
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey })
 
   const sendMutation = useMutation({
@@ -314,6 +319,10 @@ export default function PostCard({ post, queryKey }) {
   }
 
   const cancelClose = () => { clearTimeout(hoverTimer.current) }
+
+  // Clear any pending hover timer if the card unmounts (feed refetch/scroll)
+  // to avoid a setState on an unmounted component.
+  useEffect(() => () => clearTimeout(hoverTimer.current), [])
 
   const isLiked = myReaction || post.liked_by_me
 

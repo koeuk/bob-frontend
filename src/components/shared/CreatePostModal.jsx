@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createPost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
@@ -34,12 +34,23 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
   const [showFeelings, setShowFeelings] = useState(false)
   const fileRef = useRef(null)
 
+  // Revoke image preview object URLs on unmount (leak prevention).
+  const imagesRef = useRef([])
+  useEffect(() => { imagesRef.current = images }, [images])
+  useEffect(() => () => imagesRef.current.forEach((i) => URL.revokeObjectURL(i.preview)), [])
+
+  const removeImage = (idx) => {
+    URL.revokeObjectURL(images[idx]?.preview)
+    setImages((prev) => prev.filter((_, i) => i !== idx))
+  }
+
   const createMutation = useMutation({
     mutationFn: () => createPost({ body, images: images.map((i) => i.file), feeling: feeling?.value, visibility }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey }); handleClose() },
   })
 
   const handleClose = () => {
+    images.forEach((i) => URL.revokeObjectURL(i.preview))
     setBody(''); setImages([]); setFeeling(null)
     setVisibility('public'); setShowFeelings(false); onClose()
   }
@@ -124,7 +135,7 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
                 <div key={idx} className="relative rounded-xl overflow-hidden aspect-square" style={{ border: '1px solid rgba(0,0,0,0.08)' }}>
                   <img src={img.preview} alt="" className="w-full h-full object-cover" />
                   <button
-                    onClick={() => setImages((prev) => prev.filter((_, i) => i !== idx))}
+                    onClick={() => removeImage(idx)}
                     className="cursor-pointer absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-black/55 hover:bg-black/75 flex items-center justify-center text-white transition-all duration-200 hover:scale-105"
                   >
                     <X className="h-3.5 w-3.5" />

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getPost } from '../../api/posts'
@@ -116,6 +116,9 @@ function CommentItem({ comment, postUuid, queryKey, rootId }) {
     clearTimeout(hoverTimer.current)
     hoverTimer.current = setTimeout(() => setPickerOpen(false), 180)
   }
+
+  // Clear pending hover timer on unmount (comment list re-renders on refetch).
+  useEffect(() => () => clearTimeout(hoverTimer.current), [])
 
   const cancelClose = () => clearTimeout(hoverTimer.current)
 

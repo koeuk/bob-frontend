@@ -21,6 +21,10 @@ client.interceptors.response.use(
     if (error.response?.status === 401) {
       const hadToken = !!localStorage.getItem('token')
       localStorage.removeItem('token')
+      // Reset in-memory auth state too, not just localStorage, so the app never
+      // sits in an "authenticated" state with no token if the redirect is
+      // delayed or suppressed by a caller. Imported lazily to avoid a cycle.
+      import('../store/authStore').then((m) => m.default.getState().logout?.())
       if (hadToken) window.location.href = '/login'
     }
     return Promise.reject(error)

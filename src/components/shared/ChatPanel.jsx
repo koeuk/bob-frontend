@@ -119,8 +119,13 @@ function MessageThread({ dark, authUser, convUuid, other, onBack, onClose }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length])
 
-  // Clean up preview URLs on unmount
-  useEffect(() => () => previews.forEach(URL.revokeObjectURL), [previews])
+  // Revoke preview object URLs only on unmount. Keying this on `previews` would
+  // revoke the *surviving* URLs whenever one image is removed (they share the
+  // same strings), blanking the remaining thumbnails. removeImage/handleFiles/
+  // onSuccess already revoke replaced URLs explicitly.
+  const previewsRef = useRef([])
+  useEffect(() => { previewsRef.current = previews }, [previews])
+  useEffect(() => () => previewsRef.current.forEach(URL.revokeObjectURL), [])
 
   const mutation = useMutation({
     mutationFn: () => sendMessage(convUuid, body.trim(), images),
