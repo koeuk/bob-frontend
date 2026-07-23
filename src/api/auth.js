@@ -5,7 +5,9 @@ export const login         = (data) => client.post('/auth/login', data)
 export const logout        = ()     => client.post('/auth/logout')
 export const getMe         = ()     => client.get('/auth/me')
 export const updatePassword = (data) => client.patch('/auth/password', data)
-export const deleteAccount = ()     => client.delete('/auth/me')
+// The API requires the current password to confirm deletion; axios needs it
+// under `data` because DELETE bodies are not sent positionally.
+export const deleteAccount = (password) => client.delete('/auth/me', { data: { password } })
 
 export const updateMe = (data) => {
   if (data.avatar instanceof File || data.cover instanceof File)

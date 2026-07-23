@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updatePost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
 import useThemeStore from '../../store/themeStore'
+import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { ImageIcon, Smile, X, Globe, Lock } from 'lucide-react'
@@ -64,6 +65,7 @@ export default function EditPostModal({ open, onClose, post, queryKey }) {
       keepImages: kept, newImages: newImages.map((i) => i.file),
     }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey }); handleClose() },
+    onError: (err) => toast.error(err?.response?.data?.message || 'Could not save changes'),
   })
 
   const handleClose = () => {
@@ -81,8 +83,16 @@ export default function EditPostModal({ open, onClose, post, queryKey }) {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files ?? [])
     const items = files.map((file) => ({ file, preview: URL.createObjectURL(file) }))
-    const total = kept.length + newImages.length
-    setNewImages((prev) => [...prev, ...items].slice(0, Math.max(0, 10 - total)))
+    setNewImages((prev) => {
+      // The cap applies to the whole list, so subtract only `kept` — `prev`
+      // is already part of the array being sliced. Subtracting it as well
+      // double-counted and silently dropped previously-picked images.
+      const next = [...prev, ...items].slice(0, Math.max(0, 10 - kept.length))
+      // Revoke previews for any files that exceeded the cap.
+      next.length < prev.length + items.length &&
+        [...prev, ...items].slice(next.length).forEach((i) => URL.revokeObjectURL(i.preview))
+      return next
+    })
     e.target.value = ''
   }
 

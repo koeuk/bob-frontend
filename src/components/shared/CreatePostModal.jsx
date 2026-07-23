@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createPost } from '../../api/posts'
 import useAuthStore from '../../store/authStore'
 import useThemeStore from '../../store/themeStore'
+import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { ImageIcon, Smile, X, Globe, Lock } from 'lucide-react'
@@ -47,6 +48,9 @@ export default function CreatePostModal({ open, onClose, queryKey }) {
   const createMutation = useMutation({
     mutationFn: () => createPost({ body, images: images.map((i) => i.file), feeling: feeling?.value, visibility }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey }); handleClose() },
+    // Uploads commonly fail validation (max 5MB/image, 10 images). Without
+    // this the modal just stops spinning with no explanation.
+    onError: (err) => toast.error(err?.response?.data?.message || 'Could not publish post'),
   })
 
   const handleClose = () => {

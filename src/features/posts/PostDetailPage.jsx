@@ -83,6 +83,7 @@ function CommentItem({ comment, postUuid, queryKey, rootId }) {
   const deleteMutation = useMutation({
     mutationFn: () => deleteComment(comment.uuid),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey }); toast.success('Comment deleted') },
+    onError: (err) => toast.error(err?.response?.data?.message || 'Could not delete comment'),
   })
 
   const likeMutation = useMutation({
@@ -98,6 +99,7 @@ function CommentItem({ comment, postUuid, queryKey, rootId }) {
   const replyMutation = useMutation({
     mutationFn: () => createComment(postUuid, { body: replyBody, parent_id: threadParentId }),
     onSuccess: () => { setReplyBody(''); setReplyOpen(false); queryClient.invalidateQueries({ queryKey }) },
+    onError: (err) => toast.error(err?.response?.data?.message || 'Could not post reply'),
   })
 
   const openReply = () => {
@@ -284,6 +286,7 @@ export default function PostDetailPage() {
   const commentMutation = useMutation({
     mutationFn: () => createComment(uuid, { body: commentBody }),
     onSuccess: () => { setCommentBody(''); queryClient.invalidateQueries({ queryKey }) },
+    onError: (err) => toast.error(err?.response?.data?.message || 'Could not post comment'),
   })
 
   if (isLoading) return (
@@ -291,7 +294,16 @@ export default function PostDetailPage() {
       <Loader2 className="h-6 w-6 animate-spin text-primary" />
     </div>
   )
-  if (!data) return null
+  // The API 404s for deleted, hidden or private posts — show a real message
+  // instead of an empty page with no way back.
+  if (!data) return (
+    <div className="bg-white dark:bg-[#242526] rounded-2xl p-12 text-center space-y-3" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+      <div className="text-5xl">🔍</div>
+      <p className="text-[15px] font-semibold text-gray-800 dark:text-gray-200">Post not found</p>
+      <p className="text-[13px] text-gray-500 dark:text-gray-400">It may have been deleted, or you don’t have access to it.</p>
+      <Link to="/feed" className="inline-block text-[13px] font-semibold text-primary hover:underline">Back to feed</Link>
+    </div>
+  )
 
   const { post, comments } = data
 

@@ -179,7 +179,7 @@ export default function AdminReportsPage() {
   const [dialog, setDialog] = useState(null) // { mode: 'resolve'|'dismiss', report }
   const [note, setNote] = useState('')
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey: ['admin-reports', status, type],
     queryFn: ({ pageParam = 1 }) => getAdminReports({ status, type, page: pageParam }).then((r) => r.data),
     getNextPageParam: (last) => last.data.current_page < last.data.last_page ? last.data.current_page + 1 : undefined,
@@ -276,6 +276,11 @@ export default function AdminReportsPage() {
       {/* List */}
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : isError ? (
+        <div className="rounded-2xl p-12 text-center" style={{ background: dark ? '#242526' : 'white', boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 2px 12px rgba(0,0,0,0.08)' }}>
+          <Flag className="h-10 w-10 mx-auto text-red-300 mb-3" />
+          <p className="text-gray-500 dark:text-gray-400">Could not load reports. Please try again.</p>
+        </div>
       ) : reports.length === 0 ? (
         <div className="rounded-2xl p-12 text-center" style={{ background: dark ? '#242526' : 'white', boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 2px 12px rgba(0,0,0,0.08)' }}>
           <Flag className="h-10 w-10 mx-auto text-gray-300 mb-3" />

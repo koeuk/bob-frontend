@@ -1,11 +1,12 @@
 
 import { Link, useNavigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNotifications, markRead, markAllRead } from '../../api/notifications'
 import { acceptFriendRequest, declineFriendRequest } from '../../api/friends'
 import { Bell, ThumbsUp, MessageCircle, CheckCheck, UserPlus, Users } from 'lucide-react'
 import { formatDistanceToNow, assetUrl } from '../../lib/utils'
 import useThemeStore from '../../store/themeStore'
+import { toast } from 'sonner'
 
 const REACTION_EMOJIS = { like: '👍', love: '❤️', haha: '😂', wow: '😮', sad: '😢', angry: '😡' }
 
@@ -69,18 +70,32 @@ function FriendRequestActions({ notif, onResolve }) {
   const isAlreadyHandled = serverStatus === 'accepted' || serverStatus === 'declined' || serverStatus === 'cancelled'
 
   const updateStatus = (status) => {
-    // Optimistically update the cached notification data so UI updates instantly
-    queryClient.setQueryData(['notifications'], (old) => {
+    const patch = (list) => list.map((n) =>
+      n.id === notif.id
+        ? { ...n, data: { ...n.data, friend_request_status: status } }
+        : n
+    )
+
+    // Patch every notifications cache so the UI updates instantly. The dropdown
+    // holds a single page while this page holds an infinite-query shape, so
+    // handle both.
+    queryClient.setQueriesData({ queryKey: ['notifications'] }, (old) => {
       if (!old) return old
-      const updated = old.notifications.data.map((n) =>
-        n.id === notif.id
-          ? { ...n, data: { ...n.data, friend_request_status: status } }
-          : n
-      )
+
+      if (old.pages) {
+        return {
+          ...old,
+          pages: old.pages.map((p) => ({
+            ...p,
+            notifications: { ...p.notifications, data: patch(p.notifications.data) },
+          })),
+        }
+      }
+
       return {
         ...old,
         unread_count: !notif.read_at ? Math.max(0, (old.unread_count ?? 0) - 1) : old.unread_count,
-        notifications: { ...old.notifications, data: updated },
+        notifications: { ...old.notifications, data: patch(old.notifications.data) },
       }
     })
     onResolve(notif.id, status)
@@ -89,13 +104,21 @@ function FriendRequestActions({ notif, onResolve }) {
   const acceptMutation = useMutation({
     mutationFn: () => acceptFriendRequest(notif.data.friend_request_id),
     onSuccess: () => updateStatus('accepted'),
-    onError: () => updateStatus('accepted'),
+    // Never fake success: the request may already have been cancelled/handled
+    // (the API 404s). Surface it and resync from the server instead.
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || 'Could not accept request')
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
   })
 
   const declineMutation = useMutation({
     mutationFn: () => declineFriendRequest(notif.data.friend_request_id),
     onSuccess: () => updateStatus('declined'),
-    onError: () => updateStatus('cancelled'),
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || 'Could not decline request')
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
   })
 
   if (isAlreadyHandled) {
@@ -168,7 +191,10 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
   const handleClick = (e) => {
     if (e.target.closest('button')) return
     onMarkRead(notif.id)
-    if (notif.data.actor_uuid) navigate(`/users/${notif.data.actor_uuid}`)
+    // Like/comment notifications are about a post — go to the post, not the
+    // actor's profile (this is what NotificationDropdown already does).
+    if (notif.data.post_uuid) navigate(`/posts/${notif.data.post_uuid}`)
+    else if (notif.data.actor_uuid) navigate(`/users/${notif.data.actor_uuid}`)
   }
 
   return (
@@ -181,12 +207,18 @@ function NotifItem({ notif, onMarkRead, onResolve }) {
 export default function NotificationsPage() {
   const { dark } = useThemeStore()
   const queryClient = useQueryClient()
-  const queryKey = ['notifications']
-  const handleResolve = () => queryClient.invalidateQueries({ queryKey })
+  // Distinct from the dropdown's ['notifications'] key (different data shape),
+  // but still prefix-matched by its invalidations.
+  const queryKey = ['notifications', 'all']
+  const handleResolve = () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey,
-    queryFn: () => getNotifications().then(r => r.data),
+    queryFn: ({ pageParam = 1 }) => getNotifications(pageParam).then(r => r.data),
+    getNextPageParam: (last) => {
+      const p = last.notifications
+      return p.current_page < p.last_page ? p.current_page + 1 : undefined
+    },
     staleTime: 20_000,
   })
 
@@ -200,8 +232,8 @@ export default function NotificationsPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   })
 
-  const notifications = data?.notifications?.data ?? []
-  const unreadCount = data?.unread_count ?? 0
+  const notifications = data?.pages.flatMap((p) => p.notifications.data) ?? []
+  const unreadCount = data?.pages[0]?.unread_count ?? 0
 
   return (
     <div className="rounded-2xl overflow-hidden" style={{
@@ -230,16 +262,29 @@ export default function NotificationsPage() {
           <p className="text-[15px] font-medium">No notifications yet</p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-100 dark:divide-white/10">
-          {notifications.map((notif) => (
-            <NotifItem
-              key={notif.id}
-              notif={notif}
-              onMarkRead={(id) => { if (!notif.read_at) markReadMutation.mutate(id) }}
-              onResolve={handleResolve}
-            />
-          ))}
-        </div>
+        <>
+          <div className="divide-y divide-gray-100 dark:divide-white/10">
+            {notifications.map((notif) => (
+              <NotifItem
+                key={notif.id}
+                notif={notif}
+                onMarkRead={(id) => { if (!notif.read_at) markReadMutation.mutate(id) }}
+                onResolve={handleResolve}
+              />
+            ))}
+          </div>
+          {hasNextPage && (
+            <div className="flex justify-center border-t border-gray-100 dark:border-white/10 p-4">
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="cursor-pointer text-[13px] font-semibold text-primary hover:text-primary/90 transition-colors disabled:opacity-50"
+              >
+                {isFetchingNextPage ? 'Loading…' : 'Load more'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

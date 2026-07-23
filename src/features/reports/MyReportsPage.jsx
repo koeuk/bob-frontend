@@ -6,6 +6,11 @@ import { Card, CardContent } from '../../components/ui/card'
 import { Loader2 } from 'lucide-react'
 import { formatDistanceToNow } from '../../lib/utils'
 
+// The API serializes the Report model, which has no `type` column — the target
+// kind lives in the polymorphic `reportable_type` (e.g. "App\\Models\\Post").
+const reportTypeLabel = (reportableType) =>
+  reportableType?.split('\\').pop()?.toLowerCase() ?? 'item'
+
 const STATUS_VARIANTS = {
   pending: 'secondary',
   reviewed: 'outline',
@@ -36,7 +41,7 @@ export default function MyReportsPage() {
           <CardContent className="pt-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="capitalize">{report.type}</Badge>
+                <Badge variant="outline" className="capitalize">{reportTypeLabel(report.reportable_type)}</Badge>
                 <Badge variant={STATUS_VARIANTS[report.status] ?? 'secondary'} className="capitalize">{report.status}</Badge>
               </div>
               <span className="text-xs text-muted-foreground">{formatDistanceToNow(report.created_at)}</span>

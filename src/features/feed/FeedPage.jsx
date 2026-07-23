@@ -9,12 +9,28 @@ import { Button } from '../../components/ui/button'
 import { Loader2, ImageIcon, Smile } from 'lucide-react'
 import { assetUrl } from '../../lib/utils'
 
+/**
+ * Keep the randomised feed order stable for the whole browsing session.
+ *
+ * The seed is part of the query key, so a component-local ref would mint a new
+ * one on every mount — opening a post and pressing Back would drop the cached
+ * pages and restart at page 1 in a completely different order.
+ */
+const getFeedSeed = () => {
+  let stored = sessionStorage.getItem('feed-seed')
+  if (!stored) {
+    stored = String(Math.floor(Math.random() * 999999) + 1)
+    sessionStorage.setItem('feed-seed', stored)
+  }
+  return Number(stored)
+}
+
 export default function FeedPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const { user, isAuthenticated } = useAuthStore()
   const [searchParams] = useSearchParams()
   const q = searchParams.get('q') ?? ''
-  const seed = useRef(Math.floor(Math.random() * 999999) + 1).current
+  const [seed] = useState(getFeedSeed)
   const queryKey = ['feed', seed, q]
   const sentinelRef = useRef(null)
 

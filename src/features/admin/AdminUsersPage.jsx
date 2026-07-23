@@ -126,7 +126,7 @@ export default function AdminUsersPage() {
     return () => clearTimeout(t)
   }, [searchInput])
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey: ['admin-users', search, role, bannedOnly],
     queryFn: ({ pageParam = 1 }) => getAdminUsers({ search, role, banned: bannedOnly, page: pageParam }).then((r) => r.data),
     getNextPageParam: (last) => last.current_page < last.last_page ? last.current_page + 1 : undefined,
@@ -212,6 +212,11 @@ export default function AdminUsersPage() {
       {/* List */}
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : isError ? (
+        <div className="rounded-2xl p-12 text-center" style={{ background: dark ? '#242526' : 'white', boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 2px 12px rgba(0,0,0,0.08)' }}>
+          <Users className="h-10 w-10 mx-auto text-red-300 mb-3" />
+          <p className="text-gray-500 dark:text-gray-400">Could not load users. Please try again.</p>
+        </div>
       ) : users.length === 0 ? (
         <div className="rounded-2xl p-12 text-center" style={{ background: dark ? '#242526' : 'white', boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 2px 12px rgba(0,0,0,0.08)' }}>
           <Users className="h-10 w-10 mx-auto text-gray-300 mb-3" />

@@ -6,6 +6,7 @@ import { getNotifications, markRead, markAllRead } from '../../api/notifications
 import { acceptFriendRequest, declineFriendRequest } from '../../api/friends'
 import { Bell, ThumbsUp, MessageCircle, CheckCheck, UserPlus, Users } from 'lucide-react'
 import { formatDistanceToNow } from '../../lib/utils'
+import { toast } from 'sonner'
 
 const REACTION_EMOJIS = { like: '👍', love: '❤️', haha: '😂', wow: '😮', sad: '😢', angry: '😡' }
 
@@ -64,13 +65,21 @@ function FriendRequestActions({ notif, onDone }) {
     // onDone() marks the notification read server-side; without it the refetch
     // re-increments unread_count since accept/decline don't touch the notif.
     onSuccess: () => { setResolved(true); setResult('accepted'); decrementUnread(); onDone?.() },
-    onError: () => { setResolved(true); setResult('accepted') },
+    // Never fake success: the request may already have been cancelled/handled
+    // (the API 404s). Surface it and resync from the server instead.
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || 'Could not accept request')
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
   })
 
   const declineMutation = useMutation({
     mutationFn: () => declineFriendRequest(notif.data.friend_request_id),
     onSuccess: () => { setResolved(true); setResult('declined'); decrementUnread(); onDone?.() },
-    onError: () => { setResolved(true); setResult('declined') },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || 'Could not decline request')
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
   })
 
   if (resolved) {

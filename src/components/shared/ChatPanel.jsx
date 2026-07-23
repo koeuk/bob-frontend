@@ -6,6 +6,7 @@ import { X, ArrowLeft, Send, ImagePlus } from 'lucide-react'
 import { getConversations, getMessages, sendMessage } from '../../api/chat'
 import { assetUrl, formatDistanceToNow } from '../../lib/utils'
 import useThemeStore from '../../store/themeStore'
+import { toast } from 'sonner'
 import useAuthStore from '../../store/authStore'
 import useChatStore from '../../store/chatStore'
 
@@ -136,6 +137,7 @@ function MessageThread({ dark, authUser, convUuid, other, onBack, onClose }) {
       qc.invalidateQueries({ queryKey: ['messages', convUuid] })
       qc.invalidateQueries({ queryKey: ['conversations'] })
     },
+    onError: (err) => toast.error(err?.response?.data?.message || 'Could not send message'),
   })
 
   const canSend = (body.trim() || images.length > 0) && !mutation.isPending

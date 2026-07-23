@@ -11,7 +11,7 @@ export default function ReportModal({ open, onClose, type, id }) {
   const [reason, setReason] = useState('')
 
   const mutation = useMutation({
-    mutationFn: () => createReport({ type, id, reason }),
+    mutationFn: () => createReport({ type, target_uuid: id, reason }),
     onSuccess: () => {
       toast.success('Report submitted')
       setReason('')
@@ -23,7 +23,7 @@ export default function ReportModal({ open, onClose, type, id }) {
   })
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) { setReason(''); onClose() } }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Report {type}</DialogTitle>

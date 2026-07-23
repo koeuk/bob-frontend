@@ -77,6 +77,7 @@ export default function AccountPage() {
   const [avatarMenuPos, setAvatarMenuPos] = useState({ top: 0, left: 0 })
   const [viewPhoto, setViewPhoto] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
@@ -93,18 +94,19 @@ export default function AccountPage() {
       setAvatarPreview(null)
       toast.success('Profile updated')
     },
-    onError: () => toast.error('Failed to update profile'),
+    onError: (err) => toast.error(err?.response?.data?.message || 'Failed to update profile'),
   })
 
   const passwordMutation = useMutation({
     mutationFn: (data) => updatePassword(data),
     onSuccess: () => { passwordForm.reset(); toast.success('Password changed') },
-    onError: () => toast.error('Failed to change password'),
+    onError: (err) => toast.error(err?.response?.data?.message || 'Failed to change password'),
   })
 
   const deleteMutation = useMutation({
-    mutationFn: async () => { await deleteAccount(); await logoutApi().catch(() => {}) },
-    onSuccess: () => { logout(); navigate('/login', { replace: true }) },
+    mutationFn: async (password) => { await deleteAccount(password); await logoutApi().catch(() => {}) },
+    onSuccess: () => { setDeleteOpen(false); logout(); navigate('/login', { replace: true }) },
+    onError: (err) => toast.error(err?.response?.data?.message || 'Failed to delete account'),
   })
 
   useEffect(() => {
@@ -327,7 +329,7 @@ export default function AccountPage() {
         <div className="rounded-2xl p-5" style={{ ...contentStyle, border: '1px solid rgba(239,68,68,0.2)' }}>
           <p className="font-semibold text-[15px] text-red-600 mb-1">Delete account</p>
           <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-5">Permanently deletes your account, posts, and all data. This cannot be undone.</p>
-          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialog open={deleteOpen} onOpenChange={(v) => { setDeleteOpen(v); if (!v) setDeletePassword('') }}>
             <AlertDialogTrigger className="cursor-pointer w-full rounded-xl h-10 px-4 font-semibold text-[14px] text-white bg-red-500 hover:bg-red-600 transition-colors inline-flex items-center justify-center">
               Delete my account
             </AlertDialogTrigger>
@@ -336,9 +338,27 @@ export default function AccountPage() {
                 <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                 <AlertDialogDescription>This will permanently delete your account and all your data. This cannot be undone.</AlertDialogDescription>
               </AlertDialogHeader>
+              <div className="space-y-2">
+                <Label htmlFor="delete-password">Confirm your password</Label>
+                <Input
+                  id="delete-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Current password"
+                  className="rounded-xl"
+                />
+              </div>
               <AlertDialogFooter>
                 <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => deleteMutation.mutate()} className="rounded-xl bg-destructive hover:bg-destructive/90">Delete account</AlertDialogAction>
+                <AlertDialogAction
+                  disabled={!deletePassword || deleteMutation.isPending}
+                  onClick={(e) => { e.preventDefault(); deleteMutation.mutate(deletePassword) }}
+                  className="rounded-xl bg-destructive hover:bg-destructive/90"
+                >
+                  {deleteMutation.isPending ? 'Deleting…' : 'Delete account'}
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

@@ -13,7 +13,7 @@ export default function MyPostsPage() {
   const { user } = useAuthStore()
   const [modalOpen, setModalOpen] = useState(false)
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey,
     queryFn: () => getMyPosts().then((r) => r.data),
   })
@@ -53,7 +53,17 @@ export default function MyPostsPage() {
         </div>
       )}
 
-      {!isLoading && posts.length === 0 && (
+      {!isLoading && isError && (
+        <div
+          className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-12 text-center space-y-2"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
+        >
+          <div className="text-5xl">⚠️</div>
+          <p className="text-gray-500 dark:text-gray-400">Could not load your posts. Please try again.</p>
+        </div>
+      )}
+
+      {!isLoading && !isError && posts.length === 0 && (
         <div
           className="scale-in bg-white dark:bg-[#242526] rounded-2xl p-12 text-center space-y-4"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
