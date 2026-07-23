@@ -83,7 +83,9 @@ export default function ShareModal({ open, onClose, post, feedQueryKey }) {
   const shareMutation = useMutation({
     mutationFn: () => createPost({
       body: shareBody.trim() || undefined,
-      shared_post_id: post?.uuid,
+      // The API validates shared_post_id as an integer and resolves it with
+      // Post::find(), so this must be the numeric id, not the uuid.
+      shared_post_id: post?.id,
       visibility: 'public',
     }),
     onSuccess: () => {
